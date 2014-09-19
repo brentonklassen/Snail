@@ -10,6 +10,18 @@ import tkinter.messagebox
 from tkinter import ttk
 
 
+def configureOrdersTree(ordersTree):
+
+    ordersTree['columns'] = ('merchantid', 'shortorderref', 'datestamp')
+    ordersTree.heading('merchantid', text='Merchant Id')
+    ordersTree.heading('shortorderref', text='Order')
+    ordersTree.heading('datestamp', text='Date')
+    ysb = ttk.Scrollbar(ordersFrame, command=ordersTree.yview)
+    ordersTree.configure(yscroll=ysb.set)
+    ysb.pack(side=tkinter.RIGHT, fill=tkinter.Y)
+    ordersTree.bind('<Double-1>', lambda event: editSelectedOrder(event,ordersTree))
+
+
 def populateOrdersTree(ordersTree):
 
     # get unshipped orders from db
@@ -49,23 +61,13 @@ tkinter.Button(buttonsFrame,text='Check BetaFresh',command=lambda: S.checkBF()).
 tkinter.Button(buttonsFrame,text='Check Lighttake',command=lambda: S.checkLTM()).pack(side=tkinter.LEFT)
 buttonsFrame.pack()
 
-# create orders tree
+# display unshipped orders in tree
 ordersFrame = tkinter.Frame(root)
 ordersTree = ttk.Treeview(ordersFrame)
-
-# configure tree
-ordersTree['columns'] = ('merchantid', 'shortorderref', 'datestamp')
-ordersTree.heading('merchantid', text='Merchant Id')
-ordersTree.heading('shortorderref', text='Order')
-ordersTree.heading('datestamp', text='Date')
-ysb = ttk.Scrollbar(ordersFrame, command=ordersTree.yview)
-ysb.pack(side=tkinter.RIGHT, fill=tkinter.Y)
-ordersTree.configure(yscroll=ysb.set)
-ordersTree.bind('<Double-1>', lambda event: editSelectedOrder(event,ordersTree))
-
-# populate and display tree
+configureOrdersTree(ordersTree)
 populateOrdersTree(ordersTree)
 ordersTree.pack()
 ordersFrame.pack()
 
+# run program
 root.mainloop()
