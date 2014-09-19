@@ -290,7 +290,43 @@ class Snail:
             self.orders.extend(LTM.getOrders(file, self.orderColumns))
             self.items.extend(LTM.getItems(file, self.itemColumns))
             self.packages.extend(LTM.getPackages(file, self.packageColumns))
-            
+
+
+    def checkDSOL(self):
+        for file in DSOL.getFiles():
+            orders = DSOL.getOrders(file,S.orderColumns)
+            items = DSOL.getItems(file,S.itemColumns)
+            packages = DSOL.getPackages(file,S.packageColumns)
+            errors = DSOL.getErrors()
+            if errors:
+                tkinter.messagebox.showinfo(message='\n'.join(errors))
+            self.importOrders(orders,items,packages)
+            DSOL.archiveFile(file)
+
+
+    def checkBF(self):
+        for file in BF.getFiles():
+            orders = BF.getOrders(file,S.orderColumns)
+            items = BF.getItems(file,S.itemColumns)
+            packages = BF.getPackages(file,S.packageColumns)
+            errors = BF.getErrors()
+            if errors:
+                tkinter.messagebox.showinfo(message='\n'.join(errors))
+            self.importOrders(orders,items,packages)
+            BF.archiveFile(file)
+
+
+    def checkLTM(self):
+        for file in LTM.getFiles():
+            orders = LTM.getOrders(file,S.orderColumns)
+            items = LTM.getItems(file,S.itemColumns)
+            packages = LTM.getPackages(file,S.packageColumns)
+            errors = LTM.getErrors()
+            if errors:
+                tkinter.messagebox.showinfo(message='\n'.join(errors))
+            self.importOrders(orders,items,packages)
+            BF.archiveFile(file)
+                
 
     def updateDatabase(self):
         
