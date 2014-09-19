@@ -10,27 +10,21 @@ import tkinter.messagebox
 from tkinter import ttk
 
 
-def populateOrdersTree(tree):
+def populateOrdersTree(ordersTree):
 
     # get unshipped orders from db
-    query = '''/* select orders with unshipped packages */
-    select distinct top(10) o.merchant, o.merchantid, o.shortOrderReference, o.dateStamp
+    query = '''select distinct o.merchant, o.merchantid, o.shortOrderReference, o.dateStamp
     from Snail.dbo.[Order] as o
     left join Snail.dbo.Package as p
             on o.merchantID = p.merchantID and o.shortOrderReference = p.shortOrderReference
     left join Snail.dbo.Shipment as s
             on p.merchantID = s.merchantID and p.shortOrderReference = s.shortOrderReference and p.packageNumber = s.packageNumber
-    where s.ShipmentId is null'''
+    where s.ShipmentId is null
+    order by o.dateStamp desc'''
     db.cur.execute(query)
 
     for row in db.cur.fetchall():
-        tree['columns'] = ('merchantid', 'shortorderref', 'datestamp')
-        tree.heading('merchantid', text='Merchant Id')
-        tree.heading('shortorderref', text='Order')
-        tree.heading('datestamp', text='Date')
-        tree.insert('', 'end', text=row[0], values=(row[1:]))
-
-    tree.bind('<Double-1>', lambda event: editSelectedOrder(event,tree))
+        ordersTree.insert('', 'end', text=row[0], values=(row[1:]))
 
 
 def editSelectedOrder(event,tree):
@@ -55,9 +49,21 @@ tkinter.Button(buttonsFrame,text='Check BetaFresh',command=lambda: S.checkBF()).
 tkinter.Button(buttonsFrame,text='Check Lighttake',command=lambda: S.checkLTM()).pack(side=tkinter.LEFT)
 buttonsFrame.pack()
 
-# display unshipped orders
+# create orders tree
 ordersFrame = tkinter.Frame(root)
 ordersTree = ttk.Treeview(ordersFrame)
+
+# configure tree
+ordersTree['columns'] = ('merchantid', 'shortorderref', 'datestamp')
+ordersTree.heading('merchantid', text='Merchant Id')
+ordersTree.heading('shortorderref', text='Order')
+ordersTree.heading('datestamp', text='Date')
+ysb = ttk.Scrollbar(ordersFrame, command=ordersTree.yview)
+ysb.pack(side=tkinter.RIGHT, fill=tkinter.Y)
+ordersTree.configure(yscroll=ysb.set)
+ordersTree.bind('<Double-1>', lambda event: editSelectedOrder(event,ordersTree))
+
+# populate and display tree
 populateOrdersTree(ordersTree)
 ordersTree.pack()
 ordersFrame.pack()
