@@ -10,6 +10,8 @@ import time
 import db
 import settings
 import orderEditor
+import tkinter
+import tkinter.messagebox
 
 # PARSING MODULES
 import DSOL 
@@ -22,7 +24,7 @@ class Snail:
 
     def __init__(self):
 
-        self.version = '1.0.8'
+        self.version = '1.1.0'
         
         self.orderColumns = ["merchant",
             "merchantID",
@@ -152,6 +154,16 @@ class Snail:
         if self.orderExists(merchant,order):
             orderEditor.editOrder(self,merchant,order)
         else: print('That order does not exist.')
+
+
+    def deleteOrder(self,merchantId,shortOrderRef):
+
+        db.cur.execute("delete from Snail.dbo.[Order] where merchantID=? and shortOrderReference=?",[merchantId,shortOrderRef])
+        db.cur.execute("delete from Snail.dbo.Item where merchantID=? and shortOrderReference=?",[merchantId,shortOrderRef])
+        db.cur.execute("delete from Snail.dbo.Package where merchantID=? and shortOrderReference=?",[merchantId,shortOrderRef])
+        db.cur.execute("delete from Snail.dbo.Shipment where merchantID=? and shortOrderReference=?",[merchantId,shortOrderRef])
+        db.cur.commit()
+        print('Deleted order ' + shortOrderRef + ' from merchant ' + str(merchantId))
 
             
     def bulkInFile(self, file, table):
@@ -395,8 +407,56 @@ class Snail:
         
         desktopfile = os.path.join(settings.get('basepath'),'..\pick_list.tsv')
         subprocess.call('bcp "' + pickQuery.replace('\n',' ') + '" queryout ' + desktopfile + ' -T -c', shell=True)
-            
 
+
+    def importOrders(self,orders,items,packages):
+        print('Importing orders...')
+        importedOrders = 0
+        for order in orders:
+
+            # check if this order is already in the db
+            db.cur.execute('select * from [order] where merchantid=? and shortorderreference=?',[order[1],order[3]])
+            if db.cur.fetchall():
+                answer = tkinter.messagebox.askquestion(message='Order '+order[3]+' already exists.\nWould you like to replace it?')
+                if answer=='yes':
+                    # delete the existing order and let the insert happen
+                    self.deleteOrder(order[1],order[3])
+                else:
+                    continue # skip the insert
+
+            itemRows = [i for i in items if i[0]==order[1] and i[1]==order[3]]
+            packageRows = [p for p in packages if p[0]==order[1] and p[1]==order[3]]
+
+            # insert order
+            insertQuery = '''insert into [Order]
+            (merchant,merchantID,completeOrderReference,shortOrderReference,
+            fullName,phoneNumber,emailAddress,address1,
+            address2,address3,town,region,postCode,country,packingSlip,dateStamp)
+            values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'''
+            db.cur.execute(insertQuery,order)
+
+            # insert item rows
+            for item in itemRows:
+                insertQuery = '''insert into Item
+                (merchantID,shortOrderReference,lineNumber,itemTitle,itemSKU,
+                itemQuantity,itemUnitCost,itemAttribKey,itemAttribVal,dateStamp)
+                values (?,?,?,?,?,?,?,?,?,?)'''
+                db.cur.execute(insertQuery,item)
+
+            # insert package rows
+            for package in packageRows:
+                insertQuery = '''insert into Package
+                (merchantID,shortOrderReference,packageNumber,returnCompany,returnAdd1,returnAdd2,returnCity,
+                returnState,returnZip,carrier,serviceClass,[length],width,height,[weight],[bulk],note,dateStamp)
+                values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'''
+                db.cur.execute(insertQuery,package)
+
+            db.cur.commit()
+            importedOrders += 1
+
+        tkinter.messagebox.showinfo(message="Imported "+str(importedOrders)+" orders!")
+            
+            
     def quitSnail(self):
         if self.orders or self.items or self.packages or self.shipments:
             response = input("\nThere is data in memory that will be lost if you exit.\nAre you sure you want to exit without sending it to the DB? [y/n] ")

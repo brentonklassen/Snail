@@ -13,6 +13,16 @@ import settings
 import mail
 
 
+# global list var for errors
+errors = list()
+
+
+def getErrors():
+    errorsToReturn = tuple(errors)
+    del errors[:]
+    return errorsToReturn
+
+
 def email(body):
     if settings.isset('mailBFto'):
         to = settings.get('mailBFto')
@@ -50,7 +60,6 @@ def archiveFile(path):
 
 def getOrders(path, columns):
     with open(path) as file:
-        errors = list()
         reader = csv.reader(file,delimiter=';') # create a CSV reader object
         parsedRows = list() # create a list to hold the new rows
         next(reader) # skip header row

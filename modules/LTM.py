@@ -9,6 +9,17 @@ import collections
 import validate
 import settings
 
+
+# global list var for errors
+errors = list()
+
+
+def getErrors():
+    errorsToReturn = tuple(errors)
+    del errors[:]
+    return errorsToReturn
+
+
 def getFiles():
 
     # source dir
@@ -40,7 +51,6 @@ def archiveFile(path):
 
 def getOrders(path, columns):
     with open(path) as file:
-        errors = list()
         prevRow = list()
         parsedRows = list()
         reader = csv.reader(file)

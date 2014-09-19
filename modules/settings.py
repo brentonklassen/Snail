@@ -22,7 +22,7 @@ with open(settingsPath) as f:
 
 
 def isset(key):
-    return (key in setting) and settings[key]
+    return (key in settings) and settings[key]
 
 
 def get(key):

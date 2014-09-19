@@ -12,6 +12,13 @@ import settings
 import mail
 from fractions import Fraction
 
+# global list var for errors
+errors = list()
+
+def getErrors():
+    errorsToReturn = tuple(errors)
+    del errors[:]
+    return errorsToReturn
 
 def email(body):
     if settings.isset('mailDSOLto'):
@@ -50,7 +57,6 @@ def archiveFile(path):
 
 def getOrders(path, columns):
     with open(path) as file:
-        errors = list()
         reader = csv.reader(file) # create a CSV reader object
         parsedRows = list() # create a list to hold the new rows
         next(reader) # skip header row
@@ -358,7 +364,7 @@ def getPackages(path, columns):
                 newRow['note'] = 'Dim add'
 
             else:
-                print(newRow['shortOrderReference'] + ' had more than 2 items...not sure how to ship...')
+                continue # don't create a package
 
 
         if len(columns) == len(newRow):

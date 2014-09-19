@@ -176,8 +176,7 @@ def displayPackages(root, merchantId, shortOrderRef):
     for row in rows:
 
         # check for shipment
-        query = "select * from Shipment where merchantID = "+str(merchantId)+" and shortOrderReference = '"+shortOrderRef+"' and packageNumber = "+str(row[0])
-        db.cur.execute(query)
+        db.cur.execute("select * from Shipment where merchantID=? and shortOrderReference=? and packageNumber=?",[merchantId,shortOrderRef,row[0]])
         shipment = db.cur.fetchall()
 
         # create list of package widgets
@@ -269,14 +268,8 @@ def updatePackage(root,merchantId,shortOrderRef):
 
 def deleteOrder(root,merchantId,shortOrderRef):
 
-    db.cur.execute("delete from Snail.dbo.[Order] where merchantID=? and shortOrderReference=?",[merchantId,shortOrderRef])
-    db.cur.execute("delete from Snail.dbo.Item where merchantID=? and shortOrderReference=?",[merchantId,shortOrderRef])
-    db.cur.execute("delete from Snail.dbo.Package where merchantID=? and shortOrderReference=?",[merchantId,shortOrderRef])
-    db.cur.execute("delete from Snail.dbo.Shipment where merchantID=? and shortOrderReference=?",[merchantId,shortOrderRef])
-    db.cur.commit()
-
+    root.Snail.deleteOrder(merchantId,shortOrderRef)
     root.destroy()
-    print('Deleted order ' + shortOrderRef + ' from merchant ' + str(merchantId))
 
 
 def deleteItem(root, merchantId, shortOrderRef, lineNum):
