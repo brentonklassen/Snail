@@ -44,21 +44,19 @@ def editSelectedOrder(event,tree):
     order = tree.item(treeSelection)['values']
     merchantid = order[0]
     shortorderref = order[1]
-    orderEditor.editOrder(S,merchantid,shortorderref)
-        
+    orderEditor.editOrder(root,merchantid,shortorderref)
 
-# create instance of Snail
-S = Snail()
 
 # create root window
 root = tkinter.Tk()
-root.title('Snail v' + S.version)
+root.Snail = Snail() # bind Snail instance to root
+root.title('Snail v' + root.Snail.version)
 
 # display buttons
 buttonsFrame = tkinter.Frame(root)
-tkinter.Button(buttonsFrame,text='Check DanceShoesOnline',command=lambda: S.checkDSOL()).pack(side=tkinter.LEFT)
-tkinter.Button(buttonsFrame,text='Check BetaFresh',command=lambda: S.checkBF()).pack(side=tkinter.LEFT)
-tkinter.Button(buttonsFrame,text='Check Lighttake',command=lambda: S.checkLTM()).pack(side=tkinter.LEFT)
+tkinter.Button(buttonsFrame,text='Check DanceShoesOnline',command=lambda: root.Snail.checkDSOL()).pack(side=tkinter.LEFT)
+tkinter.Button(buttonsFrame,text='Check BetaFresh',command=lambda: root.Snail.checkBF()).pack(side=tkinter.LEFT)
+tkinter.Button(buttonsFrame,text='Check Lighttake',command=lambda: root.Snail.checkLTM()).pack(side=tkinter.LEFT)
 buttonsFrame.pack()
 
 # display unshipped orders in tree

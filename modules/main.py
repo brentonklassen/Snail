@@ -163,7 +163,7 @@ class Snail:
         db.cur.execute("delete from Snail.dbo.Package where merchantID=? and shortOrderReference=?",[merchantId,shortOrderRef])
         db.cur.execute("delete from Snail.dbo.Shipment where merchantID=? and shortOrderReference=?",[merchantId,shortOrderRef])
         db.cur.commit()
-        print('Deleted order ' + shortOrderRef + ' from merchant ' + str(merchantId))
+        print('Deleted order ' + str(shortOrderRef) + ' from merchant ' + str(merchantId))
 
             
     def bulkInFile(self, file, table):

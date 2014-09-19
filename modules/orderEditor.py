@@ -3,33 +3,30 @@ import tkinter
 import tkinter.messagebox
 
 
-def editOrder(Snail,merchantId,shortOrderRef):
-    root = tkinter.Tk()
-    root.title(str(merchantId) + ' : ' + str(shortOrderRef))
-    root.orderWidgets = list()
-    root.itemWidgets = list()
-    root.packageWidgets = list()
-    root.shipmentWidgets = list()
-    root.Snail = Snail
+def editOrder(root,merchantId,shortOrderRef):
+    root.win = tkinter.Toplevel(root)
+    root.win.title(str(merchantId) + ' : ' + str(shortOrderRef))
+    root.win.orderWidgets = list()
+    root.win.itemWidgets = list()
+    root.win.packageWidgets = list()
+    root.win.shipmentWidgets = list()
     
     displayOrderDetails(root,merchantId,shortOrderRef)
     displayItems(root,merchantId,shortOrderRef)
     displayPackages(root,merchantId,shortOrderRef)
 
     # display buttons
-    buttonsFrame = tkinter.Frame(root)
+    buttonsFrame = tkinter.Frame(root.win)
     tkinter.Button(buttonsFrame,text='Save order',command=lambda: saveOrder(root,merchantId,shortOrderRef)).pack(side=tkinter.LEFT)
     tkinter.Button(buttonsFrame,text='Delete order',command=lambda: deleteOrder(root,merchantId,shortOrderRef)).pack(side=tkinter.LEFT)
-    tkinter.Button(buttonsFrame,text='Print packing slip',command=lambda: Snail.printPackingSlips(merchantId,shortOrderRef)).pack(side=tkinter.LEFT)
+    tkinter.Button(buttonsFrame,text='Print packing slip',command=lambda: root.Snail.printPackingSlips(merchantId,shortOrderRef)).pack(side=tkinter.LEFT)
     buttonsFrame.pack(pady=10)
-    
-    root.mainloop()
     
 
 def displayOrderDetails(root,merchantId,shortOrderRef):
 
     # create order details frame
-    orderDetailsFrame = tkinter.Frame(root)
+    orderDetailsFrame = tkinter.Frame(root.win)
     nextRow = 0
     tkinter.Label(orderDetailsFrame,text='ORDER DETAILS').grid(row=nextRow,column=0,columnspan=3,sticky='w',padx=5)
     nextRow+=1
@@ -59,7 +56,7 @@ def displayOrderDetails(root,merchantId,shortOrderRef):
     row = rows[0] # grab first (and only) row
 
     # create list of widgets
-    root.orderWidgets = [
+    root.win.orderWidgets = [
         tkinter.Label(orderDetailsFrame,text=row[0]), # merchant
         tkinter.Label(orderDetailsFrame,text=row[1]), # order number
         tkinter.Entry(orderDetailsFrame,textvariable=tkinter.StringVar(value=row[2]),width=30), # full name
@@ -75,7 +72,7 @@ def displayOrderDetails(root,merchantId,shortOrderRef):
 
     # display orderWidgets
     nextCol=0
-    for widget in root.orderWidgets:
+    for widget in root.win.orderWidgets:
         widget.grid(row=nextRow,column=nextCol,sticky='w',padx=5)
         nextCol+=1
 
@@ -85,7 +82,7 @@ def displayOrderDetails(root,merchantId,shortOrderRef):
 def displayItems(root,merchantId,shortOrderRef):
 
     # create items frame
-    itemsFrame = tkinter.Frame(root)
+    itemsFrame = tkinter.Frame(root.win)
     nextRow = 0
     tkinter.Label(itemsFrame,text='ITEMS').grid(row=nextRow,column=0,columnspan=3,sticky='w',padx=5)
     nextRow+=1
@@ -121,7 +118,7 @@ def displayItems(root,merchantId,shortOrderRef):
     for row in rows:
 
         # create list of widgets
-        root.itemWidgets.append([
+        root.win.itemWidgets.append([
             tkinter.Label(itemsFrame,text=row[0]), # line number
             tkinter.Entry(itemsFrame,textvariable=tkinter.StringVar(value=row[1]),width=5), # quantity
             tkinter.Entry(itemsFrame,textvariable=tkinter.StringVar(value=row[2]),width=40), # item title
@@ -133,7 +130,7 @@ def displayItems(root,merchantId,shortOrderRef):
         ])
 
     # display itemWidgets
-    for row in root.itemWidgets:
+    for row in root.win.itemWidgets:
         nextCol=0
         for widget in row:
             widget.grid(row=nextRow,column=nextCol,sticky='w',padx=5)
@@ -149,7 +146,7 @@ def displayItems(root,merchantId,shortOrderRef):
 def displayPackages(root, merchantId, shortOrderRef):
 
     # create packages frame
-    packagesFrame = tkinter.Frame(root)
+    packagesFrame = tkinter.Frame(root.win)
     nextRow = 0
     tkinter.Label(packagesFrame,text='PACKAGES (dimensions are in inches and pounds)').grid(row=nextRow,column=0,columnspan=5,sticky='w',padx=5)
     nextRow += 1
@@ -180,7 +177,7 @@ def displayPackages(root, merchantId, shortOrderRef):
         shipment = db.cur.fetchall()
 
         # create list of package widgets
-        root.packageWidgets.append([
+        root.win.packageWidgets.append([
             tkinter.Label(packagesFrame,text=row[0]), # package number
             tkinter.Entry(packagesFrame,textvariable=tkinter.StringVar(value=row[1]),width=5), # carrier
             tkinter.Entry(packagesFrame,textvariable=tkinter.StringVar(value=row[2]),width=5), # service class
@@ -196,7 +193,7 @@ def displayPackages(root, merchantId, shortOrderRef):
         ])
 
     # display package widgets
-    for row in root.packageWidgets:
+    for row in root.win.packageWidgets:
         nextCol = 0
         for widget in row:
             widget.grid(row=nextRow,column=nextCol,sticky='w',padx=5)
@@ -213,19 +210,19 @@ def saveOrder(root,merchantId,shortOrderRef):
     updateOrderDetails(root,merchantId,shortOrderRef)
     updateItem(root,merchantId,shortOrderRef)
     updatePackage(root,merchantId,shortOrderRef)
-    root.destroy()
+    root.win.destroy()
 
 
 def updateOrderDetails(root,merchantId,shortOrderRef):
 
-    name = root.orderWidgets[2].get()
-    address1 = root.orderWidgets[3].get()
-    address2 = root.orderWidgets[4].get()
-    town = root.orderWidgets[5].get()
-    region = root.orderWidgets[6].get()
-    postCode = root.orderWidgets[7].get()
-    country = root.orderWidgets[8].get()
-    packingSlip = str(1 if root.orderWidgets[9].cget('text') == 'Yes' else 0)
+    name = root.win.orderWidgets[2].get()
+    address1 = root.win.orderWidgets[3].get()
+    address2 = root.win.orderWidgets[4].get()
+    town = root.win.orderWidgets[5].get()
+    region = root.win.orderWidgets[6].get()
+    postCode = root.win.orderWidgets[7].get()
+    country = root.win.orderWidgets[8].get()
+    packingSlip = str(1 if root.win.orderWidgets[9].cget('text') == 'Yes' else 0)
 
     updateQuery = "update [order] set  fullName=?, address1=?, address2=?, town=?, region=?, postCode=?, country=?, packingSlip=? \
     where merchantid=? and shortOrderReference=?"
@@ -235,7 +232,7 @@ def updateOrderDetails(root,merchantId,shortOrderRef):
 
 def updateItem(root,merchantId,shortOrderRef):
 
-    for row in root.itemWidgets:
+    for row in root.win.itemWidgets:
         lineNum = row[0].cget('text')
         quantity = row[1].get()
         itemTitle = row[2].get()
@@ -249,7 +246,7 @@ def updateItem(root,merchantId,shortOrderRef):
 
 def updatePackage(root,merchantId,shortOrderRef):
 
-    for row in root.packageWidgets:
+    for row in root.win.packageWidgets:
         packageNum = row[0].cget('text')
         carrier = row[1].get()
         serviceClass = row[2].get()
@@ -269,10 +266,10 @@ def updatePackage(root,merchantId,shortOrderRef):
 def deleteOrder(root,merchantId,shortOrderRef):
 
     root.Snail.deleteOrder(merchantId,shortOrderRef)
-    root.destroy()
+    root.win.destroy()
 
 
-def deleteItem(root, merchantId, shortOrderRef, lineNum):
+def deleteItem(root,merchantId,shortOrderRef,lineNum):
 
     saveOrder(root,merchantId,shortOrderRef)
 
@@ -289,7 +286,7 @@ def deleteItem(root, merchantId, shortOrderRef, lineNum):
         else:
             lineExists = False
             
-    editOrder(root.Snail,merchantId,shortOrderRef)
+    editOrder(root,merchantId,shortOrderRef)
 
 
 def deletePackage(root,merchantId,shortOrderRef,packageNum):
@@ -310,7 +307,7 @@ def deletePackage(root,merchantId,shortOrderRef,packageNum):
         else:
             packageExists = False
 
-    editOrder(root.Snail,merchantId,shortOrderRef)
+    editOrder(root,merchantId,shortOrderRef)
 
 
 def addItem(root,merchantId,shortOrderRef):
@@ -328,7 +325,7 @@ def addItem(root,merchantId,shortOrderRef):
     db.cur.execute("insert into item (merchantid,shortorderreference,linenumber,datestamp) values (?,?,?,getdate())",[merchantId,shortOrderRef,lineNum])
     db.cur.commit()
     
-    editOrder(root.Snail,merchantId,shortOrderRef)
+    editOrder(root,merchantId,shortOrderRef)
 
 def addPackage(root,merchantId,shortOrderRef):
 
@@ -345,7 +342,7 @@ def addPackage(root,merchantId,shortOrderRef):
     db.cur.execute("insert into package (merchantid,shortorderreference,packagenumber,datestamp) values (?,?,?,getdate())",[merchantId,shortOrderRef,packageNum])
     db.cur.commit()
 
-    editOrder(root.Snail,merchantId,shortOrderRef)
+    editOrder(root,merchantId,shortOrderRef)
 
 
 def addShipment(root,merchantId,shortOrderRef,packageNum):
