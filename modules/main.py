@@ -9,7 +9,6 @@ import shutil
 import time
 import db
 import settings
-import orderEditor
 import tkinter
 import tkinter.messagebox
 

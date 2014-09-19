@@ -3,69 +3,80 @@ import db
 import DSOL
 import BF
 import LTM
-import orderEditor
+from oe import OrderEditor
 import os
 import tkinter
 import tkinter.messagebox
 from tkinter import ttk
 
+class SnailGui:
 
-def configureOrdersTree(ordersTree):
+    def __init__(self,master):
+        
+        self.master = master
+        self.Snail = Snail()
+        self.master.title('Snail v' + self.Snail.version)
+        self.orderEditor = OrderEditor(self)
 
-    ordersTree['columns'] = ('merchantid', 'shortorderref', 'datestamp')
-    ordersTree.heading('merchantid', text='Merchant Id')
-    ordersTree.heading('shortorderref', text='Order')
-    ordersTree.heading('datestamp', text='Date')
-    ysb = ttk.Scrollbar(ordersFrame, command=ordersTree.yview)
-    ordersTree.configure(yscroll=ysb.set)
-    ysb.pack(side=tkinter.RIGHT, fill=tkinter.Y)
-    ordersTree.bind('<Double-1>', lambda event: editSelectedOrder(event,ordersTree))
+        # display buttons
+        self.buttonsFrame = tkinter.Frame(self.master)
+        tkinter.Button(self.buttonsFrame,text='Check DanceShoesOnline',command=lambda: self.Snail.checkDSOL()).pack(side=tkinter.LEFT)
+        tkinter.Button(self.buttonsFrame,text='Check BetaFresh',command=lambda: self.Snail.checkBF()).pack(side=tkinter.LEFT)
+        tkinter.Button(self.buttonsFrame,text='Check Lighttake',command=lambda: self.Snail.checkLTM()).pack(side=tkinter.LEFT)
+        self.buttonsFrame.pack()
 
+        # display unshipped orders in tree
+        self.ordersFrame = tkinter.Frame(self.master)
+        self.ordersTree = ttk.Treeview(self.ordersFrame)
+        self.configureOrdersTree()
+        self.populateOrdersTree()
+        self.ordersTree.pack()
+        self.ordersFrame.pack()
+        
+        
+    def configureOrdersTree(self):
 
-def populateOrdersTree(ordersTree):
-
-    # get unshipped orders from db
-    query = '''select distinct o.merchant, o.merchantid, o.shortOrderReference, o.dateStamp
-    from Snail.dbo.[Order] as o
-    left join Snail.dbo.Package as p
-            on o.merchantID = p.merchantID and o.shortOrderReference = p.shortOrderReference
-    left join Snail.dbo.Shipment as s
-            on p.merchantID = s.merchantID and p.shortOrderReference = s.shortOrderReference and p.packageNumber = s.packageNumber
-    where s.ShipmentId is null
-    order by o.dateStamp desc'''
-    db.cur.execute(query)
-
-    for row in db.cur.fetchall():
-        ordersTree.insert('', 'end', text=row[0], values=(row[1:]))
-
-
-def editSelectedOrder(event,tree):
-    treeSelection = tree.selection()[0]
-    order = tree.item(treeSelection)['values']
-    merchantid = order[0]
-    shortorderref = order[1]
-    orderEditor.editOrder(root,merchantid,shortorderref)
+        self.ordersTree['columns'] = ('merchantid', 'shortorderref', 'datestamp')
+        self.ordersTree.heading('merchantid', text='Merchant Id')
+        self.ordersTree.heading('shortorderref', text='Order')
+        self.ordersTree.heading('datestamp', text='Date')
+        ysb = ttk.Scrollbar(self.ordersFrame, command=self.ordersTree.yview)
+        self.ordersTree.configure(yscroll=ysb.set)
+        ysb.pack(side=tkinter.RIGHT, fill=tkinter.Y)
+        self.ordersTree.bind('<Double-1>', lambda event: self.editSelectedOrder())
 
 
-# create root window
+    def populateOrdersTree(self):
+
+        # empty tree
+        for child in self.ordersTree.get_children():
+            self.ordersTree.delete(child)
+            
+        # get unshipped orders from db
+        query = '''select distinct o.merchant, o.merchantid, o.shortOrderReference, o.dateStamp
+        from Snail.dbo.[Order] as o
+        left join Snail.dbo.Package as p
+                on o.merchantID = p.merchantID and o.shortOrderReference = p.shortOrderReference
+        left join Snail.dbo.Shipment as s
+                on p.merchantID = s.merchantID and p.shortOrderReference = s.shortOrderReference and p.packageNumber = s.packageNumber
+        where s.ShipmentId is null
+        order by o.dateStamp desc'''
+        db.cur.execute(query)
+
+        # insert these orders into tree
+        for row in db.cur.fetchall():
+            self.ordersTree.insert('', 'end', text=row[0], values=(row[1:]))
+
+
+    def editSelectedOrder(self):
+        treeSelection = self.ordersTree.selection()[0]
+        order = self.ordersTree.item(treeSelection)['values']
+        merchantid = order[0]
+        shortorderref = order[1]
+        self.orderEditor.edit(merchantid,shortorderref)
+        
+        
+#run
 root = tkinter.Tk()
-root.Snail = Snail() # bind Snail instance to root
-root.title('Snail v' + root.Snail.version)
-
-# display buttons
-buttonsFrame = tkinter.Frame(root)
-tkinter.Button(buttonsFrame,text='Check DanceShoesOnline',command=lambda: root.Snail.checkDSOL()).pack(side=tkinter.LEFT)
-tkinter.Button(buttonsFrame,text='Check BetaFresh',command=lambda: root.Snail.checkBF()).pack(side=tkinter.LEFT)
-tkinter.Button(buttonsFrame,text='Check Lighttake',command=lambda: root.Snail.checkLTM()).pack(side=tkinter.LEFT)
-buttonsFrame.pack()
-
-# display unshipped orders in tree
-ordersFrame = tkinter.Frame(root)
-ordersTree = ttk.Treeview(ordersFrame)
-configureOrdersTree(ordersTree)
-populateOrdersTree(ordersTree)
-ordersTree.pack()
-ordersFrame.pack()
-
-# run program
+SGUI = SnailGui(root)
 root.mainloop()
