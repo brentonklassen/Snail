@@ -70,72 +70,6 @@ class Main:
             'note']
 
 
-    def writeOutTSV(self, path, columns, lines):
-
-        if os.path.isfile(path):
-            print("Oops, writeOutTSV function tried to overwrite an existing file")
-            quit()
-            
-        with open(path, 'w', newline='') as outputfile:
-            writer = csv.writer(outputfile, delimiter='\t', quoting=csv.QUOTE_NONE)
-            writer.writerow(columns)
-            for row in lines:
-                writer.writerow(row)
-
-
-    def exportQuery(self, query, filename):
-
-        # query out the data
-        subprocess.call('bcp "' + query + '" queryout ' + os.path.join('_work_files',filename) + ' -T -c', shell=True)
-        
-        with open(os.path.join('_work_files',filename)) as oldFile:
-
-            lines = oldFile.readlines()
-            
-            if lines:
-
-                # parse query to get col names
-                colNames = query[:query.find('from')]
-                colNames = [col.split('.')[-1].strip() for col in colNames.split(',')]
-                colNames = '\t'.join(colNames)
-
-                # create new file with col names
-                newLines = [colNames + '\n']
-                newLines.extend(lines)
-
-                with open(filename, 'w') as newFile:
-                    newFile.writelines(newLines)
-
-        os.remove(os.path.join('_work_files',filename))
-
-
-    def displayQuery(self, query):
-        subprocess.call('sqlcmd -Q "' + query + '"', shell=True)
-
-
-    def displayOrder(self, merchantId, shortOrderRef):
-
-        orderQuery = "select fullName, dateStamp \
-        from Snail.dbo.[Order] \
-        where merchantID = " + merchantId + " and shortOrderReference = '" + shortOrderRef + "'"
-
-        itemQuery = "select lineNumber, itemSKU, itemAttribKey, itemAttribVal \
-        from Snail.dbo.Item \
-        where merchantID = " + merchantId + " and shortOrderReference = '" + shortOrderRef + "'"
-
-        print("\nOrder " + shortOrderRef + " from merchant " + merchantId + "\n")
-        self.displayQuery(orderQuery)
-        print("\nItems\n")
-        self.displayQuery(itemQuery)
-
-    def editOrder(self):
-        merchant = input('What merchant? ')
-        order = input('What order? ')
-        if self.orderExists(merchant,order):
-            orderEditor.editOrder(self,merchant,order)
-        else: print('That order does not exist.')
-
-
     def deleteOrder(self,merchantId,shortOrderRef):
 
         db.cur.execute("delete from Snail.dbo.[Order] where merchantID=? and shortOrderReference=?",[merchantId,shortOrderRef])
@@ -144,16 +78,6 @@ class Main:
         db.cur.execute("delete from Snail.dbo.Shipment where merchantID=? and shortOrderReference=?",[merchantId,shortOrderRef])
         db.cur.commit()
         print('Deleted order ' + str(shortOrderRef) + ' from merchant ' + str(merchantId))
-
-            
-    def bulkInFile(self, file, table):
-
-        # truncate table
-        subprocess.call('sqlcmd -Q "truncate table Snail.dbo.' + table + '" -o _work_files\\log.txt', shell=True)
-
-        if os.path.exists(os.path.join('_work_files',file)):
-            print("\nImporting " + file + " into " + table + "...")
-            subprocess.call('bcp Snail.dbo.' + table + ' in _work_files\\' + file + ' -F 2 -T -c', shell=True)
 
 
     def printPackingSlips(self, merchantid='', shortorderref=''):
@@ -240,12 +164,12 @@ class Main:
             query = (selectQuery+' '+whereUnshipped).replace('\n',' ')
 
         # write out packing slip data to file
-        subprocess.call('bcp "' + query.replace('\n',' ') + '" queryout _work_files\\packing_slips.tsv -T -c', shell=True)
+        subprocess.call('bcp "' + query.replace('\n',' ') + '" queryout _temp\\packing_slips.tsv -T -c', shell=True)
 
         # open print station
         print('Printing labels...')
         bartenderLabel = os.path.join(settings.get('basepath'),'packing_slips.btw')
-        dataFile = os.path.join(settings.get('basepath'),'modules\_work_files\packing_slips.tsv')        
+        dataFile = os.path.join(settings.get('basepath'),'modules\_temp\packing_slips.tsv')        
         subprocess.call('"C:\\Program Files (x86)\\Seagull\\BarTender Suite\\bartend.exe" /F="' + bartenderLabel + '" /D="' + dataFile + '"', shell=True)
 
 
@@ -295,80 +219,6 @@ class Main:
             tkinter.messagebox.showinfo(message='\n'.join(errors))
         self.importOrders(orders,items,packages)
         BF.archiveFile(file)
-                
-
-    def updateDatabase(self):
-        
-        # write the parsed data out to files
-        self.writeOutTSV("_work_files\\orders.tsv", self.orderColumns, self.orders)
-        self.writeOutTSV("_work_files\\items.tsv", self.itemColumns, self.items)
-        self.writeOutTSV("_work_files\\packages.tsv", self.packageColumns, self.packages)
-        self.writeOutTSV("_work_files\\shipments.tsv", self.shipmentColumns, self.shipments)
-    
-        # truncate staging tables and bulk the files into the db
-        self.bulkInFile('orders.tsv', 'OrderFile')
-        self.bulkInFile('items.tsv', 'ItemFile')
-        self.bulkInFile('packages.tsv', 'PackageFile')
-        self.bulkInFile('shipments.tsv', 'ShipmentFile')
-
-        # display duplicates
-        print("\nDuplicate orders\n")
-        duplicateOrderQuery = "select f.merchantID, f.shortOrderReference \
-            from Snail.dbo.OrderFile as f \
-            join Snail.dbo.[Order] as o \
-            on f.merchantID = o.merchantID and f.shortOrderReference = o.shortOrderReference"
-        self.displayQuery(duplicateOrderQuery)
-        print("\nDuplicate packages\n")
-        duplicatePackageQuery = "select f.merchantID, f.shortOrderReference, f.packageNumber \
-            from Snail.dbo.PackageFile as f \
-            join Snail.dbo.Package as p \
-            on f.merchantID = p.merchantID and f.shortOrderReference = p.shortOrderReference and coalesce(f.packageNumber,1) = p.packageNumber"
-        self.displayQuery(duplicatePackageQuery)
-        print("\nDuplicate shipments\n")
-        duplicateShipmentQuery = "select f.merchantID, f.shortOrderReference, f.packageNumber \
-            from Snail.dbo.ShipmentFile as f \
-            join Snail.dbo.Shipment as s \
-            on f.merchantID = s.merchantID and f.shortOrderReference = s.shortOrderReference and coalesce(f.packageNumber,1) = s.packageNumber"
-        self.displayQuery(duplicateShipmentQuery)
-
-        response = input("\nStop and do something about the duplicates? [y/n] ")
-
-        if response.upper() == "Y":
-            
-            # remove the files
-            os.remove("_work_files\\orders.tsv")
-            os.remove("_work_files\\items.tsv")
-            os.remove("_work_files\\packages.tsv")
-            os.remove("_work_files\\shipments.tsv")
-            return
-
-        # run sql saved proc to update db
-        print("\nUpdating the db...")
-        subprocess.call('sqlcmd -i _work_files\\loadData.sql -o _work_files\\log.txt', shell=True)
-
-        # remove the files
-        os.remove("_work_files\\orders.tsv")
-        os.remove("_work_files\\items.tsv")
-        os.remove("_work_files\\packages.tsv")
-        os.remove("_work_files\\shipments.tsv")
-
-        # empty the variables
-        del self.orders[:]
-        del self.items[:]
-        del self.packages[:]
-        del self.shipments[:]
-
-
-    def displayUnshippedPackages(self):
-        print("\nUnshipped Packages\n")
-        unshippedPackagesQuery = '''select p.merchantID, p.shortOrderReference, p.packageNumber, p.dateStamp
-        from Snail.dbo.Package as p
-        join Snail.dbo.[Order] as o
-                on p.merchantID = o.merchantID and p.shortOrderReference = o.shortOrderReference
-        left join Snail.dbo.Shipment as s
-                on p.merchantID = s.merchantID and p.shortOrderReference = s.shortOrderReference and p.packageNumber = s.packageNumber
-        where s.ShipmentId is null'''
-        self.displayQuery(unshippedPackagesQuery.replace('\n',''))
 
 
     def orderExists(self,merchantId,shortOrderRef):
@@ -501,12 +351,3 @@ class Main:
             importedOrders += 1
 
         tkinter.messagebox.showinfo(message="Imported "+str(importedOrders)+" orders!")
-            
-            
-    def quitSnail(self):
-        if self.orders or self.items or self.packages or self.shipments:
-            response = input("\nThere is data in memory that will be lost if you exit.\nAre you sure you want to exit without sending it to the DB? [y/n] ")
-            if response.upper() != "Y":
-                return False
-
-        return True

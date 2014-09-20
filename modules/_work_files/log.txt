@@ -1,9 +1,0 @@
-Changed database context to 'Snail'.
-
-(17 rows affected)
-
-(54 rows affected)
-
-(17 rows affected)
-
-(0 rows affected)
