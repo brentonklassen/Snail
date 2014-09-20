@@ -55,7 +55,7 @@ class Snail:
         if self.Main.orderExists(merchantId,shortOrderRef):
             self.OrderEditor.edit(merchantId,shortOrderRef)
         else:
-            print('You are a moron')
+            tkinter.messagebox.showinfo(message='That order does not exist')
         
 
 

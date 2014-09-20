@@ -93,16 +93,6 @@ class OrderEditor:
         tkinter.Label(self.itemsFrame,text='ITEMS').grid(row=nextRow,column=0,columnspan=3,sticky='w',padx=5)
         nextRow+=1
 
-        # display column headers
-        tkinter.Label(self.itemsFrame,text='Line').grid(row=nextRow,column=0,sticky='w',padx=5)
-        tkinter.Label(self.itemsFrame,text='Qty').grid(row=nextRow,column=1,sticky='w',padx=5)
-        tkinter.Label(self.itemsFrame,text='Item').grid(row=nextRow,column=2,sticky='w',padx=5)
-        tkinter.Label(self.itemsFrame,text='Sku').grid(row=nextRow,column=3,sticky='w',padx=5)
-        tkinter.Label(self.itemsFrame,text='Cost').grid(row=nextRow,column=4,sticky='w',padx=5)
-        tkinter.Label(self.itemsFrame,text='Attributes').grid(row=nextRow,column=5,sticky='w',padx=5)
-        tkinter.Label(self.itemsFrame,text='Date stamp').grid(row=nextRow,column=6,sticky='w',padx=5)
-        nextRow += 1
-
         # query db
         query = '''select distinct i.lineNumber, 
         i.itemQuantity, 
@@ -120,6 +110,17 @@ class OrderEditor:
         
         db.cur.execute(query,[self.merchantId,self.shortOrderRef])
         rows = db.cur.fetchall()
+
+        # display column headers
+        if rows:
+            tkinter.Label(self.itemsFrame,text='Line').grid(row=nextRow,column=0,sticky='w',padx=5)
+            tkinter.Label(self.itemsFrame,text='Qty').grid(row=nextRow,column=1,sticky='w',padx=5)
+            tkinter.Label(self.itemsFrame,text='Item').grid(row=nextRow,column=2,sticky='w',padx=5)
+            tkinter.Label(self.itemsFrame,text='Sku').grid(row=nextRow,column=3,sticky='w',padx=5)
+            tkinter.Label(self.itemsFrame,text='Cost').grid(row=nextRow,column=4,sticky='w',padx=5)
+            tkinter.Label(self.itemsFrame,text='Attributes').grid(row=nextRow,column=5,sticky='w',padx=5)
+            tkinter.Label(self.itemsFrame,text='Date stamp').grid(row=nextRow,column=6,sticky='w',padx=5)
+            nextRow += 1
         
         self.itemWidgets = list()
         for row in rows:
@@ -410,6 +411,8 @@ class OrderEditor:
         tkinter.Button(self.shipmentEditor,text='Save shipment',command=lambda: self.saveShipment(packageNum)).grid(row=nextRow,column=0,columnspan=3,sticky='w',padx=5)
         tkinter.Button(self.shipmentEditor,text='Delete shipment',command=lambda: self.deleteShipment(packageNum)).grid(row=nextRow,column=4,columnspan=2,sticky='e',padx=5)
 
+        self.shipmentEditor.focus()
+
         
     def saveShipment(self,packageNum):
 
@@ -419,6 +422,7 @@ class OrderEditor:
         trackingNumber = self.shipmentWidgets[3].get()
         weight = self.shipmentWidgets[4].get()
 
+        # make sure a carrier and tracking number were entered
         if not carrier or not trackingNumber:
             tkinter.messagebox.showinfo(message='You must enter both carrier and tracking number.')
             self.shipmentEditor.focus()
@@ -433,21 +437,26 @@ class OrderEditor:
                 self.shipmentEditor.focus()
 
             else:
+                # do the update
+                self.shipmentEditor.destroy()
+                self.save()
+                
                 updateQuery = "update shipment set carrier=?, trackingnumber=?, serviceclass=?, postage=?, billedweight=? \
                 where merchantid=? and shortorderreference=? and packagenumber=?"
                 db.cur.execute(updateQuery,[carrier,trackingNumber,serviceClass,postage,weight,self.merchantId,self.shortOrderRef,packageNum])
                 db.cur.commit()
 
-                self.shipmentEditor.destroy()
-                self.save()
+                self.Snail.populateOrdersTree()
                 self.edit(self.merchantId,self.shortOrderRef)
 
 
     def deleteShipment(self,packageNum):
 
+        self.shipmentEditor.destroy()
+        self.save()
+
         db.cur.execute("delete from shipment where merchantId=? and shortorderreference=? and packagenumber=?",[self.merchantId,self.shortOrderRef,packageNum])
         db.cur.commit()
 
-        self.shipmentEditor.destroy()
-        self.save()
+        self.Snail.populateOrdersTree()
         self.edit(self.merchantId,self.shortOrderRef)
