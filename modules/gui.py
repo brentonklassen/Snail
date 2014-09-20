@@ -1,9 +1,9 @@
 from main import Snail
+from ordereditor import OrderEditor
 import db
 import DSOL
 import BF
 import LTM
-from oe import OrderEditor
 import os
 import tkinter
 import tkinter.messagebox
@@ -11,9 +11,9 @@ from tkinter import ttk
 
 class SnailGui:
 
-    def __init__(self,master):
+    def __init__(self):
         
-        self.master = master
+        self.master = tkinter.Tk()
         self.Snail = Snail()
         self.master.title('Snail v' + self.Snail.version)
         self.orderEditor = OrderEditor(self)
@@ -32,6 +32,8 @@ class SnailGui:
         self.populateOrdersTree()
         self.ordersTree.pack()
         self.ordersFrame.pack()
+
+        self.master.mainloop()
         
         
     def configureOrdersTree(self):
@@ -76,7 +78,5 @@ class SnailGui:
         self.orderEditor.edit(merchantid,shortorderref)
         
         
-#run
-root = tkinter.Tk()
-SGUI = SnailGui(root)
-root.mainloop()
+# RUN
+SnailGui()

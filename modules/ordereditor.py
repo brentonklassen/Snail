@@ -22,10 +22,11 @@ class OrderEditor:
 
         # display buttons
         self.buttonsFrame = tkinter.Frame(self.master)
-        tkinter.Button(self.buttonsFrame,text='Save order',command=lambda: self.saveOrder()).pack(side=tkinter.LEFT)
+        tkinter.Button(self.buttonsFrame,text='Save order',command=lambda: self.save()).pack(side=tkinter.LEFT)
         tkinter.Button(self.buttonsFrame,text='Delete order',command=lambda: self.deleteOrder()).pack(side=tkinter.LEFT)
         tkinter.Button(self.buttonsFrame,text='Print packing slip',command=lambda: self.Snail.printPackingSlips(self.merchantId,self.shortOrderRef)).pack(side=tkinter.LEFT)
         self.buttonsFrame.pack(pady=10)
+        self.master.focus()
         
 
     def displayOrderDetails(self):
@@ -196,7 +197,8 @@ class OrderEditor:
                 tkinter.OptionMenu(self.packagesFrame,tkinter.StringVar(value=('Yes' if row[7] else 'No')),'Yes','No'), # bulk
                 tkinter.Entry(self.packagesFrame,textvariable=tkinter.StringVar(value=row[8]),width=15), # note
                 tkinter.Label(self.packagesFrame,text=row[9]), # date stamp
-                tkinter.Button(self.packagesFrame,text=('Edit shipment' if shipment else 'Add shipment'),command=lambda packageNum=row[0], shipment = shipment: editShipment(root,merchantId,shortOrderRef,packageNum) if shipment else addShipment(root,merchantId,shortOrderRef,packageNum)),
+                tkinter.Button(self.packagesFrame,text=('Edit shipment' if shipment else 'Add shipment'), \
+                               command=lambda packageNum=row[0], shipment = shipment: self.editShipment(packageNum) if shipment else self.addShipment(packageNum)),
                 tkinter.Button(self.packagesFrame,text='Remove package',command=lambda packageNum=row[0]: self.deletePackage(packageNum))
             ])
 
@@ -213,7 +215,7 @@ class OrderEditor:
         self.packagesFrame.pack(anchor='w',pady=10)
 
 
-    def saveOrder(self):
+    def save(self):
         
         self.updateOrderDetails()
         self.updateItem()
@@ -280,7 +282,7 @@ class OrderEditor:
 
     def deleteItem(self,lineNum):
 
-        self.saveOrder()
+        self.save()
 
         db.cur.execute("delete from Item where merchantid=? and shortorderreference=? and linenumber=?",[self.merchantId,self.shortOrderRef,lineNum])
         db.cur.commit()
@@ -300,7 +302,7 @@ class OrderEditor:
 
     def deletePackage(self,packageNum):
 
-        self.saveOrder()
+        self.save()
 
         db.cur.execute("delete from shipment where merchantid=? and shortorderreference=? and packagenumber=?",[self.merchantId,self.shortOrderRef,packageNum])
         db.cur.execute("delete from package where merchantid=? and shortorderreference=? and packagenumber=?",[self.merchantId,self.shortOrderRef,packageNum])
@@ -321,7 +323,7 @@ class OrderEditor:
 
     def addItem(self):
 
-        self.saveOrder()
+        self.save()
 
         lineNum = 0
         lineExists = True
@@ -338,7 +340,7 @@ class OrderEditor:
 
     def addPackage(self):
 
-        self.saveOrder()
+        self.save()
 
         packageNum = 0
         packageExists = True
@@ -354,98 +356,98 @@ class OrderEditor:
         self.edit(self.merchantId,self.shortOrderRef)
 
 
-    def addShipment(root,merchantId,shortOrderRef,packageNum):
+    def addShipment(self,packageNum):
 
-        db.cur.execute("insert into shipment (merchantid,shortorderreference,packagenumber,datestamp) values (?,?,?,getdate())",[merchantId,shortOrderRef,packageNum])
+        db.cur.execute("insert into shipment (merchantid,shortorderreference,packagenumber,datestamp) values (?,?,?,getdate())",[self.merchantId,self.shortOrderRef,packageNum])
         db.cur.commit()
 
-        editShipment(root,merchantId,shortOrderRef,packageNum)
+        self.editShipment(packageNum)
 
 
-    def editShipment(root,merchantId,shortOrderRef,packageNum):
+    def editShipment(self,packageNum):
 
         # create shipment editor window
-        root.shipmentEditor = tkinter.Toplevel(master=root)
+        self.shipmentEditor = tkinter.Toplevel(self.master)
         nextRow = 0
-        tkinter.Label(root.shipmentEditor,text='SHIPMENT '+str(packageNum)+' (weight is in ounces)').grid(row=nextRow,column=0,columnspan=5,sticky='w',padx=5)
+        tkinter.Label(self.shipmentEditor,text='SHIPMENT '+str(packageNum)+' (weight is in ounces)').grid(row=nextRow,column=0,columnspan=5,sticky='w',padx=5)
         nextRow += 1
 
         # display column headers
-        tkinter.Label(root.shipmentEditor,text='Carrier').grid(row=nextRow,column=0,sticky='w',padx=5)
-        tkinter.Label(root.shipmentEditor,text='Service').grid(row=nextRow,column=1,sticky='w',padx=5)
-        tkinter.Label(root.shipmentEditor,text='Postage').grid(row=nextRow,column=2,sticky='w',padx=5)
-        tkinter.Label(root.shipmentEditor,text='Tracking number').grid(row=nextRow,column=3,sticky='w',padx=5)
-        tkinter.Label(root.shipmentEditor,text='Weight').grid(row=nextRow,column=4,sticky='w',padx=5)
-        tkinter.Label(root.shipmentEditor,text='Date stamp').grid(row=nextRow,column=5,sticky='w',padx=5)
+        tkinter.Label(self.shipmentEditor,text='Carrier').grid(row=nextRow,column=0,sticky='w',padx=5)
+        tkinter.Label(self.shipmentEditor,text='Service').grid(row=nextRow,column=1,sticky='w',padx=5)
+        tkinter.Label(self.shipmentEditor,text='Postage').grid(row=nextRow,column=2,sticky='w',padx=5)
+        tkinter.Label(self.shipmentEditor,text='Tracking number').grid(row=nextRow,column=3,sticky='w',padx=5)
+        tkinter.Label(self.shipmentEditor,text='Weight').grid(row=nextRow,column=4,sticky='w',padx=5)
+        tkinter.Label(self.shipmentEditor,text='Date stamp').grid(row=nextRow,column=5,sticky='w',padx=5)
         nextRow += 1
 
         # query db
         query = "select carrier,serviceClass,postage,trackingNumber,billedWeight,dateStamp \
         from shipment where merchantID=? and shortOrderReference=? and packageNumber=?"
-        db.cur.execute(query,[merchantId,shortOrderRef,packageNum])
+        db.cur.execute(query,[self.merchantId,self.shortOrderRef,packageNum])
         rows = db.cur.fetchall()
         if len(rows) != 1:
             print('Huston, we have a problem')
             quit()
         shipment = rows[0]
 
-        root.shipmentEditor.shipmentWidgets = [
-            tkinter.Entry(root.shipmentEditor,textvariable=tkinter.StringVar(value=shipment[0]),width=5), # carrier
-            tkinter.Entry(root.shipmentEditor,textvariable=tkinter.StringVar(value=shipment[1]),width=5), # service class
-            tkinter.Entry(root.shipmentEditor,textvariable=tkinter.StringVar(value=shipment[2]),width=5), # postage
-            tkinter.Entry(root.shipmentEditor,textvariable=tkinter.StringVar(value=shipment[3]),width=20), # tracking number
-            tkinter.Entry(root.shipmentEditor,textvariable=tkinter.StringVar(value=shipment[4]),width=5), # weight
-            tkinter.Label(root.shipmentEditor,text=shipment[5]) # date stamp
+        self.shipmentWidgets = [
+            tkinter.Entry(self.shipmentEditor,textvariable=tkinter.StringVar(value=shipment[0]),width=5), # carrier
+            tkinter.Entry(self.shipmentEditor,textvariable=tkinter.StringVar(value=shipment[1]),width=5), # service class
+            tkinter.Entry(self.shipmentEditor,textvariable=tkinter.StringVar(value=shipment[2]),width=5), # postage
+            tkinter.Entry(self.shipmentEditor,textvariable=tkinter.StringVar(value=shipment[3]),width=20), # tracking number
+            tkinter.Entry(self.shipmentEditor,textvariable=tkinter.StringVar(value=shipment[4]),width=5), # weight
+            tkinter.Label(self.shipmentEditor,text=shipment[5]) # date stamp
         ]
         
         # display shipment widgets
         nextCol = 0
-        for widget in root.shipmentEditor.shipmentWidgets:
+        for widget in self.shipmentWidgets:
             widget.grid(row=nextRow,column=nextCol,sticky='w',padx=5)
             nextCol+=1
         nextRow += 1
 
-        tkinter.Button(root.shipmentEditor,text='Save shipment',command=lambda: saveShipment(root,merchantId,shortOrderRef,packageNum)).grid(row=nextRow,column=0,columnspan=3,sticky='w',padx=5)
-        tkinter.Button(root.shipmentEditor,text='Delete shipment',command=lambda: deleteShipment(root,merchantId,shortOrderRef,packageNum)).grid(row=nextRow,column=4,columnspan=2,sticky='e',padx=5)
+        tkinter.Button(self.shipmentEditor,text='Save shipment',command=lambda: self.saveShipment(packageNum)).grid(row=nextRow,column=0,columnspan=3,sticky='w',padx=5)
+        tkinter.Button(self.shipmentEditor,text='Delete shipment',command=lambda: self.deleteShipment(packageNum)).grid(row=nextRow,column=4,columnspan=2,sticky='e',padx=5)
 
         
-    def saveShipment(root,merchantId,shortOrderRef,packageNum):
+    def saveShipment(self,packageNum):
 
-        carrier = root.shipmentEditor.shipmentWidgets[0].get()
-        serviceClass = root.shipmentEditor.shipmentWidgets[1].get()
-        postage = root.shipmentEditor.shipmentWidgets[2].get()
-        trackingNumber = root.shipmentEditor.shipmentWidgets[3].get()
-        weight = root.shipmentEditor.shipmentWidgets[4].get()
+        carrier = self.shipmentWidgets[0].get()
+        serviceClass = self.shipmentWidgets[1].get()
+        postage = self.shipmentWidgets[2].get()
+        trackingNumber = self.shipmentWidgets[3].get()
+        weight = self.shipmentWidgets[4].get()
 
         if not carrier or not trackingNumber:
             tkinter.messagebox.showinfo(message='You must enter both carrier and tracking number.')
-            root.shipmentEditor.focus()
+            self.shipmentEditor.focus()
 
         else:
             
             # check to make sure this shipment does not already exist
             query = "select * from shipment where carrier=? and trackingnumber=? and (merchantid!=? or shortorderreference!=? or packagenumber!=?)"
-            db.cur.execute(query,[carrier,trackingNumber,merchantId,shortOrderRef,packageNum])
+            db.cur.execute(query,[carrier,trackingNumber,self.merchantId,self.shortOrderRef,packageNum])
             if db.cur.fetchall():
                 tkinter.messagebox.showinfo(message='That shipment already exists')
-                root.shipmentEditor.focus()
+                self.shipmentEditor.focus()
 
             else:
                 updateQuery = "update shipment set carrier=?, trackingnumber=?, serviceclass=?, postage=?, billedweight=? \
                 where merchantid=? and shortorderreference=? and packagenumber=?"
-                db.cur.execute(updateQuery,[carrier,trackingNumber,serviceClass,postage,weight,merchantId,shortOrderRef,packageNum])
+                db.cur.execute(updateQuery,[carrier,trackingNumber,serviceClass,postage,weight,self.merchantId,self.shortOrderRef,packageNum])
                 db.cur.commit()
 
-                root.shipmentEditor.destroy()
-                saveOrder(root,merchantId,shortOrderRef)
-                editOrder(root.Snail,merchantId,shortOrderRef)
+                self.shipmentEditor.destroy()
+                self.save()
+                self.edit(self.merchantId,self.shortOrderRef)
 
 
-    def deleteShipment(root,merchantId,shortOrderRef,packageNum):
+    def deleteShipment(self,packageNum):
 
-        db.cur.execute("delete from shipment where merchantId=? and shortorderreference=? and packagenumber=?",[merchantId,shortOrderRef,packageNum])
+        db.cur.execute("delete from shipment where merchantId=? and shortorderreference=? and packagenumber=?",[self.merchantId,self.shortOrderRef,packageNum])
         db.cur.commit()
 
-        root.shipmentEditor.destroy()
-        saveOrder(root,merchantId,shortOrderRef)
-        editOrder(root.Snail,merchantId,shortOrderRef)
+        self.shipmentEditor.destroy()
+        self.save()
+        self.edit(self.merchantId,self.shortOrderRef)
