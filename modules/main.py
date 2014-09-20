@@ -18,7 +18,7 @@ import BF
 import LTM
 
 
-class Snail:
+class Main:
     
 
     def __init__(self):

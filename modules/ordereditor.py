@@ -4,17 +4,17 @@ import tkinter.messagebox
 
 class OrderEditor:
 
-    def __init__(self,SnailGui):
+    def __init__(self,Snail):
 
-        self.SnailGui = SnailGui
-        self.Snail = SnailGui.Snail
+        self.Snail = Snail
+        self.Main = Snail.Main
 
 
     def edit(self,merchantId,shortOrderRef):
 
         self.merchantId = merchantId
         self.shortOrderRef = shortOrderRef
-        self.master = tkinter.Toplevel(self.SnailGui.master)
+        self.master = tkinter.Toplevel(self.Snail.master)
         self.master.title(str(self.merchantId) + ' : ' + str(self.shortOrderRef))
         self.displayOrderDetails()
         self.displayItems()
@@ -24,7 +24,7 @@ class OrderEditor:
         self.buttonsFrame = tkinter.Frame(self.master)
         tkinter.Button(self.buttonsFrame,text='Save order',command=lambda: self.save()).pack(side=tkinter.LEFT)
         tkinter.Button(self.buttonsFrame,text='Delete order',command=lambda: self.deleteOrder()).pack(side=tkinter.LEFT)
-        tkinter.Button(self.buttonsFrame,text='Print packing slip',command=lambda: self.Snail.printPackingSlips(self.merchantId,self.shortOrderRef)).pack(side=tkinter.LEFT)
+        tkinter.Button(self.buttonsFrame,text='Print packing slip',command=lambda: self.Main.printPackingSlips(self.merchantId,self.shortOrderRef)).pack(side=tkinter.LEFT)
         self.buttonsFrame.pack(pady=10)
         self.master.focus()
         
@@ -275,9 +275,9 @@ class OrderEditor:
 
     def deleteOrder(self):
 
-        self.Snail.deleteOrder(self.merchantId,self.shortOrderRef)
+        self.Main.deleteOrder(self.merchantId,self.shortOrderRef)
         self.master.destroy()
-        self.SnailGui.populateOrdersTree()
+        self.Snail.populateOrdersTree()
 
 
     def deleteItem(self,lineNum):

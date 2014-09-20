@@ -1,5 +1,5 @@
-from main import Snail
-from ordereditor import OrderEditor
+import main
+import ordereditor
 import db
 import DSOL
 import BF
@@ -9,20 +9,20 @@ import tkinter
 import tkinter.messagebox
 from tkinter import ttk
 
-class SnailGui:
+class Snail:
 
     def __init__(self):
         
         self.master = tkinter.Tk()
-        self.Snail = Snail()
-        self.master.title('Snail v' + self.Snail.version)
-        self.orderEditor = OrderEditor(self)
+        self.Main = main.Main()
+        self.master.title('Snail v' + self.Main.version)
+        self.OrderEditor = ordereditor.OrderEditor(self)
 
         # display buttons
         self.buttonsFrame = tkinter.Frame(self.master)
-        tkinter.Button(self.buttonsFrame,text='Check DanceShoesOnline',command=lambda: self.Snail.checkDSOL()).pack(side=tkinter.LEFT)
-        tkinter.Button(self.buttonsFrame,text='Check BetaFresh',command=lambda: self.Snail.checkBF()).pack(side=tkinter.LEFT)
-        tkinter.Button(self.buttonsFrame,text='Check Lighttake',command=lambda: self.Snail.checkLTM()).pack(side=tkinter.LEFT)
+        tkinter.Button(self.buttonsFrame,text='Check DanceShoesOnline',command=lambda: self.Main.checkDSOL()).pack(side=tkinter.LEFT)
+        tkinter.Button(self.buttonsFrame,text='Check BetaFresh',command=lambda: self.Main.checkBF()).pack(side=tkinter.LEFT)
+        tkinter.Button(self.buttonsFrame,text='Check Lighttake',command=lambda: self.Main.checkLTM()).pack(side=tkinter.LEFT)
         self.buttonsFrame.pack()
 
         # display unshipped orders in tree
@@ -75,8 +75,8 @@ class SnailGui:
         order = self.ordersTree.item(treeSelection)['values']
         merchantid = order[0]
         shortorderref = order[1]
-        self.orderEditor.edit(merchantid,shortorderref)
+        self.OrderEditor.edit(merchantid,shortorderref)
         
         
 # RUN
-SnailGui()
+Snail()
