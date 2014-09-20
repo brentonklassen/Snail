@@ -134,7 +134,7 @@ class Snail:
         treeSelection = self.ordersTree.selection()[0]
         order = self.ordersTree.item(treeSelection)['values']
         merchantid = order[0]
-        shortorderref = order[1]
+        shortorderref = str(order[1]) # explicitly tell Python to treat this as a str
         self.OrderEditor.edit(merchantid,shortorderref)
         
         
