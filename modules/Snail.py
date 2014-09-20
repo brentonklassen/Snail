@@ -26,21 +26,35 @@ class Snail:
         self.buttonsFrame.pack()
 
         # display unshipped orders in tree
+        self.displayOrdersTree()
+
+        # run
+        self.master.mainloop()
+
+
+    def displayOrdersTree(self):
+
         self.ordersFrame = tkinter.Frame(self.master)
         self.ordersTree = ttk.Treeview(self.ordersFrame)
+
+        self.statusFrame = tkinter.Frame(self.master)
+        self.statusLabel = tkinter.StringVar()
+        tkinter.Label(self.statusFrame, textvariable=self.statusLabel).pack()
+        
         self.configureOrdersTree()
         self.populateOrdersTree()
+        
         self.ordersTree.pack()
         self.ordersFrame.pack()
-
-        self.master.mainloop()
+        self.statusFrame.pack() 
         
         
     def configureOrdersTree(self):
 
-        self.ordersTree['columns'] = ('merchantid', 'shortorderref', 'datestamp')
+        self.ordersTree['columns'] = ('merchantid', 'shortorderref', 'fullname', 'datestamp')
         self.ordersTree.heading('merchantid', text='Merchant Id')
         self.ordersTree.heading('shortorderref', text='Order')
+        self.ordersTree.heading('fullname', text='Name')
         self.ordersTree.heading('datestamp', text='Date')
         ysb = ttk.Scrollbar(self.ordersFrame, command=self.ordersTree.yview)
         self.ordersTree.configure(yscroll=ysb.set)
@@ -55,19 +69,23 @@ class Snail:
             self.ordersTree.delete(child)
             
         # get unshipped orders from db
-        query = '''select distinct o.merchant, o.merchantid, o.shortOrderReference, o.dateStamp
+        query = '''select distinct o.merchant, o.merchantid, o.shortOrderReference, o.fullname, o.dateStamp
         from Snail.dbo.[Order] as o
         left join Snail.dbo.Package as p
                 on o.merchantID = p.merchantID and o.shortOrderReference = p.shortOrderReference
         left join Snail.dbo.Shipment as s
                 on p.merchantID = s.merchantID and p.shortOrderReference = s.shortOrderReference and p.packageNumber = s.packageNumber
         where s.ShipmentId is null
-        order by o.dateStamp desc'''
+        order by o.datestamp desc'''
         db.cur.execute(query)
+        orderRows = db.cur.fetchall()
 
         # insert these orders into tree
-        for row in db.cur.fetchall():
+        for row in orderRows:
             self.ordersTree.insert('', 'end', text=row[0], values=(row[1:]))
+
+        # update the status frame
+        self.statusLabel.set(str(len(orderRows))+' unshipped orders')
 
 
     def editSelectedOrder(self):

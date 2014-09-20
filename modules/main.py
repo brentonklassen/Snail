@@ -468,6 +468,7 @@ class Main:
             fullName,phoneNumber,emailAddress,address1,
             address2,address3,town,region,postCode,country,packingSlip,dateStamp)
             values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'''
+            # QUERY NEEDS WORK -- ADD GET DATE AND UPPER THINGS
             db.cur.execute(insertQuery,order)
 
             # insert item rows
