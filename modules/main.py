@@ -402,8 +402,7 @@ class Main:
 
 
     def orderExists(self,merchantId,shortOrderRef):
-        query = "select * from [order] where merchantid="+merchantId+" and shortOrderReference='"+shortOrderRef+"'"
-        db.cur.execute(query)
+        db.cur.execute("select * from [order] where merchantid=? and shortOrderReference=?",[merchantId,shortOrderRef])
         if len(db.cur.fetchall()) == 1: return True
         return False
 

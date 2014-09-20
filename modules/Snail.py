@@ -25,11 +25,38 @@ class Snail:
         tkinter.Button(self.buttonsFrame,text='Check Lighttake',command=lambda: self.Main.checkLTM()).pack(side=tkinter.LEFT)
         self.buttonsFrame.pack()
 
+        # display order lookup
+        self.displayOrderLookup()
+
         # display unshipped orders in tree
         self.displayOrdersTree()
 
         # run
         self.master.mainloop()
+
+
+    def displayOrderLookup(self):
+
+        self.lookupFrame = tkinter.Frame(self.master)
+        tkinter.Label(self.lookupFrame, text='Merchant Id:').pack(side=tkinter.LEFT)
+        self.merchantIdWidget = tkinter.Entry(self.lookupFrame,textvariable=tkinter.StringVar(),width=5)
+        self.merchantIdWidget.pack(side=tkinter.LEFT)
+        tkinter.Label(self.lookupFrame, text='Short order reference:').pack(side=tkinter.LEFT)
+        self.shortOrderRefWidget = tkinter.Entry(self.lookupFrame,textvariable=tkinter.StringVar())
+        self.shortOrderRefWidget.pack(side=tkinter.LEFT)
+        tkinter.Button(self.lookupFrame,text='Look up order', command=self.lookupOrder).pack(side=tkinter.LEFT)
+        self.lookupFrame.pack()
+
+
+    def lookupOrder(self):
+
+        merchantId = self.merchantIdWidget.get()
+        shortOrderRef = self.shortOrderRefWidget.get()
+        if self.Main.orderExists(merchantId,shortOrderRef):
+            self.OrderEditor.edit(merchantId,shortOrderRef)
+        else:
+            print('You are a moron')
+        
 
 
     def displayOrdersTree(self):
