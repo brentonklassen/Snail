@@ -77,6 +77,7 @@ def getOrders(path, columns):
             newRow["phoneNumber"] = "".join([char for char in row[18] if str.isdigit(char)])
             newRow["address1"] = validate.clean(row[13])
             newRow["town"] = validate.clean(row[14])
+            newRow['packingSlip'] = 0
             
             newRow["country"] = validate.country(row[17])
             if not newRow['country']:
@@ -98,8 +99,6 @@ def getOrders(path, columns):
                 msg += 'Could not validate post code: ' + row[16]
                 errors.append(msg)
                 continue
-            
-            newRow['packingSlip'] = 1
             
             if len(columns) == len(newRow):
                 parsedRows.append(list(newRow.values()))
