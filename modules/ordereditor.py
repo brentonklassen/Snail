@@ -219,8 +219,8 @@ class OrderEditor:
     def save(self):
         
         self.updateOrderDetails()
-        self.updateItem()
-        self.updatePackage()
+        self.updateItems()
+        self.updatePackages()
         self.master.destroy()
 
 
@@ -241,7 +241,7 @@ class OrderEditor:
         db.cur.commit()
 
 
-    def updateItem(self):
+    def updateItems(self):
 
         for row in self.itemWidgets:
             lineNum = row[0].cget('text')
@@ -255,7 +255,7 @@ class OrderEditor:
             db.cur.commit()
 
 
-    def updatePackage(self):
+    def updatePackages(self):
 
         for row in self.packageWidgets:
             packageNum = row[0].cget('text')
