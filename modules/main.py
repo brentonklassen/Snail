@@ -377,7 +377,7 @@ class Main:
         return False
 
 
-    def exportTodaysPickList(self):
+    def exportPickList(self):
         
         pickQuery = '''select (count(*)*i.itemQuantity) as qty,i.itemSKU,i.itemattribs from
         (

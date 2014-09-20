@@ -17,22 +17,22 @@ class Snail:
         self.Main = main.Main()
         self.master.title('Snail v' + self.Main.version)
         self.OrderEditor = ordereditor.OrderEditor(self)
+        
+        self.displayButtons()
+        self.displayOrderLookup()
+        self.displayOrdersTree()
 
-        # display buttons
+        self.master.mainloop()
+
+
+    def displayButtons(self):
         self.buttonsFrame = tkinter.Frame(self.master)
         tkinter.Button(self.buttonsFrame,text='Check DanceShoesOnline',command=self.checkDSOL).pack(side=tkinter.LEFT)
         tkinter.Button(self.buttonsFrame,text='Check BetaFresh',command=self.checkBF).pack(side=tkinter.LEFT)
         tkinter.Button(self.buttonsFrame,text='Check Lighttake',command=self.checkLTM).pack(side=tkinter.LEFT)
+        tkinter.Button(self.buttonsFrame,text='Export pick list',command=self.Main.exportPickList).pack(side=tkinter.LEFT)
+        tkinter.Button(self.buttonsFrame,text='Print packing slips',command = self.Main.printPackingSlips).pack(side=tkinter.LEFT)
         self.buttonsFrame.pack()
-
-        # display order lookup
-        self.displayOrderLookup()
-
-        # display unshipped orders in tree
-        self.displayOrdersTree()
-
-        # run
-        self.master.mainloop()
 
 
     def checkDSOL(self):
