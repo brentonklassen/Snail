@@ -49,14 +49,14 @@ def region(r, country='US'):
     
     if country == 'US':
         for state, abbrev in states:
-            if r.upper() == abbrev.upper():
+            if r.upper().replace('.','') == abbrev.upper():
                 return abbrev.upper()
             elif r.upper() == state.upper():
                 return abbrev.upper()
             
     elif country == 'CA':
         for province, abbrev in provinces:
-            if r.upper() == abbrev.upper():
+            if r.upper().replace('.','') == abbrev.upper():
                 return abbrev.upper()
             elif r.upper() == province.upper():
                 return abbrev.upper()

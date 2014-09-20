@@ -185,9 +185,10 @@ class Main:
         errors = DSOL.getErrors()
         if errors:
             tkinter.messagebox.showinfo(message='\n'.join(errors))
-        self.importOrders(orders,items,packages)
         DSOL.archiveFile(file)
-
+        
+        importedOrders = self.importOrders(orders,items,packages)
+        tkinter.messagebox.showinfo(message="Imported "+str(importedOrders)+" orders from '"+os.path.basename(file)+"'")
 
     def importBF(self):
         file = BF.getNextFile()
@@ -201,8 +202,10 @@ class Main:
         errors = BF.getErrors()
         if errors:
             tkinter.messagebox.showinfo(message='\n'.join(errors))
-        self.importOrders(orders,items,packages)
         BF.archiveFile(file)
+
+        importedOrders = self.importOrders(orders,items,packages)
+        tkinter.messagebox.showinfo(message="Imported "+str(importedOrders)+" orders from '"+os.path.basename(file)+"'")
 
 
     def importLTM(self):
@@ -217,8 +220,10 @@ class Main:
         errors = LTM.getErrors()
         if errors:
             tkinter.messagebox.showinfo(message='\n'.join(errors))
-        self.importOrders(orders,items,packages)
         BF.archiveFile(file)
+
+        importedOrders = self.importOrders(orders,items,packages)
+        tkinter.messagebox.showinfo(message="Imported "+str(importedOrders)+" orders from '"+os.path.basename(file)+"'")
 
 
     def orderExists(self,merchantId,shortOrderRef):
@@ -350,4 +355,4 @@ class Main:
             db.cur.commit()
             importedOrders += 1
 
-        tkinter.messagebox.showinfo(message="Imported "+str(importedOrders)+" orders!")
+        return importedOrders
