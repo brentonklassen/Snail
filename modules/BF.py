@@ -5,7 +5,6 @@
 
 import os
 import csv
-import time
 import collections
 import shutil
 import validate
@@ -31,19 +30,17 @@ def email(body):
         mail.sendmail(to,subject,body)
 
 
-def getFiles():
+def getNextFile():
 
     # source dir
     sourceDir = settings.get('bfdrop')
-
-    files = list()
     
     for file in os.listdir(sourceDir):
         filename, ext = os.path.splitext(file)
         if ext == ".csv":
-            files.append(os.path.join(sourceDir,file))
+            return os.path.join(sourceDir,file)
             
-    return files
+    return ''
 
 
 def archiveFile(path):
@@ -102,7 +99,6 @@ def getOrders(path, columns):
                 errors.append(msg)
                 continue
             
-            newRow["dateStamp"] = time.strftime("%Y-%m-%d")
             newRow['packingSlip'] = 1
             
             if len(columns) == len(newRow):
@@ -180,7 +176,6 @@ def getPackages(path, columns):
             newRow['returnCity'] = validate.clean(row[7])
             newRow['returnState'] = validate.region(row[8])
             newRow['returnZip'] = validate.postCode(row[9])
-            newRow['dateStamp'] = time.strftime("%Y-%m-%d")
             newRow['bulk'] = 1
             newRow['packageNumber'] = 1
             newRow['carrier'] = 26

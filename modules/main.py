@@ -39,8 +39,7 @@ class Main:
             "region",
             "postCode",
             "country",
-            "packingSlip",
-            "dateStamp"]
+            "packingSlip"]
 
         self.itemColumns = ["merchantID",
             "shortOrderReference",
@@ -50,8 +49,7 @@ class Main:
             "itemQuantity",
             "itemUnitCost",
             "itemAttribKey",
-            "itemAttribVal",
-            "dateStamp"]
+            "itemAttribVal"]
 
         self.packageColumns = ["merchantID",
             "shortOrderReference",
@@ -69,24 +67,7 @@ class Main:
             "height",
             "weight",
             "bulk",
-            'note',
-            "dateStamp"]
-
-        self.shipmentColumns = ["merchantID",
-            "shortOrderReference",
-            "packageNumber",
-            "carrier",
-            "serviceClass",
-            "postage",
-            "trackingNumber",
-            "billedWeight",
-            "dateStamp"]
-                   
-
-        self.orders = list()
-        self.items = list()
-        self.packages = list()
-        self.shipments = list()
+            'note']
 
 
     def writeOutTSV(self, path, columns, lines):
@@ -269,62 +250,51 @@ class Main:
 
 
     def importDSOL(self):
-        for file in DSOL.getFiles():
-            self.orders.extend(DSOL.getOrders(file, self.orderColumns))
-            self.items.extend(DSOL.getItems(file, self.itemColumns))
-            self.packages.extend(DSOL.getPackages(file, self.packageColumns))
-            DSOL.archiveFile(file)
+        file = DSOL.getNextFile()
+        if not file:
+            tkinter.messagebox.showinfo(message='There are no new DSOL files')
+            return
+
+        orders = DSOL.getOrders(file,self.orderColumns)
+        items = DSOL.getItems(file,self.itemColumns)
+        packages = DSOL.getPackages(file,self.packageColumns)
+        errors = DSOL.getErrors()
+        if errors:
+            tkinter.messagebox.showinfo(message='\n'.join(errors))
+        self.importOrders(orders,items,packages)
+        DSOL.archiveFile(file)
 
 
-    def importBetafresh(self):
-        for file in BF.getFiles():
-            self.orders.extend(BF.getOrders(file, self.orderColumns))
-            self.items.extend(BF.getItems(file, self.itemColumns))
-            self.packages.extend(BF.getPackages(file, self.packageColumns))
-            BF.archiveFile(file)
+    def importBF(self):
+        file = BF.getNextFile()
+        if not file:
+            tkinter.messagebox.showinfo(message='There are no new BF files')
+            return
+        
+        orders = BF.getOrders(file,self.orderColumns)
+        items = BF.getItems(file,self.itemColumns)
+        packages = BF.getPackages(file,self.packageColumns)
+        errors = BF.getErrors()
+        if errors:
+            tkinter.messagebox.showinfo(message='\n'.join(errors))
+        self.importOrders(orders,items,packages)
+        BF.archiveFile(file)
 
 
     def importLTM(self):
-        for file in LTM.getFiles():
-            self.orders.extend(LTM.getOrders(file, self.orderColumns))
-            self.items.extend(LTM.getItems(file, self.itemColumns))
-            self.packages.extend(LTM.getPackages(file, self.packageColumns))
-
-
-    def checkDSOL(self):
-        for file in DSOL.getFiles():
-            orders = DSOL.getOrders(file,S.orderColumns)
-            items = DSOL.getItems(file,S.itemColumns)
-            packages = DSOL.getPackages(file,S.packageColumns)
-            errors = DSOL.getErrors()
-            if errors:
-                tkinter.messagebox.showinfo(message='\n'.join(errors))
-            self.importOrders(orders,items,packages)
-            DSOL.archiveFile(file)
-
-
-    def checkBF(self):
-        for file in BF.getFiles():
-            orders = BF.getOrders(file,S.orderColumns)
-            items = BF.getItems(file,S.itemColumns)
-            packages = BF.getPackages(file,S.packageColumns)
-            errors = BF.getErrors()
-            if errors:
-                tkinter.messagebox.showinfo(message='\n'.join(errors))
-            self.importOrders(orders,items,packages)
-            BF.archiveFile(file)
-
-
-    def checkLTM(self):
-        for file in LTM.getFiles():
-            orders = LTM.getOrders(file,S.orderColumns)
-            items = LTM.getItems(file,S.itemColumns)
-            packages = LTM.getPackages(file,S.packageColumns)
-            errors = LTM.getErrors()
-            if errors:
-                tkinter.messagebox.showinfo(message='\n'.join(errors))
-            self.importOrders(orders,items,packages)
-            BF.archiveFile(file)
+        file = LTM.getNextFile()
+        if not file:
+            tkinter.messagebox.showinfo(message='There are no new LTM files')
+            return
+        
+        orders = LTM.getOrders(file,self.orderColumns)
+        items = LTM.getItems(file,self.itemColumns)
+        packages = LTM.getPackages(file,self.packageColumns)
+        errors = LTM.getErrors()
+        if errors:
+            tkinter.messagebox.showinfo(message='\n'.join(errors))
+        self.importOrders(orders,items,packages)
+        BF.archiveFile(file)
                 
 
     def updateDatabase(self):
@@ -466,7 +436,22 @@ class Main:
             (merchant,merchantID,completeOrderReference,shortOrderReference,
             fullName,phoneNumber,emailAddress,address1,
             address2,address3,town,region,postCode,country,packingSlip,dateStamp)
-            values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'''
+            values (?, /* merchant */
+            ?, /* merchantID */
+            ?, /* completeOrderReference */
+            ?, /* shortOrderReference */
+            left(upper(?),40), /* fullName */
+            left(?,16), /* phoneNumber */
+            left(upper(?),40), /* emailAddress */
+            left(upper(?),100), /* address1 */
+            left(upper(?),40), /* address2 */
+            left(upper(?),40), /* address3 */
+            left(upper(?),40), /* town */
+            ?, /* region */
+            ?, /* postCode */
+            ?, /* country */
+            ?, /* packingSlip */
+            getdate()) /* dateStamp */'''
             # QUERY NEEDS WORK -- ADD GET DATE AND UPPER THINGS
             db.cur.execute(insertQuery,order)
 
@@ -475,7 +460,16 @@ class Main:
                 insertQuery = '''insert into Item
                 (merchantID,shortOrderReference,lineNumber,itemTitle,itemSKU,
                 itemQuantity,itemUnitCost,itemAttribKey,itemAttribVal,dateStamp)
-                values (?,?,?,?,?,?,?,?,?,?)'''
+                values (?, /* merchantID */
+                ?, /* shortOrderReference */
+                ?, /* lineNumber */
+                left(?,300), /* itemTitle */
+                left(?,20), /* itemSKU */
+                ?, /* itemQuantity */
+                ?, /* itemUnitCost */
+                left(?,15), /* itemAttribKey */
+                left(?,20), /* itemAttribVal */
+                getdate()) /* dateStamp */'''
                 db.cur.execute(insertQuery,item)
 
             # insert package rows
@@ -483,7 +477,24 @@ class Main:
                 insertQuery = '''insert into Package
                 (merchantID,shortOrderReference,packageNumber,returnCompany,returnAdd1,returnAdd2,returnCity,
                 returnState,returnZip,carrier,serviceClass,[length],width,height,[weight],[bulk],note,dateStamp)
-                values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'''
+                values (?, /* merchantID */
+                ?, /* shortOrderReference */
+                coalesce(?,1), /* packageNumber */
+                left(?,50), /* returnCompany */
+                left(?,100), /* returnAdd1 */
+                left(?,50), /* returnAdd2 */
+                left(?,50), /* returnCity */
+                left(?,5), /* returnState */
+                left(?,15), /* returnZip */
+                ?, /* carrier */
+                ?, /* serviceClass */
+                ?, /* length */
+                ?, /* width */
+                ?, /* height */
+                ?, /* weight */
+                ?, /* bulk */
+                left(?,500), /* note */
+                getdate()) /* dateStamp */'''
                 db.cur.execute(insertQuery,package)
 
             db.cur.commit()

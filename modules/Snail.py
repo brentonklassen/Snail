@@ -20,9 +20,9 @@ class Snail:
 
         # display buttons
         self.buttonsFrame = tkinter.Frame(self.master)
-        tkinter.Button(self.buttonsFrame,text='Check DanceShoesOnline',command=lambda: self.Main.checkDSOL()).pack(side=tkinter.LEFT)
-        tkinter.Button(self.buttonsFrame,text='Check BetaFresh',command=lambda: self.Main.checkBF()).pack(side=tkinter.LEFT)
-        tkinter.Button(self.buttonsFrame,text='Check Lighttake',command=lambda: self.Main.checkLTM()).pack(side=tkinter.LEFT)
+        tkinter.Button(self.buttonsFrame,text='Check DanceShoesOnline',command=self.checkDSOL).pack(side=tkinter.LEFT)
+        tkinter.Button(self.buttonsFrame,text='Check BetaFresh',command=self.checkBF).pack(side=tkinter.LEFT)
+        tkinter.Button(self.buttonsFrame,text='Check Lighttake',command=self.checkLTM).pack(side=tkinter.LEFT)
         self.buttonsFrame.pack()
 
         # display order lookup
@@ -33,6 +33,21 @@ class Snail:
 
         # run
         self.master.mainloop()
+
+
+    def checkDSOL(self):
+        self.Main.importDSOL()
+        self.populateOrdersTree()
+
+
+    def checkBF(self):
+        self.Main.importBF()
+        self.populateOrdersTree()
+
+
+    def checkLTM(self):
+        self.Main.importLTM()
+        self.populateOrdersTree()
 
 
     def displayOrderLookup(self):
@@ -79,7 +94,7 @@ class Snail:
     def configureOrdersTree(self):
 
         self.ordersTree['columns'] = ('merchantid', 'shortorderref', 'fullname', 'datestamp')
-        self.ordersTree.heading('merchantid', text='Merchant Id')
+        self.ordersTree.heading('merchantid', text='Merchant')
         self.ordersTree.heading('shortorderref', text='Order')
         self.ordersTree.heading('fullname', text='Name')
         self.ordersTree.heading('datestamp', text='Date')

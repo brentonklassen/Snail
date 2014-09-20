@@ -4,7 +4,6 @@
 
 import os
 import csv
-import time
 import collections
 import shutil
 import validate
@@ -15,10 +14,12 @@ from fractions import Fraction
 # global list var for errors
 errors = list()
 
+
 def getErrors():
     errorsToReturn = tuple(errors)
     del errors[:]
     return errorsToReturn
+
 
 def email(body):
     if settings.isset('mailDSOLto'):
@@ -28,19 +29,17 @@ def email(body):
         mail.sendmail(to, subject, body)
 
 
-def getFiles():
+def getNextFile():
 
     # source dir
     sourceDir = settings.get('dsoldrop')
-
-    files = list()
     
     for file in os.listdir(sourceDir):
         filename, ext = os.path.splitext(file)
         if ext == ".csv":
-            files.append(os.path.join(sourceDir,file))
+           return os.path.join(sourceDir,file)
 
-    return files
+    return ''
 
 
 def archiveFile(path):
@@ -83,7 +82,6 @@ def getOrders(path, columns):
                     newRow["shortOrderReference"] = order_number.split('-')[-1]
                 
                 newRow["merchantID"] = 10
-                newRow["dateStamp"] = time.strftime("%Y-%m-%d")
                 newRow["fullName"] = row[1].strip() + " " + row[2].strip()
                 newRow["phoneNumber"] = "".join([char for char in row[8] if str.isdigit(char)])
                 newRow["emailAddress"] = row[9].strip()
@@ -165,7 +163,6 @@ def getItems(path, columns):
                 newRow["shortOrderReference"] = order_number.split('-')[-1]
                 
             newRow["merchantID"] = 10
-            newRow["dateStamp"] = time.strftime("%Y-%m-%d")
             newRow["lineNumber"] = orderLine
 
             if row[10][-3:] == "-OS":
@@ -279,7 +276,6 @@ def getPackages(path, columns):
         newRow["returnCity"] = "Lenexa"
         newRow["returnState"] = "KS"
         newRow["returnZip"] = "66214-1656"
-        newRow["dateStamp"] = time.strftime("%Y-%m-%d")
         newRow["bulk"] = 0
 
         itemCount = sum(int(row[11]) for row in currentOrder)

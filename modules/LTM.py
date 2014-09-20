@@ -20,19 +20,17 @@ def getErrors():
     return errorsToReturn
 
 
-def getFiles():
+def getNextFile():
 
     # source dir
     sourceDir = settings.get('ltmdrop')
 
-    files = list()
-
     for file in os.listdir(sourceDir):
         filename, ext = os.path.splitext(file)
         if ext == '.csv':
-            files.append(os.path.join(sourceDir,file))
+            return os.path.join(sourceDir,file)
 
-    return files
+    return ''
 
 
 def archiveFile(path):
