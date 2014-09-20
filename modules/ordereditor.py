@@ -359,6 +359,7 @@ class OrderEditor:
 
     def addShipment(self,packageNum):
 
+        db.cur.execute("delete from shipment where carrier is null and trackingNumber is null")
         db.cur.execute("insert into shipment (merchantid,shortorderreference,packagenumber,datestamp) values (?,?,?,getdate())",[self.merchantId,self.shortOrderRef,packageNum])
         db.cur.commit()
 
