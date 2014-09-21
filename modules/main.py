@@ -20,10 +20,7 @@ import LTM
 
 class Main:
     
-
     def __init__(self):
-
-        self.version = '1.1.0'
         
         self.orderColumns = ["merchant",
             "merchantID",

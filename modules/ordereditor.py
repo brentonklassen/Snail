@@ -15,7 +15,7 @@ class OrderEditor:
         self.merchantId = merchantId
         self.shortOrderRef = shortOrderRef
         self.master = tkinter.Toplevel(self.Snail.master)
-        self.master.title(str(self.merchantId) + ' : ' + str(self.shortOrderRef))
+        self.master.title('Order '+self.shortOrderRef+' from merchant '+str(self.merchantId))
         self.displayOrderDetails()
         self.displayItems()
         self.displayPackages()
@@ -56,7 +56,8 @@ class OrderEditor:
         from [order] where merchantid=? and shortOrderReference=?",[self.merchantId,self.shortOrderRef])
         rows = db.cur.fetchall()
         if len(rows) != 1:
-            input('Something is messed up...')
+            print(rows)
+            input('The order editor did not recieve one order line when trying to edit '+str(self.merchantId)+':'+self.shortOrderRef)
             quit(1)
             
         row = rows[0] # grab first (and only) row

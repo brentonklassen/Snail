@@ -15,7 +15,7 @@ class Snail:
         
         self.master = tkinter.Tk()
         self.Main = main.Main()
-        self.master.title('Snail v' + self.Main.version)
+        self.master.title('Snail')
         self.OrderEditor = ordereditor.OrderEditor(self)
         
         self.displayButtons()
@@ -86,17 +86,20 @@ class Snail:
         self.configureOrdersTree()
         self.populateOrdersTree()
         
-        self.ordersTree.pack()
-        self.ordersFrame.pack()
+        self.ordersTree.pack(expand=tkinter.Y,fill=tkinter.Y)
+        self.ordersFrame.pack(expand=tkinter.Y,fill=tkinter.Y)
         self.statusFrame.pack() 
         
         
     def configureOrdersTree(self):
 
         self.ordersTree['columns'] = ('merchantid', 'shortorderref', 'fullname', 'datestamp')
-        self.ordersTree.heading('merchantid', text='Merchant')
+        self.ordersTree.heading('#0', text='Merchant')
+        self.ordersTree.heading('merchantid', text='Merchant Id')
+        self.ordersTree.column('merchantid', width=100)
         self.ordersTree.heading('shortorderref', text='Order')
         self.ordersTree.heading('fullname', text='Name')
+        self.ordersTree.column('fullname', width=300)
         self.ordersTree.heading('datestamp', text='Date')
         ysb = ttk.Scrollbar(self.ordersFrame, command=self.ordersTree.yview)
         self.ordersTree.configure(yscroll=ysb.set)
@@ -132,10 +135,9 @@ class Snail:
 
     def editSelectedOrder(self):
         treeSelection = self.ordersTree.selection()[0]
-        order = self.ordersTree.item(treeSelection)['values']
-        merchantid = order[0]
-        shortorderref = str(order[1]) # explicitly tell Python to treat this as a str
-        self.OrderEditor.edit(merchantid,shortorderref)
+        merchantId = self.ordersTree.item(treeSelection,'values')[0]
+        shortOrderRef = self.ordersTree.item(treeSelection,'values')[1]
+        self.OrderEditor.edit(merchantId,shortOrderRef)
         
         
 # RUN
