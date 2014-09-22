@@ -1,0 +1,1 @@
+This dir contains files that are written out from the db to be picked up by other applications (e.g. pick list data).
