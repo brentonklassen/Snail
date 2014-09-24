@@ -57,7 +57,7 @@ def archiveFile(path):
 
 def getOrders(path, columns):
     with open(path) as file:
-        reader = csv.reader(file,delimiter=';') # create a CSV reader object
+        reader = csv.reader(file) # create a CSV reader object
         parsedRows = list() # create a list to hold the new rows
         next(reader) # skip header row
 
@@ -119,7 +119,7 @@ def getOrders(path, columns):
 
 def getItems(path, columns):
     with open(path) as file:
-        reader = csv.reader(file,delimiter=';')
+        reader = csv.reader(file)
         parsedRows = list()
         next(reader) # skip header
 
@@ -155,7 +155,7 @@ def getItems(path, columns):
 
 def getPackages(path, columns):
     with open(path) as file:
-        reader = csv.reader(file,delimiter=';')
+        reader = csv.reader(file)
         parsedRows = list()
         next(reader)
 

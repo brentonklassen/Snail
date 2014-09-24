@@ -5,24 +5,27 @@
 import string
 import csv
 import re
+import os
 
 print('Loading validation data...')
 
+moddir = os.path.dirname(os.path.realpath(__file__))
+
 countries = set()
-with open('validate\\countries.tsv') as f:
+with open(os.path.join(moddir,'countries.tsv')) as f:
     reader = csv.reader(f, delimiter='\t')
     for row in reader:
         countries.add(tuple(row))
 
 states = set()
-with open('validate\\states.csv') as f:
+with open(os.path.join(moddir,'states.csv')) as f:
     reader = csv.reader(f)
     for row in reader:
         states.add(tuple(row))
 
 
 provinces = set()
-with open('validate\\provinces.csv') as f:
+with open(os.path.join(moddir,'provinces.csv')) as f:
     reader = csv.reader(f)
     for row in reader:
         provinces.add(tuple(row))
