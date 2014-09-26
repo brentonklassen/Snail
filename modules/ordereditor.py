@@ -38,21 +38,18 @@ class OrderEditor:
         nextRow+=1
 
         # display column headers
-        tkinter.Label(self.orderDetailsFrame,text='Merchant').grid(row=nextRow,column=0,sticky='w',padx=5)
-        tkinter.Label(self.orderDetailsFrame,text='Order').grid(row=nextRow,column=1,sticky='w',padx=5)
-        tkinter.Label(self.orderDetailsFrame,text='Name').grid(row=nextRow,column=2,sticky='w',padx=5)
-        tkinter.Label(self.orderDetailsFrame,text='Address 1').grid(row=nextRow,column=3,sticky='w',padx=5)
-        tkinter.Label(self.orderDetailsFrame,text='Address 2').grid(row=nextRow,column=4,sticky='w',padx=5)
-        tkinter.Label(self.orderDetailsFrame,text='Town').grid(row=nextRow,column=5,sticky='w',padx=5)
-        tkinter.Label(self.orderDetailsFrame,text='Region').grid(row=nextRow,column=6,sticky='w',padx=5)
-        tkinter.Label(self.orderDetailsFrame,text='Post Code').grid(row=nextRow,column=7,sticky='w',padx=5)
-        tkinter.Label(self.orderDetailsFrame,text='Country').grid(row=nextRow,column=8,sticky='w',padx=5)
-        tkinter.Label(self.orderDetailsFrame,text='Packing Slip').grid(row=nextRow,column=9,sticky='w',padx=5)
-        tkinter.Label(self.orderDetailsFrame,text='Date').grid(row=nextRow,column=10,sticky='w',padx=5)
+        tkinter.Label(self.orderDetailsFrame,text='Name').grid(row=nextRow,column=0,sticky='w',padx=5)
+        tkinter.Label(self.orderDetailsFrame,text='Address 1').grid(row=nextRow,column=1,sticky='w',padx=5)
+        tkinter.Label(self.orderDetailsFrame,text='Address 2').grid(row=nextRow,column=2,sticky='w',padx=5)
+        tkinter.Label(self.orderDetailsFrame,text='Town').grid(row=nextRow,column=3,sticky='w',padx=5)
+        tkinter.Label(self.orderDetailsFrame,text='Region').grid(row=nextRow,column=4,sticky='w',padx=5)
+        tkinter.Label(self.orderDetailsFrame,text='Post Code').grid(row=nextRow,column=5,sticky='w',padx=5)
+        tkinter.Label(self.orderDetailsFrame,text='Country').grid(row=nextRow,column=6,sticky='w',padx=5)
+        tkinter.Label(self.orderDetailsFrame,text='Packing Slip').grid(row=nextRow,column=7,sticky='w',padx=5)
         nextRow+=1
 
         # query db
-        db.cur.execute("select merchant, shortOrderReference, fullName, address1, address2, town, region, postCode, country, packingSlip, dateStamp \
+        db.cur.execute("select fullName, address1, address2, town, region, postCode, country, packingSlip \
         from [order] where merchantid=? and shortOrderReference=?",[self.merchantId,self.shortOrderRef])
         rows = db.cur.fetchall()
         if len(rows) != 1:
@@ -64,17 +61,14 @@ class OrderEditor:
 
         # create list of widgets
         self.orderWidgets = [
-            tkinter.Label(self.orderDetailsFrame,text=row[0]), # merchant
-            tkinter.Label(self.orderDetailsFrame,text=row[1]), # order number
-            tkinter.Entry(self.orderDetailsFrame,textvariable=tkinter.StringVar(value=row[2]),width=30), # full name
-            tkinter.Entry(self.orderDetailsFrame,textvariable=tkinter.StringVar(value=row[3]),width=40), # address 1
-            tkinter.Entry(self.orderDetailsFrame,textvariable=tkinter.StringVar(value=row[4]),width=10), # address 2
-            tkinter.Entry(self.orderDetailsFrame,textvariable=tkinter.StringVar(value=row[5]),width=20), # town
-            tkinter.Entry(self.orderDetailsFrame,textvariable=tkinter.StringVar(value=row[6]),width=6), # region
-            tkinter.Entry(self.orderDetailsFrame,textvariable=tkinter.StringVar(value=row[7]),width=10), # post code
-            tkinter.Entry(self.orderDetailsFrame,textvariable=tkinter.StringVar(value=row[8]),width=7), # country
-            tkinter.OptionMenu(self.orderDetailsFrame,tkinter.StringVar(value=('Yes' if row[9] else 'No')),'Yes','No'), # packing slip
-            tkinter.Label(self.orderDetailsFrame,text=row[10]), # date
+            tkinter.Entry(self.orderDetailsFrame,textvariable=tkinter.StringVar(value=row[0]),width=30), # full name
+            tkinter.Entry(self.orderDetailsFrame,textvariable=tkinter.StringVar(value=row[1]),width=40), # address 1
+            tkinter.Entry(self.orderDetailsFrame,textvariable=tkinter.StringVar(value=row[2]),width=10), # address 2
+            tkinter.Entry(self.orderDetailsFrame,textvariable=tkinter.StringVar(value=row[3]),width=20), # town
+            tkinter.Entry(self.orderDetailsFrame,textvariable=tkinter.StringVar(value=row[4]),width=6), # region
+            tkinter.Entry(self.orderDetailsFrame,textvariable=tkinter.StringVar(value=row[5]),width=10), # post code
+            tkinter.Entry(self.orderDetailsFrame,textvariable=tkinter.StringVar(value=row[6]),width=7), # country
+            tkinter.OptionMenu(self.orderDetailsFrame,tkinter.StringVar(value=('Yes' if row[7] else 'No')),'Yes','No'), # packing slip
         ]
 
         # display orderWidgets
@@ -159,7 +153,7 @@ class OrderEditor:
         nextRow += 1
 
         # query db
-        query = "select packageNumber,carrier,serviceClass,[length],width,height,[weight],[bulk],note,dateStamp \
+        query = "select packageNumber,carrier,serviceClass,[length],width,height,[weight],[bulk],note \
         from Package where merchantID=? and shortOrderReference=?"
         db.cur.execute(query,[self.merchantId,self.shortOrderRef])
         rows = db.cur.fetchall()
@@ -175,7 +169,6 @@ class OrderEditor:
             tkinter.Label(self.packagesFrame,text='Weight').grid(row=nextRow,column=6,sticky='w',padx=5)
             tkinter.Label(self.packagesFrame,text='Bulk').grid(row=nextRow,column=7,sticky='w',padx=5)
             tkinter.Label(self.packagesFrame,text='Note').grid(row=nextRow,column=8,sticky='w',padx=5)
-            tkinter.Label(self.packagesFrame,text='Date stamp').grid(row=nextRow,column=9,sticky='w',padx=5)
             nextRow += 1
 
         self.packageWidgets = list()
@@ -196,7 +189,6 @@ class OrderEditor:
                 tkinter.Entry(self.packagesFrame,textvariable=tkinter.StringVar(value=row[6]),width=5), # weight
                 tkinter.OptionMenu(self.packagesFrame,tkinter.StringVar(value=('Yes' if row[7] else 'No')),'Yes','No'), # bulk
                 tkinter.Entry(self.packagesFrame,textvariable=tkinter.StringVar(value=row[8]),width=15), # note
-                tkinter.Label(self.packagesFrame,text=row[9]), # date stamp
                 tkinter.Button(self.packagesFrame,text=('Edit shipment' if shipment else 'Add shipment'), \
                                command=lambda packageNum=row[0], shipment = shipment: self.editShipment(packageNum) if shipment else self.addShipment(packageNum)),
                 tkinter.Button(self.packagesFrame,text='Remove package',command=lambda packageNum=row[0]: self.deletePackage(packageNum))
@@ -225,14 +217,14 @@ class OrderEditor:
 
     def updateOrderDetails(self):
 
-        name = self.orderWidgets[2].get()
-        address1 = self.orderWidgets[3].get()
-        address2 = self.orderWidgets[4].get()
-        town = self.orderWidgets[5].get()
-        region = self.orderWidgets[6].get()
-        postCode = self.orderWidgets[7].get()
-        country = self.orderWidgets[8].get()
-        packingSlip = str(1 if self.orderWidgets[9].cget('text') == 'Yes' else 0)
+        name = self.orderWidgets[0].get()
+        address1 = self.orderWidgets[1].get()
+        address2 = self.orderWidgets[2].get()
+        town = self.orderWidgets[3].get()
+        region = self.orderWidgets[4].get()
+        postCode = self.orderWidgets[5].get()
+        country = self.orderWidgets[6].get()
+        packingSlip = str(1 if self.orderWidgets[7].cget('text') == 'Yes' else 0)
 
         updateQuery = "update [order] set  fullName=?, address1=?, address2=?, town=?, region=?, postCode=?, country=?, packingSlip=? \
         where merchantid=? and shortOrderReference=?"
