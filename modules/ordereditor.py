@@ -378,7 +378,7 @@ class OrderEditor:
             self.itemAttribWidgets.append([
                 tkinter.Entry(self.itemAttribEditor,textvariable=tkinter.StringVar(value=row[0]),width=10), # key
                 tkinter.Entry(self.itemAttribEditor,textvariable=tkinter.StringVar(value=row[1]),width=20), # val
-                tkinter.Button(self.itemAttribEditor,text='Remove attribute',command=lambda key=row[0]: self.removeAttrib())
+                tkinter.Button(self.itemAttribEditor,text='Remove attribute',command=lambda key=row[0]: self.removeItemAttrib(key))
             ])
 
         # display attrib widgets
@@ -389,8 +389,23 @@ class OrderEditor:
                 nextCol+=1
             nextRow += 1
 
-        tkinter.Button(self.itemAttribEditor,text='Save',command=lambda: self.saveAttribs()).grid(row=nextRow,column=0,sticky='w',padx=5)
-        tkinter.Button(self.itemAttribEditor,text='Add attribute',command=lambda: self.addAttrib()).grid(row=nextRow,column=2,sticky='w',padx=5)
+        tkinter.Button(self.itemAttribEditor,text='Save',command=lambda: self.saveItemAttribs()).grid(row=nextRow,column=0,sticky='w',padx=5)
+        tkinter.Button(self.itemAttribEditor,text='Add attribute',command=lambda: self.addItemAttrib()).grid(row=nextRow,column=2,sticky='w',padx=5)
+
+        self.itemAttribEditor.focus()
+
+
+    def saveItemAttribs(self):
+        pass
+
+
+    def addItemAttrib(self):
+        pass
+
+
+    def removeItemAttrib(self,key):
+        query='delete from item where key='+key
+        print(query)
 
 
     def editShipment(self,packageNum):
