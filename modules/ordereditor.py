@@ -105,8 +105,7 @@ class OrderEditor:
             From Snail.dbo.Item as ia
                 where i.merchantID = ia.merchantID and i.shortOrderReference = ia.shortOrderReference and i.lineNumber = ia.lineNumber
             For XML PATH ('')
-        ) as itemattribs,
-        i.dateStamp 
+        ) as itemattribs
         from Item as i where merchantID=? and shortOrderReference=?'''
         
         db.cur.execute(query,[self.merchantId,self.shortOrderRef])
@@ -120,7 +119,6 @@ class OrderEditor:
             tkinter.Label(self.itemsFrame,text='Sku').grid(row=nextRow,column=3,sticky='w',padx=5)
             tkinter.Label(self.itemsFrame,text='Cost').grid(row=nextRow,column=4,sticky='w',padx=5)
             tkinter.Label(self.itemsFrame,text='Attributes').grid(row=nextRow,column=5,sticky='w',padx=5)
-            tkinter.Label(self.itemsFrame,text='Date stamp').grid(row=nextRow,column=6,sticky='w',padx=5)
             nextRow += 1
         
         self.itemWidgets = list()
@@ -134,7 +132,7 @@ class OrderEditor:
                 tkinter.Entry(self.itemsFrame,textvariable=tkinter.StringVar(value=row[3]),width=20), # sku
                 tkinter.Entry(self.itemsFrame,textvariable=tkinter.StringVar(value=row[4]),width=20), # unit cost
                 tkinter.Label(self.itemsFrame,text=row[5]), # item attributes
-                tkinter.Label(self.itemsFrame,text=row[6]), # date stamp
+                tkinter.Button(self.itemsFrame,text='Edit attributes',command=lambda lineNum=row[0]: self.editItemAttribs(lineNum)),
                 tkinter.Button(self.itemsFrame,text='Remove item',command=lambda lineNum=row[0]: self.deleteItem(lineNum))
             ])
 
@@ -365,6 +363,42 @@ class OrderEditor:
         db.cur.commit()
 
         self.editShipment(packageNum)
+
+
+    def editItemAttribs(self,lineNum):
+
+        # create attrib editor window
+        self.itemAttribEditor = tkinter.Toplevel(self.master)
+        nextRow = 0
+        tkinter.Label(self.itemAttribEditor,text='Attributes for line '+str(lineNum)).grid(row=nextRow,column=0,columnspan=2,sticky='w',padx=5)
+        nextRow += 1
+
+        # display column headers
+        tkinter.Label(self.itemAttribEditor,text='Key').grid(row=nextRow,column=0,sticky='w',padx=5)
+        tkinter.Label(self.itemAttribEditor,text='Value').grid(row=nextRow,column=1,sticky='w',padx=5)
+
+        # query db
+        query = 'select itemAttribKey,itemAttribVal from item where merchantid=? and shortorderreference=? and linenumber=?'
+        db.cur.execute(query,[self.merchantId,self.shortOrderRef,lineNum])
+
+        self.itemAttribWidgets = list()
+        for row in db.cur.fetchall():
+            self.itemAttribWidgets.append([
+                tkinter.Entry(self.itemAttribEditor,textvariable=tkinter.StringVar(value=row[0]),width=10), # key
+                tkinter.Entry(self.itemAttribEditor,textvariable=tkinter.StringVar(value=row[1]),width=20), # val
+                tkinter.Button(self.itemAttribEditor,text='Remove attribute',command=lambda key=row[0]: self.removeAttrib())
+            ])
+
+        # display attrib widgets
+        for row in self.itemAttribWidgets:
+            nextCol = 0
+            for widget in row:
+                widget.grid(row=nextRow,column=nextCol,sticky='w',padx=5)
+                nextCol+=1
+            nextRow += 1
+
+        tkinter.Button(self.itemAttribEditor,text='Save',command=lambda: self.saveAttribs()).grid(row=nextRow,column=0,sticky='w',padx=5)
+        tkinter.Button(self.itemAttribEditor,text='Add attribute',command=lambda: self.addAttrib()).grid(row=nextRow,column=2,sticky='w',padx=5)
 
 
     def editShipment(self,packageNum):
