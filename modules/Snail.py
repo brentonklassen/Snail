@@ -16,7 +16,6 @@ class Snail:
         self.master = tkinter.Tk()
         self.Main = main.Main()
         self.master.title('Snail')
-        self.OrderEditor = ordereditor.OrderEditor(self)
         
         self.displayTopButtons()
         self.displayOrderLookup()
@@ -75,7 +74,7 @@ class Snail:
         merchantId = self.merchantIdWidget.get()
         shortOrderRef = self.shortOrderRefWidget.get()
         if self.Main.orderExists(merchantId,shortOrderRef):
-            self.OrderEditor.edit(merchantId,shortOrderRef)
+            ordereditor.OrderEditor(self).edit(merchantId,shortOrderRef)
         else:
             tkinter.messagebox.showinfo(message='That order does not exist')
         
@@ -144,7 +143,7 @@ class Snail:
         treeSelection = self.ordersTree.selection()[0]
         merchantId = self.ordersTree.item(treeSelection,'values')[0]
         shortOrderRef = self.ordersTree.item(treeSelection,'values')[1]
-        self.OrderEditor.edit(merchantId,shortOrderRef)
+        ordereditor.OrderEditor(self).edit(merchantId,shortOrderRef)
         
         
 # RUN
