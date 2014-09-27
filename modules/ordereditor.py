@@ -444,6 +444,7 @@ class OrderEditor:
                 deleteQuery = "delete from item where itemid = (select top(1) itemid from item \
                 where merchantid=? and shortorderreference=? and linenumber=? and (itemattribkey is null or itemattribkey=''))"
                 db.cur.execute(deleteQuery,[self.merchantId,self.shortOrderRef,lineNum])
+                db.cur.commit()
 
 
     def addItemAttrib(self,lineNum):
