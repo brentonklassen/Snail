@@ -96,7 +96,7 @@ class OrderEditor:
         i.itemUnitCost, 
         (
             Select ia.itemAttribKey+': '+ia.itemAttribVal+', ' AS [text()]
-            From Snail.dbo.Item as ia
+            From Item as ia
                 where i.merchantID = ia.merchantID and i.shortOrderReference = ia.shortOrderReference and i.lineNumber = ia.lineNumber
             For XML PATH ('')
         ) as itemattribs
@@ -370,15 +370,16 @@ class OrderEditor:
         tkinter.Label(self.itemAttribEditor,text='Value').grid(row=nextRow,column=1,sticky='w',padx=5)
 
         # query db
-        query = 'select itemAttribKey,itemAttribVal from item where merchantid=? and shortorderreference=? and linenumber=?'
+        query = "select itemAttribKey,itemAttribVal from item where \
+        merchantid=? and shortorderreference=? and linenumber=? and (itemattribkey is not null or itemattribkey!='')"
         db.cur.execute(query,[self.merchantId,self.shortOrderRef,lineNum])
 
         self.itemAttribWidgets = list()
         for row in db.cur.fetchall():
             self.itemAttribWidgets.append([
-                tkinter.Entry(self.itemAttribEditor,textvariable=tkinter.StringVar(value=row[0]),width=10), # key
+                tkinter.Label(self.itemAttribEditor,text=row[0]), # key
                 tkinter.Entry(self.itemAttribEditor,textvariable=tkinter.StringVar(value=row[1]),width=20), # val
-                tkinter.Button(self.itemAttribEditor,text='Remove attribute',command=lambda key=row[0]: self.removeItemAttrib(key))
+                tkinter.Button(self.itemAttribEditor,text='Remove attribute',command=lambda key=row[0]: self.removeItemAttrib(lineNum,key))
             ])
 
         # display attrib widgets
@@ -389,23 +390,99 @@ class OrderEditor:
                 nextCol+=1
             nextRow += 1
 
-        tkinter.Button(self.itemAttribEditor,text='Save',command=lambda: self.saveItemAttribs()).grid(row=nextRow,column=0,sticky='w',padx=5)
-        tkinter.Button(self.itemAttribEditor,text='Add attribute',command=lambda: self.addItemAttrib()).grid(row=nextRow,column=2,sticky='w',padx=5)
+        self.newItemAttribKey = tkinter.Entry(self.itemAttribEditor,textvariable=tkinter.StringVar(),width=10)
+        self.newItemAttribKey.grid(row=nextRow,column=0,padx=5,sticky='w')
+        self.newItemAttribVal = tkinter.Entry(self.itemAttribEditor,textvariable=tkinter.StringVar(),width=20)
+        self.newItemAttribVal.grid(row=nextRow,column=1,padx=5,sticky='w')
+        tkinter.Button(self.itemAttribEditor,text='Add attribute',command=lambda: self.addItemAttrib(lineNum)).grid(row=nextRow,column=2,sticky='w',padx=5)
+        nextRow += 1
+        
+        tkinter.Button(self.itemAttribEditor,text='Save attributes',command=lambda: self.saveItemAttribs(lineNum)).grid(row=nextRow,column=0,sticky='w',padx=5)
 
         self.itemAttribEditor.focus()
 
 
-    def saveItemAttribs(self):
-        pass
+    def saveItemAttribs(self,lineNum):
+
+        self.updateItemAttribs(lineNum)
+        self.itemAttribEditor.destroy()
+        self.save()
+        self.edit(self.merchantId,self.shortOrderRef)
+    
 
 
-    def addItemAttrib(self):
-        pass
+    def updateItemAttribs(self,lineNum):
+
+        for row in self.itemAttribWidgets:
+        
+            key = row[0].cget('text')
+            val = row[1].get()
+
+            updateQuery = 'update item set itemAttribVal=? where merchantid=? and shortorderreference=? and linenumber=? and itemAttribKey=?'
+            db.cur.execute(updateQuery,[val,self.merchantId,self.shortOrderRef,lineNum,key])
+            db.cur.commit()
+
+        self.deleteNullItemAttribs(lineNum)
 
 
-    def removeItemAttrib(self,key):
-        query='delete from item where key='+key
-        print(query)
+    def deleteNullItemAttribs(self, lineNum):
+
+        while True:
+
+            # if only one row for this item, return
+            db.cur.execute('select * from item where merchantid=? and shortorderreference=? and linenumber=?',[self.merchantId,self.shortOrderRef,lineNum])
+            if len(db.cur.fetchall()) == 1: return
+
+            # if there is more than one row with null attrib key, delete one
+            selectQuery = "select * from item where merchantid=? and shortorderreference=? and linenumber=? and (itemattribkey is null or itemattribkey='')"
+            db.cur.execute(selectQuery,[self.merchantId,self.shortOrderRef,lineNum])
+            nullAttribKeys = len(db.cur.fetchall())
+
+            if not nullAttribKeys: return
+
+            else:
+                deleteQuery = "delete from item where itemid = (select top(1) itemid from item \
+                where merchantid=? and shortorderreference=? and linenumber=? and (itemattribkey is null or itemattribkey=''))"
+                db.cur.execute(deleteQuery,[self.merchantId,self.shortOrderRef,lineNum])
+
+
+    def addItemAttrib(self,lineNum):
+
+        newKey = self.newItemAttribKey.get()
+        newVal = self.newItemAttribVal.get()
+
+        selectQuery = 'select * from item where merchantid=? and shortorderreference=? and linenumber=? and itemattribkey=?'
+        db.cur.execute(selectQuery,[self.merchantId,self.shortOrderRef,lineNum,newKey])
+        if db.cur.fetchall():
+            tkinter.messagebox.showinfo(message='That attribute key already exists.')
+            self.itemAttribEditor.focus()
+            
+        else:
+
+            self.updateItemAttribs(lineNum)
+            self.itemAttribEditor.destroy()
+            
+            insertQuery = 'insert into item (merchantid,shortorderreference,lineNumber,itemQuantity,itemTitle,itemSKU,itemUnitCost,itemAttribKey,itemAttribVal,datestamp) \
+            select distinct merchantid,shortorderreference,lineNumber,itemQuantity,itemTitle,itemSKU,itemUnitCost,?,?,getdate() \
+            from item where merchantid=? and shortorderreference=? and linenumber=?'
+            db.cur.execute(insertQuery,[newKey,newVal,self.merchantId,self.shortOrderRef,lineNum])
+            db.cur.commit()
+
+            self.deleteNullItemAttribs(lineNum)
+            self.editItemAttribs(lineNum)
+        
+
+    def removeItemAttrib(self,lineNum,key):
+
+        self.updateItemAttribs(lineNum)
+        self.itemAttribEditor.destroy()
+        
+        updateQuery='update item set itemAttribKey=Null where merchantid=? and shortorderreference=? and linenumber=? and itemattribkey=?'
+        db.cur.execute(updateQuery,[self.merchantId,self.shortOrderRef,lineNum,key])
+        db.cur.commit()
+
+        self.deleteNullItemAttribs(lineNum)
+        self.editItemAttribs(lineNum)
 
 
     def editShipment(self,packageNum):
