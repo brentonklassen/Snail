@@ -69,6 +69,9 @@ def region(r, country='US'):
 
     elif country == 'VI' and r.upper() == 'VIRGIN ISLANDS':
         return 'VI'
+
+    elif country == 'GU' and r.upper() == 'GUAM':
+        return 'GU'
             
     elif len(r) < 5:
         return r
