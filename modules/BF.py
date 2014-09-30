@@ -76,27 +76,28 @@ def getOrders(path, columns):
             newRow["fullName"] = validate.clean(row[11] + " " + row[12])
             newRow["phoneNumber"] = "".join([char for char in row[18] if str.isdigit(char)])
             newRow["address1"] = validate.clean(row[13])
-            newRow["town"] = validate.clean(row[14])
+            newRow['address2'] = validate.clean(row[14])
+            newRow["town"] = validate.clean(row[15])
             newRow['packingSlip'] = 0
             
-            newRow["country"] = validate.country(row[17])
+            newRow["country"] = validate.country(row[18])
             if not newRow['country']:
                 msg = newRow['completeOrderReference'] + " from file '" + os.path.basename(path) + "' was skipped.\n"
-                msg += 'Could not validate country: ' + row[17]
+                msg += 'Could not validate country: ' + row[18]
                 errors.append(msg)
                 continue
             
-            newRow["region"] = validate.region(row[15], newRow['country'])
+            newRow["region"] = validate.region(row[16], newRow['country'])
             if not newRow['region']:
                 msg = newRow['completeOrderReference'] + " from file '" + os.path.basename(path) + "' was skipped.\n"
-                msg += 'Could not validate region: ' + row[15]
+                msg += 'Could not validate region: ' + row[16]
                 errors.append(msg)
                 continue
                 
-            newRow["postCode"] = validate.postCode(row[16], newRow['country'])
+            newRow["postCode"] = validate.postCode(row[17], newRow['country'])
             if not newRow['postCode']:
                 msg = newRow['completeOrderReference'] + " from file '" + os.path.basename(path) + "' was skipped.\n"
-                msg += 'Could not validate post code: ' + row[16]
+                msg += 'Could not validate post code: ' + row[17]
                 errors.append(msg)
                 continue
             
@@ -135,7 +136,7 @@ def getItems(path, columns):
             newRow["merchantID"] = 38
 
             newRow["lineNumber"] = 0
-            skuCol = 19
+            skuCol = 20
             while skuCol < len(row) and row[skuCol]:
                 newRow["lineNumber"] += 1
                 newRow["itemSKU"] = row[skuCol]
@@ -164,7 +165,7 @@ def getPackages(path, columns):
             # create a new ordered dictionary to hold the row info
             newRow = collections.OrderedDict.fromkeys(columns)
 
-            if len(row) < 2 or row[13] == '':
+            if len(row) < 2 or row[20] == '':
                 continue # skip if < 2 cols or no sku
 
             newRow['shortOrderReference'] = validate.clean(row[0])
