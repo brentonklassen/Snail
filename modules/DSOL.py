@@ -360,9 +360,11 @@ def getPackages(path, columns):
                 newRow['note'] = 'Dim add'
 
             else:
+                orderStart = orderEnd # move on to the next order
                 continue # don't create a package
 
 
+        # save the package row in completedLines
         if len(columns) == len(newRow):
             completedLines.append(list(newRow.values()))
         else:
