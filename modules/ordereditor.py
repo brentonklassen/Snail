@@ -342,7 +342,18 @@ class OrderEditor:
             if not db.cur.fetchall():
                 packageExists = False
 
-        db.cur.execute("insert into package (merchantid,shortorderreference,packagenumber,datestamp) values (?,?,?,getdate())",[self.merchantId,self.shortOrderRef,packageNum])
+        insertQuery = '''insert into package (merchantid,shortorderreference,packagenumber,
+        returnCompany,returnAdd1,returnAdd2,returnCity,returnState,returnZip,datestamp) 
+        values 
+        (?,?,?,
+        (select returnCompany from Package where packageId=(select top 1 packageId from Package where merchantID=? order by dateStamp desc)),
+        (select returnAdd1 from Package where packageId=(select top 1 packageId from Package where merchantID=? order by dateStamp desc)),
+        (select returnAdd2 from Package where packageId=(select top 1 packageId from Package where merchantID=? order by dateStamp desc)),
+        (select returnCity from Package where packageId=(select top 1 packageId from Package where merchantID=? order by dateStamp desc)),
+        (select returnState from Package where packageId=(select top 1 packageId from Package where merchantID=? order by dateStamp desc)),
+        (select returnZip from Package where packageId=(select top 1 packageId from Package where merchantID=? order by dateStamp desc)),
+        getdate())'''
+        db.cur.execute(insertQuery,[self.merchantId,self.shortOrderRef,packageNum,self.merchantId,self.merchantId,self.merchantId,self.merchantId,self.merchantId,self.merchantId])
         db.cur.commit()
 
         self.edit(self.merchantId,self.shortOrderRef)
