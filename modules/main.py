@@ -171,6 +171,7 @@ class Main:
 
 
     def importDSOL(self):
+        
         file = DSOL.getNextFile()
         if not file:
             tkinter.messagebox.showinfo(message='There are no new DSOL files')
@@ -179,7 +180,7 @@ class Main:
         orders = DSOL.getOrders(file,self.orderColumns)
         items = DSOL.getItems(file,self.itemColumns)
         packages = DSOL.getPackages(file,self.packageColumns)
-        errors = DSOL.outputErrors()
+        DSOL.outputErrors()
         DSOL.archiveFile(file)
         
         orderCount = self.importOrders(orders,items,packages)
@@ -187,6 +188,7 @@ class Main:
 
 
     def importBF(self):
+        
         file = BF.getNextFile()
         if not file:
             tkinter.messagebox.showinfo(message='There are no new BF files')
@@ -205,6 +207,7 @@ class Main:
 
 
     def importLTM(self):
+        
         file = LTM.getNextFile()
         if not file:
             tkinter.messagebox.showinfo(message='There are no new LTM files')
