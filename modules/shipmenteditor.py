@@ -24,6 +24,8 @@ class ShipmentEditor:
 
     def editShipment(self,packageNum):
 
+        self.packageNum = packageNum
+
         # create shipment editor window
         self.master = tkinter.Toplevel(self.OrderEditor.master)
         nextRow = 0
@@ -65,13 +67,13 @@ class ShipmentEditor:
             nextCol+=1
         nextRow += 1
 
-        tkinter.Button(self.master,text='Save shipment',command=lambda: self.saveShipment(packageNum)).grid(row=nextRow,column=0,columnspan=3,sticky='w',padx=5)
-        tkinter.Button(self.master,text='Delete shipment',command=lambda: self.deleteShipment(packageNum)).grid(row=nextRow,column=4,columnspan=2,sticky='e',padx=5)
+        tkinter.Button(self.master,text='Save shipment',command=lambda: self.saveShipment()).grid(row=nextRow,column=0,columnspan=3,sticky='w',padx=5)
+        tkinter.Button(self.master,text='Delete shipment',command=lambda: self.deleteShipment()).grid(row=nextRow,column=4,columnspan=2,sticky='e',padx=5)
 
         self.master.focus()
 
         
-    def saveShipment(self,packageNum):
+    def saveShipment(self):
 
         carrier = self.shipmentWidgets[0].get()
         serviceClass = self.shipmentWidgets[1].get()
@@ -88,7 +90,7 @@ class ShipmentEditor:
             
             # check to make sure this shipment does not already exist
             query = "select * from shipment where carrier=? and trackingnumber=? and (merchantid!=? or shortorderreference!=? or packagenumber!=?)"
-            db.cur.execute(query,[carrier,trackingNumber,self.merchantId,self.shortOrderRef,packageNum])
+            db.cur.execute(query,[carrier,trackingNumber,self.merchantId,self.shortOrderRef,self.packageNum])
             if db.cur.fetchall():
                 tkinter.messagebox.showinfo(message='That shipment already exists')
                 self.master.focus()
@@ -100,19 +102,19 @@ class ShipmentEditor:
                 
                 updateQuery = "update shipment set carrier=?, trackingnumber=?, serviceclass=?, postage=?, billedweight=? \
                 where merchantid=? and shortorderreference=? and packagenumber=?"
-                db.cur.execute(updateQuery,[carrier,trackingNumber,serviceClass,postage,weight,self.merchantId,self.shortOrderRef,packageNum])
+                db.cur.execute(updateQuery,[carrier,trackingNumber,serviceClass,postage,weight,self.merchantId,self.shortOrderRef,self.packageNum])
                 db.cur.commit()
 
                 self.Snail.populateOrdersTree()
                 self.OrderEditor.edit(self.merchantId,self.shortOrderRef)
 
 
-    def deleteShipment(self,packageNum):
+    def deleteShipment(self):
 
         self.master.destroy()
         self.OrderEditor.save()
 
-        db.cur.execute("delete from shipment where merchantId=? and shortorderreference=? and packagenumber=?",[self.merchantId,self.shortOrderRef,packageNum])
+        db.cur.execute("delete from shipment where merchantId=? and shortorderreference=? and packagenumber=?",[self.merchantId,self.shortOrderRef,self.packageNum])
         db.cur.commit()
 
         self.Snail.populateOrdersTree()
