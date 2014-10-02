@@ -3,6 +3,7 @@ import tkinter
 import tkinter.messagebox
 import shipmenteditor
 import itemattribeditor
+import returnaddeditor
 
 class OrderEditor:
 
@@ -191,6 +192,7 @@ class OrderEditor:
                 tkinter.Entry(self.packagesFrame,textvariable=tkinter.StringVar(value=row[6]),width=5), # weight
                 tkinter.OptionMenu(self.packagesFrame,tkinter.StringVar(value=('Yes' if row[7] else 'No')),'Yes','No'), # bulk
                 tkinter.Entry(self.packagesFrame,textvariable=tkinter.StringVar(value=row[8]),width=15), # note
+                tkinter.Button(self.packagesFrame,text='Edit return address',command=lambda packageNum=row[0]: returnaddeditor.ReturnAddEditor(self).editReturnAdd(packageNum)),
                 tkinter.Button(self.packagesFrame,text=('Edit shipment' if shipment else 'Add shipment'), \
                                command=lambda packageNum=row[0], shipment = shipment: shipmenteditor.ShipmentEditor(self).editShipment(packageNum) if shipment \
                                else shipmenteditor.ShipmentEditor(self).addShipment(packageNum)),
@@ -287,7 +289,8 @@ class OrderEditor:
             lineNum += 1
             db.cur.execute("select * from item where merchantid=? and shortorderreference=? and linenumber=?",[self.merchantId,self.shortOrderRef,lineNum])
             if db.cur.fetchall():
-                db.cur.execute("update item set linenumber=? where merchantid=? and shortorderreference=? and linenumber=?",[lineNum-1,self.merchantId,self.shortOrderRef,lineNum])
+                updateQuery = "update item set linenumber=? where merchantid=? and shortorderreference=? and linenumber=?"
+                db.cur.execute(updateQuery,[lineNum-1,self.merchantId,self.shortOrderRef,lineNum])
                 db.cur.commit()
             else:
                 lineExists = False
@@ -308,7 +311,8 @@ class OrderEditor:
             packageNum += 1
             db.cur.execute("select * from package where merchantid=? and shortorderreference=? and packagenumber=?",[self.merchantId,self.shortOrderRef,packageNum])
             if db.cur.fetchall():
-                db.cur.execute("update package set packagenumber=? where merchantid=? and shortorderreference=? and packagenumber=?",[packageNum-1,self.merchantId,self.shortOrderRef,packageNum])
+                updateQuery = "update package set packagenumber=? where merchantid=? and shortorderreference=? and packagenumber=?"
+                db.cur.execute(updateQuery,[packageNum-1,self.merchantId,self.shortOrderRef,packageNum])
                 db.cur.commit()
             else:
                 packageExists = False
@@ -356,7 +360,8 @@ class OrderEditor:
         (select returnState from Package where packageId=(select top 1 packageId from Package where merchantID=? order by dateStamp desc)),
         (select returnZip from Package where packageId=(select top 1 packageId from Package where merchantID=? order by dateStamp desc)),
         getdate())'''
-        db.cur.execute(insertQuery,[self.merchantId,self.shortOrderRef,packageNum,self.merchantId,self.merchantId,self.merchantId,self.merchantId,self.merchantId,self.merchantId])
+        db.cur.execute(insertQuery,[self.merchantId,self.shortOrderRef,packageNum,
+                                    self.merchantId,self.merchantId,self.merchantId,self.merchantId,self.merchantId,self.merchantId])
         db.cur.commit()
 
         self.edit(self.merchantId,self.shortOrderRef)
