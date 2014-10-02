@@ -49,6 +49,8 @@ def country(c):
 
 
 def region(r, country='US'):
+
+    # https://www.usps.com/send/official-abbreviations.htm
     
     if country == 'US':
         for state, abbrev in states:
@@ -72,6 +74,12 @@ def region(r, country='US'):
 
     elif country == 'GU' and r.upper() == 'GUAM':
         return 'GU'
+
+    elif  country == 'MP' and r.upper() == 'NORTHERN MARIANA ISLANDS':
+        return 'MP'
+
+    elif country == 'AS' and r.upper() == 'AMERICAN SAMOA':
+        return 'AS'
             
     elif len(r) < 5:
         return r

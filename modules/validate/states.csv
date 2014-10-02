@@ -1,15 +1,24 @@
 name,code
 Alabama,AL
 Alaska,AK
+AMERICAN SAMOA,AS
 Arizona,AZ
 Arkansas,AR
+Armed Forces Africa,AE
+Armed Forces Americas,AA
+Armed Forces Canada,AE
+Armed Forces Europe,AE
+Armed Forces Middle East,AE
+Armed Forces Pacific,AP
 California,CA
 Colorado,CO
 Connecticut,CT
 Delaware,DE
 District of Columbia,DC
+FEDERATED STATES OF MICRONESIA,FM
 Florida,FL
 Georgia,GA
+Guam,GU
 Hawaii,HI
 Idaho,ID
 Illinois,IL
@@ -19,6 +28,13 @@ Kansas,KS
 Kentucky,KY
 Louisiana,LA
 Maine,ME
+MARSHALL ISLANDS,MH
+Maryland,MD
+Massachusetts,MA
+Michigan,MI
+Minnesota,MN
+Mississippi,MS
+Missouri,MO
 Montana,MT
 Nebraska,NE
 Nevada,NV
@@ -28,16 +44,13 @@ New Mexico,NM
 New York,NY
 North Carolina,NC
 North Dakota,ND
+NORTHERN MARIANA ISLANDS,MP
 Ohio,OH
 Oklahoma,OK
 Oregon,OR
-Maryland,MD
-Massachusetts,MA
-Michigan,MI
-Minnesota,MN
-Mississippi,MS
-Missouri,MO
+PALAU,PW
 Pennsylvania,PA
+Puerto Rico,PR
 Rhode Island,RI
 South Carolina,SC
 South Dakota,SD
@@ -45,14 +58,9 @@ Tennessee,TN
 Texas,TX
 Utah,UT
 Vermont,VT
+Virgin Islands,VI
 Virginia,VA
 Washington,WA
 West Virginia,WV
 Wisconsin,WI
 Wyoming,WY
-Armed Forces (the) Americas,AA
-Armed Forces Europe,AE
-Armed Forces Pacific,AP
-Puerto Rico,PR
-Virgin Islands,VI
-Guam,GU
