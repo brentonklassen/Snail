@@ -9,16 +9,31 @@ import shutil
 import validate
 import settings
 import mail
-from fractions import Fraction
+import fractions
+import tkinter.messagebox
 
 # global list var for errors
 errors = list()
 
 
-def getErrors():
-    errorsToReturn = tuple(errors)
-    del errors[:]
-    return errorsToReturn
+def outputErrors():
+
+    if errors:
+
+        # show the errors in a message box
+        tkinter.messagebox.showinfo(message='\n'.join(errors))
+
+        # email the errors
+        email('\n'.join(errors))
+
+        # write the errors to a file
+        if settings.isset('dsolerrordir'):
+            with open(os.path.join(settings.get('dsolerrordir'),'errorlog.txt'), 'a') as f:
+                for error in errors:
+                    f.write(error + '\n')
+
+        # delete the errors
+        del errors[:]
 
 
 def email(body):
@@ -91,21 +106,21 @@ def getOrders(path, columns):
                 newRow['country'] = validate.country(validate.clean(row[7]))
                 if not newRow['country']:
                     msg = newRow['completeOrderReference'] + " from file '" + os.path.basename(path) + "' was skipped.\n"
-                    msg += 'Could not validate country: ' + row[7]
+                    msg += 'Could not validate country: ' + row[7] + '\n'
                     errors.append(msg)
                     continue
 
                 newRow["region"] = validate.region(validate.clean(row[5]), newRow['country'])
                 if not newRow["region"]:
                     msg = newRow['completeOrderReference'] + " from file '" + os.path.basename(path) + "' was skipped.\n"
-                    msg += 'Could not validate state: ' + row[5]
+                    msg += 'Could not validate state: ' + row[5] + '\n'
                     errors.append(msg)
                     continue
 
                 newRow['postCode'] = validate.postCode(validate.clean(row[6]), newRow['country'])
                 if not newRow['postCode']:
                     msg = newRow['completeOrderReference'] + " from file '" + os.path.basename(path) + "' was skipped.\n"
-                    msg += 'Could not validate post code: ' + row[6]
+                    msg += 'Could not validate post code: ' + row[6] + '\n'
                     errors.append(msg)
                     continue
                 
@@ -116,14 +131,8 @@ def getOrders(path, columns):
                 else:
                     print("Oops, DSOL order parser added a column")
                     quit()
+
                     
-        if errors:
-            print()
-            print('FIX ERRORS, RECORDS WERE SKIPPED')
-            print('\n'.join(errors))
-            print('END SKIP RECORD SECTION')
-            print()
-            email('\n'.join(errors))
         print("\nImported " + str(len(parsedRows)) + " orders from Dance Shoes Online file '" + os.path.basename(path) + "'")
         return parsedRows
 
@@ -288,7 +297,7 @@ def getPackages(path, columns):
             else:
                 sku = line[10].strip()
             womens = sku not in mensSkus
-            size = float(sum(Fraction(s) for s in line[12].split()))
+            size = float(sum(fractions.Fraction(s) for s in line[12].split()))
             country = validate.country(validate.clean(row[7]))
 
             if size < 9 and womens:
@@ -327,7 +336,7 @@ def getPackages(path, columns):
                 else:
                     sku = line[10].strip()
                 womens = sku not in mensSkus
-                size = float(sum(Fraction(s) for s in line[12].split()))
+                size = float(sum(fractions.Fraction(s) for s in line[12].split()))
 
                 if not womens or not size < 9:
                     canShipCombo = False
