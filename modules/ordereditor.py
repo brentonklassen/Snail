@@ -218,6 +218,7 @@ class OrderEditor:
         self.updateItems()
         self.updatePackages()
         self.master.destroy()
+        self.Snail.populateOrdersTree()
 
 
     def updateOrderDetails(self):

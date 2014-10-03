@@ -94,18 +94,21 @@ class Snail:
         
         self.ordersTree.pack(expand=tkinter.Y,fill=tkinter.Y)
         self.ordersFrame.pack(expand=tkinter.Y,fill=tkinter.Y)
-        self.statusFrame.pack() 
+        self.statusFrame.pack()
         
         
     def configureOrdersTree(self):
 
-        self.ordersTree['columns'] = ('merchantid', 'shortorderref', 'fullname', 'datestamp')
+        self.ordersTree['columns'] = ('merchantid', 'shortorderref', 'fullname', 'items', 'datestamp')
         self.ordersTree.heading('#0', text='Merchant')
         self.ordersTree.heading('merchantid', text='Merchant Id')
         self.ordersTree.column('merchantid', width=100)
         self.ordersTree.heading('shortorderref', text='Short Order Ref')
+        self.ordersTree.column('shortorderref', width=150)
         self.ordersTree.heading('fullname', text='Full Name')
         self.ordersTree.column('fullname', width=300)
+        self.ordersTree.heading('items', text='Items')
+        self.ordersTree.column('items', width=50)
         self.ordersTree.heading('datestamp', text='Date')
         ysb = ttk.Scrollbar(self.ordersFrame, command=self.ordersTree.yview)
         self.ordersTree.configure(yscroll=ysb.set)
@@ -120,13 +123,17 @@ class Snail:
             self.ordersTree.delete(child)
             
         # get unshipped orders from db
-        query = '''select distinct o.merchant, o.merchantid, o.shortOrderReference, o.fullname, o.dateStamp
+        query = '''select o.merchant, o.merchantid, o.shortOrderReference, o.fullname, sum(o.itemQuantity) as items, o.dateStamp from (
+        select distinct o.merchant, o.merchantid, o.shortOrderReference, o.fullname, i.itemQuantity, o.dateStamp
         from Snail.dbo.[Order] as o
+        join Item as i on o.merchantID = i.merchantID and o.shortOrderReference = i.shortOrderReference
         left join Snail.dbo.Package as p
-                on o.merchantID = p.merchantID and o.shortOrderReference = p.shortOrderReference
+            on o.merchantID = p.merchantID and o.shortOrderReference = p.shortOrderReference
         left join Snail.dbo.Shipment as s
-                on p.merchantID = s.merchantID and p.shortOrderReference = s.shortOrderReference and p.packageNumber = s.packageNumber
+            on p.merchantID = s.merchantID and p.shortOrderReference = s.shortOrderReference and p.packageNumber = s.packageNumber
         where s.ShipmentId is null
+        ) as o 
+        group by o.merchant,o.merchantID,o.shortOrderReference,o.fullName,o.dateStamp
         order by o.datestamp desc'''
         db.cur.execute(query)
         orderRows = db.cur.fetchall()
