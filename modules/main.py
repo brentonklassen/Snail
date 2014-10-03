@@ -283,7 +283,7 @@ class Main:
             db.cur.execute('select * from [order] where merchantid=? and shortorderreference=?',[order[1],order[3]])
             if db.cur.fetchall():
 
-                if not replaceAll and not skipAll:
+                if not (replaceAll or skipAll):
                     replace = tkinter.messagebox.askyesno(message='Order '+order[3]+' already exists.\nWould you like to replace it?')
 
                 if replace or replaceAll:
