@@ -181,6 +181,13 @@ def getPackages(path, columns):
             newRow['carrier'] = 26
             newRow['serviceClass'] = 12
 
+            newRow['note'] = 'Items: '
+            skuCol = 20
+            while skuCol < len(row) and row[skuCol]:
+                newRow['note'] += row[skuCol+1]+' ' # add quantity to note
+                newRow['note'] += row[skuCol]+', ' # add sku to note
+                skuCol += 2
+
             
             if len(columns) == len(newRow):
                 parsedRows.append(list(newRow.values()))
