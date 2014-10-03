@@ -19,20 +19,22 @@ errors = list()
 
 def outputErrors():
 
-    # show the errors in a message box
-    tkinter.messagebox.showinfo(message='\n'.join(errors))
+    if errors:
 
-    # email the errors
-    email('\n'.join(errors))
+        # show the errors in a message box
+        tkinter.messagebox.showinfo(message='\n'.join(errors))
 
-    # write the errors to a file
-    if settings.isset('bferrordir'):
-        with open(os.path.join(settings.get('bferrordir'),'errorlog.txt'), 'a') as f:
-            for error in errors:
-                f.write(error + '\n')
+        # email the errors
+        email('\n'.join(errors))
 
-    # delete the errors
-    del errors[:]
+        # write the errors to a file
+        if settings.isset('bferrordir'):
+            with open(os.path.join(settings.get('bferrordir'),'errorlog.txt'), 'a') as f:
+                for error in errors:
+                    f.write(error + '\n')
+
+        # delete the errors
+        del errors[:]
 
 
 def email(body):
