@@ -190,12 +190,12 @@ def getPackages(path, columns):
             newRow['carrier'] = 26
             newRow['serviceClass'] = 12
 
-            newRow['note'] = 'Items: '
+            itemNotes = list()
             skuCol = 20
             while skuCol < len(row) and row[skuCol]:
-                newRow['note'] += row[skuCol+1]+' ' # add quantity to note
-                newRow['note'] += row[skuCol]+', ' # add sku to note
+                itemNotes.append(row[skuCol+1]+'-'+row[skuCol]) # add sku and quantity to note
                 skuCol += 2
+            newRow['note'] = ','.join(itemNotes)
 
             
             if len(columns) == len(newRow):
