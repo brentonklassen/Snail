@@ -268,19 +268,42 @@ class Main:
 
 
     def importOrders(self,orders,items,packages):
+        
         print('Importing orders...')
+        
         importedOrders = 0
+        replace = False
+        replaceAll = False
+        skipAll = False
+        asked = False
+        
         for order in orders:
 
             # check if this order is already in the db
             db.cur.execute('select * from [order] where merchantid=? and shortorderreference=?',[order[1],order[3]])
             if db.cur.fetchall():
-                answer = tkinter.messagebox.askquestion(message='Order '+order[3]+' already exists.\nWould you like to replace it?')
-                if answer=='yes':
+
+                if not replaceAll and not skipAll:
+                    replace = tkinter.messagebox.askyesno(message='Order '+order[3]+' already exists.\nWould you like to replace it?')
+
+                if replace or replaceAll:
+
+                    if not replaceAll and not asked:
+                        replaceAll = tkinter.messagebox.askyesno(message='Replace the rest of the duplicates as well?')
+                        asked = True
+
                     # delete the existing order and let the insert happen
                     self.deleteOrder(order[1],order[3])
-                else:
+
+                if not replace or skipAll:
+
+                    if not skipAll and not asked:
+                        skipAll = tkinter.messagebox.askyesno(message='Skip the rest of the duplicates as well?')
+                        asked = True
+
+                    print('Skipped order ' + order[3] + ' from the file')
                     continue # skip the insert
+
 
             itemRows = [i for i in items if i[0]==order[1] and i[1]==order[3]]
             packageRows = [p for p in packages if p[0]==order[1] and p[1]==order[3]]
@@ -306,7 +329,6 @@ class Main:
             ?, /* country */
             ?, /* packingSlip */
             getdate()) /* dateStamp */'''
-            # QUERY NEEDS WORK -- ADD GET DATE AND UPPER THINGS
             db.cur.execute(insertQuery,order)
 
             # insert item rows
