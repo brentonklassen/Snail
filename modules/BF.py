@@ -10,16 +10,29 @@ import shutil
 import validate
 import settings
 import mail
+import tkinter.messagebox
 
 
 # global list var for errors
 errors = list()
 
 
-def getErrors():
-    errorsToReturn = tuple(errors)
+def outputErrors():
+
+    # show the errors in a message box
+    tkinter.messagebox.showinfo(message='\n'.join(errors))
+
+    # email the errors
+    email('\n'.join(errors))
+
+    # write the errors to a file
+    if settings.isset('bferrordir'):
+        with open(os.path.join(settings.get('bferrordir'),'errorlog.txt'), 'a') as f:
+            for error in errors:
+                f.write(error + '\n')
+
+    # delete the errors
     del errors[:]
-    return errorsToReturn
 
 
 def email(body):
@@ -83,21 +96,21 @@ def getOrders(path, columns):
             newRow["country"] = validate.country(row[18])
             if not newRow['country']:
                 msg = newRow['completeOrderReference'] + " from file '" + os.path.basename(path) + "' was skipped.\n"
-                msg += 'Could not validate country: ' + row[18]
+                msg += 'Could not validate country: ' + row[18] + '\n'
                 errors.append(msg)
                 continue
             
             newRow["region"] = validate.region(row[16], newRow['country'])
             if not newRow['region']:
                 msg = newRow['completeOrderReference'] + " from file '" + os.path.basename(path) + "' was skipped.\n"
-                msg += 'Could not validate region: ' + row[16]
+                msg += 'Could not validate region: ' + row[16] + '\n'
                 errors.append(msg)
                 continue
                 
             newRow["postCode"] = validate.postCode(row[17], newRow['country'])
             if not newRow['postCode']:
                 msg = newRow['completeOrderReference'] + " from file '" + os.path.basename(path) + "' was skipped.\n"
-                msg += 'Could not validate post code: ' + row[17]
+                msg += 'Could not validate post code: ' + row[17] + '\n'
                 errors.append(msg)
                 continue
             
@@ -107,13 +120,7 @@ def getOrders(path, columns):
                 print("Oops BF order parser added a column")
                 quit()
 
-        if errors:
-            print()
-            print('FIX ERRORS, RECORDS WERE SKIPPED')
-            print('\n'+'\n'.join(errors))
-            print('\nEND SKIP RECORD SECTION')
-            print()
-            email('\n'.join(errors))
+
         print("\nImported " + str(len(parsedRows)) + " orders from Betafresh file '" + os.path.basename(path) + "'")
         return parsedRows
 

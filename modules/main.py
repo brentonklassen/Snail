@@ -197,9 +197,7 @@ class Main:
         orders = BF.getOrders(file,self.orderColumns)
         items = BF.getItems(file,self.itemColumns)
         packages = BF.getPackages(file,self.packageColumns)
-        errors = BF.getErrors()
-        if errors:
-            tkinter.messagebox.showinfo(message='\n'.join(errors))
+        BF.outputErrors()
         BF.archiveFile(file)
 
         orderCount = self.importOrders(orders,items,packages)
