@@ -147,7 +147,7 @@ class Main:
             query = (selectQuery+' '+whereOrder).replace('\n',' ')
 
         else:
-            whereUnshipped = '''where o.packingSlip = 1 and convert(date,o.dateStamp)=convert(date,getdate()) and o.orderId in
+            whereUnshipped = '''where o.packingSlip = 1 and datediff(day,o.dateStamp,getdate())=0 and o.orderId in
             (
                     /* select orders with unshipped packages */
                     select o.orderId
@@ -255,7 +255,7 @@ class Main:
                     on o.merchantID = p.merchantID and o.shortOrderReference = p.shortOrderReference
             left join Snail.dbo.Shipment as s
                     on p.merchantID = s.merchantID and p.shortOrderReference = s.shortOrderReference and p.packageNumber = s.packageNumber
-            where s.ShipmentId is null and convert(date,o.dateStamp) = convert(date,getdate())
+            where s.ShipmentId is null and datediff(day,o.dateStamp,getdate())=0
         )
         ) as i
         group by i.itemTitle,i.itemSKU,i.itemattribs,i.itemQuantity
