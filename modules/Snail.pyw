@@ -37,6 +37,7 @@ class Snail:
         self.bottomButtonsFrame = tkinter.Frame(self.master)
         tkinter.Button(self.bottomButtonsFrame,text='Export pick list',command=self.Main.exportPickList).pack(side=tkinter.LEFT)
         tkinter.Button(self.bottomButtonsFrame,text='Print packing slips',command = self.Main.printPackingSlips).pack(side=tkinter.LEFT)
+        tkinter.Button(self.bottomButtonsFrame,text='Delete selected',command=self.deleteSelectedOrders).pack(side=tkinter.LEFT)
         tkinter.Button(self.bottomButtonsFrame,text='Refresh',command=self.populateOrdersTree).pack(side=tkinter.LEFT)
         self.bottomButtonsFrame.pack()
 
@@ -151,6 +152,14 @@ class Snail:
         merchantId = self.ordersTree.item(treeSelection,'values')[0]
         shortOrderRef = self.ordersTree.item(treeSelection,'values')[1]
         ordereditor.OrderEditor(self).edit(merchantId,shortOrderRef)
+
+
+    def deleteSelectedOrders(self):
+        for order in self.ordersTree.selection():
+            merchantId = self.ordersTree.item(order,'values')[0]
+            shortOrderRef = self.ordersTree.item(order,'values')[1]
+            self.Main.deleteOrder(merchantId,shortOrderRef)
+        self.populateOrdersTree()
         
         
 # RUN
