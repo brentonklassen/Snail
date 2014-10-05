@@ -125,7 +125,7 @@ class Snail:
             
         # get unshipped orders from db
         query = '''select o.merchant, o.merchantid, o.shortOrderReference, o.fullname, sum(o.itemQuantity) as items, o.dateStamp from (
-        select distinct o.merchant, o.merchantid, o.shortOrderReference, o.fullname, i.itemQuantity, o.dateStamp
+        select distinct o.merchant, o.merchantid, o.shortOrderReference, o.fullname, i.linenumber, i.itemQuantity, o.dateStamp
         from Snail.dbo.[Order] as o
         join Item as i on o.merchantID = i.merchantID and o.shortOrderReference = i.shortOrderReference
         left join Snail.dbo.Package as p
