@@ -95,21 +95,21 @@ def getOrders(path, columns):
             newRow["town"] = validate.clean(row[15])
             newRow['packingSlip'] = 0
             
-            newRow["country"] = validate.country(row[18])
+            newRow["country"] = validate.country(validate.clean(row[18]))
             if not newRow['country']:
                 msg = newRow['completeOrderReference'] + " from file '" + os.path.basename(path) + "' was skipped.\n"
                 msg += 'Could not validate country: ' + row[18] + '\n'
                 errors.append(msg)
                 continue
             
-            newRow["region"] = validate.region(row[16], newRow['country'])
+            newRow["region"] = validate.region(validate.clean(row[16]), newRow['country'])
             if not newRow['region']:
                 msg = newRow['completeOrderReference'] + " from file '" + os.path.basename(path) + "' was skipped.\n"
                 msg += 'Could not validate region: ' + row[16] + '\n'
                 errors.append(msg)
                 continue
                 
-            newRow["postCode"] = validate.postCode(row[17], newRow['country'])
+            newRow["postCode"] = validate.postCode(validate.clean(row[17]), newRow['country'])
             if not newRow['postCode']:
                 msg = newRow['completeOrderReference'] + " from file '" + os.path.basename(path) + "' was skipped.\n"
                 msg += 'Could not validate post code: ' + row[17] + '\n'
