@@ -182,9 +182,7 @@ class Main:
         packages = DSOL.getPackages(file,self.packageColumns)
         DSOL.outputErrors()
         DSOL.archiveFile(file)
-        
-        orderCount = self.importOrders(orders,items,packages)
-        tkinter.messagebox.showinfo(message="Imported "+str(orderCount)+" orders from '"+os.path.basename(file)+"'")
+        self.importOrders(os.path.basename(file),orders,items,packages)
 
 
     def importBF(self):
@@ -199,9 +197,7 @@ class Main:
         packages = BF.getPackages(file,self.packageColumns)
         BF.outputErrors()
         BF.archiveFile(file)
-
-        orderCount = self.importOrders(orders,items,packages)
-        tkinter.messagebox.showinfo(message="Imported "+str(orderCount)+" orders from '"+os.path.basename(file)+"'")
+        self.importOrders(os.path.basename(file),orders,items,packages)
 
 
     def importLTM(self):
@@ -218,9 +214,7 @@ class Main:
         if errors:
             tkinter.messagebox.showinfo(message='\n'.join(errors))
         BF.archiveFile(file)
-
-        orderCount = self.importOrders(orders,items,packages)
-        tkinter.messagebox.showinfo(message="Imported "+str(orderCount)+" orders from '"+os.path.basename(file)+"'")
+        self.importOrders(os.path.basename(file),orders,items,packages)
 
 
     def orderExists(self,merchantId,shortOrderRef):
@@ -265,11 +259,12 @@ class Main:
         subprocess.call('bcp "' + pickQuery.replace('\n',' ') + '" queryout ' + desktopfile + ' -T -c', shell=True)
 
 
-    def importOrders(self,orders,items,packages):
+    def importOrders(self,filename,orders,items,packages):
         
         print('Importing orders...')
         
         importedOrders = 0
+        skippedOrders = 0
         replace = False
         replaceAll = False
         skipAll = False
@@ -300,6 +295,7 @@ class Main:
                         asked = True
 
                     print('Skipped order ' + order[3] + ' from the file')
+                    skippedOrders += 1
                     continue # skip the insert
 
 
@@ -374,4 +370,7 @@ class Main:
             db.cur.commit()
             importedOrders += 1
 
-        return importedOrders
+        msg = "Imported "+str(importedOrders)+" orders from '"+filename+"'"
+        if skippedOrders: msg += "\nSkipped "+str(skippedOrders)+" duplicate orders"
+        tkinter.messagebox.showinfo(message=msg)
+
