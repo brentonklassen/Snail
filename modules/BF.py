@@ -183,8 +183,8 @@ def getPackages(path, columns):
             newRow['returnAdd1'] = validate.clean(row[5])
             newRow['returnAdd2'] = validate.clean(row[6])
             newRow['returnCity'] = validate.clean(row[7])
-            newRow['returnState'] = validate.region(row[8])
-            newRow['returnZip'] = validate.postCode(row[9])
+            newRow['returnState'] = validate.clean(row[8])
+            newRow['returnZip'] = validate.clean(row[9])
             newRow['bulk'] = 1
             newRow['packageNumber'] = 1
             newRow['carrier'] = 26
