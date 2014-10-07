@@ -16,6 +16,7 @@ import tkinter.messagebox
 import DSOL 
 import BF
 import LTM
+import Sheets
 
 
 class Main:
@@ -215,6 +216,17 @@ class Main:
             tkinter.messagebox.showinfo(message='\n'.join(errors))
         BF.archiveFile(file)
         self.importOrders(os.path.basename(file),orders,items,packages)
+
+
+    def importSheets(self):
+
+        file = Sheets.getNextFile()
+        if not file:
+            tkinter.messagebox.showinfo(message='There are no new Sheets files')
+            return
+
+        orders = Sheets.getOrders(file,self.orderColumns)
+        print(orders)
 
 
     def orderExists(self,merchantId,shortOrderRef):
