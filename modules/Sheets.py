@@ -132,3 +132,48 @@ def getOrders(path, columns):
         print("\nImported " + str(len(parsedRows)) + " orders from Sheets file '" + os.path.basename(path) + "'")
         return parsedRows
 
+
+def getItems(path, columns):
+
+    with open(path) as file:
+        reader = csv.reader(file) # create a CSV reader object
+        parsedRows = list() # create a list to hold the new rows
+        orderLine = 0
+        next(reader) # skip header row
+
+        for row in reader:
+
+            # create a new ordered dictionary to hold the row info
+            newRow = collections.OrderedDict.fromkeys(columns)
+            
+            if len(row) < 2 or not row[17]:
+                continue # skip row if < 2 cols or no item title
+            
+            if row[51]: # this line has an order number
+                # we've found a new order
+                orderLine = 1 # reset line number to 1
+                
+            else: # this line has no order number
+                # this is another line of the same order
+                orderLine += 1 # increment the line number
+                row[51] = prevRef # use the order reference from the previous line
+
+            # map info from input file row to new row dict
+            
+            newRow["shortOrderReference"] = validate.clean(row[51])
+            newRow["merchantID"] = 30
+            newRow["lineNumber"] = orderLine
+            newRow['itemTitle'] = validate.clean(row[17])
+            newRow["itemQuantity"] = validate.clean(row[16])
+            newRow['itemUnitCost'] = validate.clean(row[18])
+                
+            if len(columns) == len(newRow):
+                parsedRows.append(list(newRow.values()))
+            else:
+                print("Oops, DSOL item parser added a column")
+                quit()
+
+            prevRef = row[51] # keep reference in case next row needs it
+
+        print("Imported " + str(len(parsedRows)) + " item rows from Dance Shoes Online file '" + os.path.basename(path) + "'")
+        return parsedRows

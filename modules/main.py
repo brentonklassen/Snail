@@ -226,7 +226,11 @@ class Main:
             return
 
         orders = Sheets.getOrders(file,self.orderColumns)
-        print(orders)
+        items = Sheets.getItems(file,self.itemColumns)
+        print(items)
+        Sheets.outputErrors()
+        Sheets.archiveFile(file)
+        self.importOrders(os.path.basename(file),orders,items,[])
 
 
     def orderExists(self,merchantId,shortOrderRef):
