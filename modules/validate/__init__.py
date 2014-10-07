@@ -90,7 +90,7 @@ def region(r, country='US'):
 def postCode(p, country='US'):
 
     if country == 'US':
-        match = re.match('^(\d{5})(?:[-\s]\d{4})?$', p)
+        match = re.match('^(\d{5})(?:[-\s]*\d{4})?$', p)
         if match:
             return match.group(1)
 
