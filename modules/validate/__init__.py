@@ -1,6 +1,6 @@
 # Brenton Klassen
 # Created 8/19/2014
-# Updated 9/17/2014
+# v1.1 updated 10/08/2014
 
 import string
 import csv
