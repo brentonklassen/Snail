@@ -86,7 +86,7 @@ def getOrders(path, columns):
             newRow = collections.OrderedDict.fromkeys(columns)
 
             newRow['merchant'] = 'Lighttake'
-            newRow['merchantID'] = 0
+            newRow['merchantID'] = 36
             newRow['completeOrderReference'] = validate.clean(row[0])
             newRow['shortOrderReference'] = validate.clean(row[0])
             newRow['fullName'] = validate.clean(row[3])
@@ -145,7 +145,7 @@ def getItems(path, columns):
             else:
                 lineNumber = 1
 
-            newRow['merchantID'] = 0
+            newRow['merchantID'] = 36
             newRow['shortOrderReference'] = validate.clean(row[0])
             newRow['lineNumber'] = lineNumber
             newRow['itemTitle'] = validate.clean(row[11])
