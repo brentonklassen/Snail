@@ -1,23 +1,46 @@
 # Brenton Klassen
 # 09/09/2014
-# Lightake/Marvellous parser
+# Lighttake/Marvellous parser
 
 import os
 import csv
-import time
+import shutil
 import collections
 import validate
 import settings
+import tkinter.messagebox
 
 
 # global list var for errors
 errors = list()
 
 
-def getErrors():
-    errorsToReturn = tuple(errors)
-    del errors[:]
-    return errorsToReturn
+def outputErrors():
+
+    if errors:
+
+        # show the errors in a message box
+        tkinter.messagebox.showinfo(message='\n'.join(errors))
+
+        # email the errors
+        email('\n'.join(errors))
+
+        # write the errors to a file
+        if settings.isset('ltmerrordir'):
+            with open(os.path.join(settings.get('ltmerrordir'),'errorlog.txt'), 'a') as f:
+                for error in errors:
+                    f.write(error + '\n')
+
+        # delete the errors
+        del errors[:]
+
+
+def email(body):
+    if settings.isset('mailltmto'):
+        to = settings.get('mailltmto')
+        subject = 'SkuTouch could not validate orders from Lighttake'
+        print('Sending email to ' + to)
+        mail.sendmail(to, subject, body)
 
 
 def getNextFile():
@@ -62,7 +85,7 @@ def getOrders(path, columns):
             # create a new ordered dictionary to hold the row info
             newRow = collections.OrderedDict.fromkeys(columns)
 
-            newRow['merchant'] = 'Lightake'
+            newRow['merchant'] = 'Lighttake'
             newRow['merchantID'] = 0
             newRow['completeOrderReference'] = validate.clean(row[0])
             newRow['shortOrderReference'] = validate.clean(row[0])
@@ -70,6 +93,7 @@ def getOrders(path, columns):
             newRow['phoneNumber'] = validate.phone(row[10])
             newRow['address1'] = validate.clean(row[5])
             newRow['town'] = validate.clean(row[6])
+            newRow['packingSlip'] = 1
             
             newRow['country'] = validate.country(validate.clean(row[9]))
             if not newRow['country']:
@@ -89,25 +113,16 @@ def getOrders(path, columns):
                 msg += 'Could not validate post code: ' + row[8]
                 continue
 
-            newRow['packingSlip'] = 1
-            newRow['dateStamp'] = time.strftime("%Y-%m-%d")
-
             if len(columns) == len(newRow):
                 parsedRows.append(list(newRow.values()))
             else:
+                print(newRow)
                 print("Oops, LTM order parser added a column")
                 quit()
 
             prevRow = row
 
-    if errors:
-        print()
-        print('FIX ERRORS, RECORDS WERE SKIPPED')
-        print('\n'.join(errors))
-        print('END SKIP RECORD SECTION')
-        print()
-        email('\n'.join(errors))
-    print("\nImported " + str(len(parsedRows)) + " orders from Lighttake file '" + os.path.basename(path) + "'")
+    print("Imported " + str(len(parsedRows)) + " orders from Lighttake file '" + os.path.basename(path) + "'")
     return parsedRows
 
 
@@ -133,7 +148,6 @@ def getItems(path, columns):
 
             newRow['merchantID'] = 0
             newRow['shortOrderReference'] = validate.clean(row[0])
-            newRow['dateStamp'] = time.strftime("%Y-%m-%d")
             newRow['lineNumber'] = lineNumber
             newRow['itemTitle'] = validate.clean(row[11])
             newRow['itemSKU'] = validate.clean(row[13])

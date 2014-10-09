@@ -210,9 +210,7 @@ class Main:
         orders = LTM.getOrders(file,self.orderColumns)
         items = LTM.getItems(file,self.itemColumns)
         packages = LTM.getPackages(file,self.packageColumns)
-        errors = LTM.getErrors()
-        if errors:
-            tkinter.messagebox.showinfo(message='\n'.join(errors))
+        LTM.outputErrors()
         LTM.archiveFile(file)
         self.importOrders(os.path.basename(file),orders,items,packages)
 
