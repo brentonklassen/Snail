@@ -116,13 +116,12 @@ def getOrders(path, columns):
             if len(columns) == len(newRow):
                 parsedRows.append(list(newRow.values()))
             else:
-                print(newRow)
                 print("Oops, LTM order parser added a column")
                 quit()
 
             prevRow = row
 
-    print("Imported " + str(len(parsedRows)) + " orders from Lighttake file '" + os.path.basename(path) + "'")
+    print("\nImported " + str(len(parsedRows)) + " orders from Lighttake file '" + os.path.basename(path) + "'")
     return parsedRows
 
 
