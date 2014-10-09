@@ -213,7 +213,7 @@ class Main:
         errors = LTM.getErrors()
         if errors:
             tkinter.messagebox.showinfo(message='\n'.join(errors))
-        BF.archiveFile(file)
+        LTM.archiveFile(file)
         self.importOrders(os.path.basename(file),orders,items,packages)
 
 
