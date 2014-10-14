@@ -4,33 +4,63 @@
 
 import db
 import os
-import time
+import datetime
 import csv
 import settings
+import pickle
 
 class Confirmations:
 
 	def __init__(self):
 
 		self.bfconfirmationsdir = ''
+		
 		if settings.isset('bfconfirmationsdir'):
 			self.bfconfirmationsdir = settings.get('bfconfirmationsdir')
 
+		self.confirmationsPickle = dict()
+		if os.path.isfile('confirmations.pickle'):
+			with open('confirmations.pickle', 'rb') as f:
+				self.confirmationsPickle = pickle.load(f)
+
+		if 'lastbfconfirmation' not in self.confirmationsPickle:
+			# assume the last confirmation was yesterday
+			self.confirmationsPickle['lastbfconfirmation'] = datetime.date.today() - datetime.timedelta(days=1)
+	    
+
 	def exportBetafreshConfirmations(self):
 
-		selectQuery = '''select o.completeOrderReference,s.trackingNumber,s.dateStamp
-		from Snail.dbo.[Order] as o 
-		join Snail.dbo.Shipment as s 
-			on s.merchantID = o.merchantID and s.shortOrderReference = o.shortOrderReference 
-		where o.merchantid = 38 and datediff(day,s.dateStamp,getdate())=0'''
+		today = datetime.date.today()
 
-		db.cur.execute(selectQuery)
+		daysMissed = (today - self.confirmationsPickle['lastbfconfirmation']).days
+		while daysMissed > 0:
 
-		with open(os.path.join(self.bfconfirmationsdir,time.strftime('%Y-%m-%d')+'.csv'),'w') as f:
+			# add 1 day to date of last confirmation
+			self.confirmationsPickle['lastbfconfirmation'] += datetime.timedelta(days=1)
+			
+			# re-calculate days missed
+			daysMissed = (today - self.confirmationsPickle['lastbfconfirmation']).days
 
-			writer = csv.writer(f)
-			for row in db.cur.fetchall():
-				writer.write(row)
+			selectQuery = '''select o.completeOrderReference,s.trackingNumber,s.dateStamp
+			from Snail.dbo.[Order] as o 
+			join Snail.dbo.Shipment as s 
+				on s.merchantID = o.merchantID and s.shortOrderReference = o.shortOrderReference 
+			where o.merchantid = 38 and datediff(day,s.dateStamp,getdate())='''+str(daysMissed)
+			db.cur.execute(selectQuery)
+
+			confirmationFileName = str(self.confirmationsPickle['lastbfconfirmation'])+'.csv'
+
+			print("exporting '"+confirmationFileName+"'")
+
+			with open(os.path.join(self.bfconfirmationsdir,confirmationFileName),'w') as f:
+
+				writer = csv.writer(f)
+				for row in db.cur.fetchall():
+					writer.write(row)
+
+		# dump the new date into the pickle
+		with open('confirmations.pickle', 'wb') as f:
+			pickle.dump(self.confirmationsPickle, f)
 
 
 # RUN
