@@ -14,7 +14,6 @@ class Confirmations:
 	def __init__(self):
 
 		self.bfconfirmationsdir = ''
-		
 		if settings.isset('bfconfirmationsdir'):
 			self.bfconfirmationsdir = settings.get('bfconfirmationsdir')
 
