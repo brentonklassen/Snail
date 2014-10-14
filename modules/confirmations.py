@@ -49,7 +49,7 @@ class Confirmations:
 
 			confirmationFileName = str(self.confirmationsPickle['lastbfconfirmation'])+'.csv'
 
-			print("exporting '"+confirmationFileName+"'")
+			print("exporting confirmations from "+str(daysMissed)+" days ago to '"+confirmationFileName+"'")
 
 			with open(os.path.join(self.bfconfirmationsdir,confirmationFileName),'w') as f:
 
