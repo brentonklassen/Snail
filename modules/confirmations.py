@@ -18,8 +18,9 @@ class Confirmations:
 			self.bfconfirmationsdir = settings.get('bfconfirmationsdir')
 
 		self.confirmationsPickle = dict()
-		if os.path.isfile('confirmations.pickle'):
-			with open('confirmations.pickle', 'rb') as f:
+		self.confirmationsPicklePath = os.path.join(settings.get('basepath'),'confirmations.pickle')
+		if os.path.isfile(self.confirmationsPicklePath):
+			with open(self.confirmationsPicklePath, 'rb') as f:
 				self.confirmationsPickle = pickle.load(f)
 
 		if 'lastbfconfirmation' not in self.confirmationsPickle:
@@ -58,7 +59,7 @@ class Confirmations:
 					writer.write(row)
 
 		# dump the new date into the pickle
-		with open('confirmations.pickle', 'wb') as f:
+		with open(self.confirmationsPicklePath, 'wb') as f:
 			pickle.dump(self.confirmationsPickle, f)
 
 
