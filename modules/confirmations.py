@@ -56,7 +56,7 @@ class Confirmations:
 
 				writer = csv.writer(f)
 				for row in db.cur.fetchall():
-					writer.write(row)
+					writer.writerow(row)
 
 		# dump the new date into the pickle
 		with open(self.confirmationsPicklePath, 'wb') as f:
