@@ -24,11 +24,13 @@ class Confirmations:
 				self.confirmationsPickle = pickle.load(f)
 
 		if 'lastbfconfirmation' not in self.confirmationsPickle:
-			# assume the last confirmation was yesterday
+			# assume the last bf confirmation was yesterday
 			self.confirmationsPickle['lastbfconfirmation'] = datetime.date.today() - datetime.timedelta(days=1)
 	    
 
 	def exportBetafreshConfirmations(self):
+
+		if not self.bfconfirmationsdir: return
 
 		today = datetime.date.today()
 
