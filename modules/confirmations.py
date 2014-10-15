@@ -52,7 +52,7 @@ class Confirmations:
 
 			print("exporting confirmations from "+str(daysMissed)+" days ago to '"+confirmationFileName+"'")
 
-			with open(os.path.join(self.bfconfirmationsdir,confirmationFileName),'w') as f:
+			with open(os.path.join(self.bfconfirmationsdir,confirmationFileName),'w', newline='') as f:
 
 				writer = csv.writer(f)
 				for row in db.cur.fetchall():
