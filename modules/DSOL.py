@@ -274,6 +274,7 @@ def getPackages(path, columns):
         # FIGURE OUT WHAT TO DO WITH THIS ORDER
 
         order_number = validate.clean(currentOrder[0][0].strip()).replace(' ','')
+        country = validate.country(validate.clean(currentOrder[0][7]))
         if '&' in order_number:
             newRow["shortOrderReference"] = order_number.split('&')[0].split('-')[-1]
         else:
@@ -298,7 +299,6 @@ def getPackages(path, columns):
                 sku = line[10].strip()
             womens = sku not in mensSkus
             size = float(sum(fractions.Fraction(s) for s in line[12].split()))
-            country = validate.country(validate.clean(row[7]))
 
             if size < 9 and womens:
                 newRow["packageNumber"] = 1
