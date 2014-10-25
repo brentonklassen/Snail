@@ -69,10 +69,16 @@ class Main:
 
     def deleteOrder(self,merchantId,shortOrderRef):
 
+        # record the deletion
+        insertQuery = "insert into Snail.dbo.Deletion (merchantID,shortOrderReference,carrier,trackingNumber,dateStamp)  \
+        select ?,?,carrier,trackingNumber,getdate() from Shipment where merchantID=? and shortOrderReference=?"
+        db.cur.execute(insertQuery,[merchantId,shortOrderRef,merchantId,shortOrderRef])
+
         db.cur.execute("delete from Snail.dbo.[Order] where merchantID=? and shortOrderReference=?",[merchantId,shortOrderRef])
         db.cur.execute("delete from Snail.dbo.Item where merchantID=? and shortOrderReference=?",[merchantId,shortOrderRef])
         db.cur.execute("delete from Snail.dbo.Package where merchantID=? and shortOrderReference=?",[merchantId,shortOrderRef])
         db.cur.execute("delete from Snail.dbo.Shipment where merchantID=? and shortOrderReference=?",[merchantId,shortOrderRef])
+        
         db.cur.commit()
         print('Deleted order ' + str(shortOrderRef) + ' from merchant ' + str(merchantId))
 
