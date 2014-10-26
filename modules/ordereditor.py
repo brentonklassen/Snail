@@ -305,8 +305,8 @@ class OrderEditor:
 
         # record the deletion
         insertQuery = "insert into Snail.dbo.Deletion (merchantID,shortOrderReference,carrier,trackingNumber,dateStamp)  \
-        select ?,?,carrier,trackingNumber,getdate() from Shipment where merchantID=? and shortOrderReference=?"
-        db.cur.execute(insertQuery,[self.merchantId,self.shortOrderRef,self.merchantId,self.shortOrderRef])
+        select ?,?,carrier,trackingNumber,getdate() from Shipment where merchantID=? and shortOrderReference=? and packagenumber=?"
+        db.cur.execute(insertQuery,[self.merchantId,self.shortOrderRef,self.merchantId,self.shortOrderRef,packageNum])
 
         db.cur.execute("delete from shipment where merchantid=? and shortorderreference=? and packagenumber=?",[self.merchantId,self.shortOrderRef,packageNum])
         db.cur.execute("delete from package where merchantid=? and shortorderreference=? and packagenumber=?",[self.merchantId,self.shortOrderRef,packageNum])
