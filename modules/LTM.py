@@ -8,6 +8,7 @@ import shutil
 import collections
 import validate
 import settings
+import productWeights
 import tkinter.messagebox
 
 
@@ -89,7 +90,7 @@ def getOrders(path, columns):
             newRow['merchantID'] = 36
             newRow['completeOrderReference'] = validate.clean(row[0])
             newRow['shortOrderReference'] = validate.clean(row[0])
-            newRow['fullName'] = validate.clean(row[3])
+            newRow['fullName'] = validate.clean(row[3]) + ' ' + validate.clean(row[4])
             newRow['phoneNumber'] = validate.phone(row[10])
             newRow['address1'] = validate.clean(row[5])
             newRow['town'] = validate.clean(row[6])
@@ -197,6 +198,8 @@ def getPackages(path, columns):
         # FIGURE OUT WHAT TO DO WITH THIS ORDER
 
         print(currentOrder[0][0] + ' has ' + str(len(currentOrder)) + ' lines')
+        firstSku = validate.clean(row[13])
+        print('The weight of the first item is ' + productWeights.get(('36',firstSku)))
 
         orderStart = orderEnd # move on to the next order
         
