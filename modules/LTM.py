@@ -197,9 +197,31 @@ def getPackages(path, columns):
 
         # FIGURE OUT WHAT TO DO WITH THIS ORDER
 
-        print(currentOrder[0][0] + ' has ' + str(len(currentOrder)) + ' lines')
-        firstSku = validate.clean(row[13])
-        print('The weight of the first item is ' + productWeights.get(('36',firstSku)))
+        newRow['merchantID'] = 36
+        newRow['shortOrderReference'] = validate.clean(row[0])
+        newRow["bulk"] = 0
+
+        itemCount = sum(int(row[14]) for row in currentOrder)
+
+        if itemCount == 1:
+            line = currentOrder[0]
+            sku = validate.clean(line[13])
+            qty = line[14]
+
+            newRow["carrier"] = 26
+            newRow['weight'] = productWeights.get(('36',sku))
+            newRow['note'] = qty + '-' + sku
+
+        else:
+            orderStart = orderEnd # move on to the next order
+            continue # don't create a package
+
+        # save the package row in completedLines
+        if len(columns) == len(newRow):
+            parsedRows.append(list(newRow.values()))
+        else:
+            print("Oops, DSOL shipping allocator added a column")
+            quit()
 
         orderStart = orderEnd # move on to the next order
         
