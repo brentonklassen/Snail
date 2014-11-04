@@ -1,6 +1,6 @@
 # Brenton Klassen
-# 09/09/2014
-# Lighttake/Marvellous parser
+# 11/04/2014
+# Groupon parser
 
 import os
 import csv
