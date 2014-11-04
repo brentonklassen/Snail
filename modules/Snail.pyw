@@ -30,6 +30,7 @@ class Snail:
         tkinter.Button(self.topButtonsFrame,text='Check DanceShoesOnline',command=self.checkDSOL).pack(side=tkinter.LEFT)
         tkinter.Button(self.topButtonsFrame,text='Check BetaFresh',command=self.checkBF).pack(side=tkinter.LEFT)
         tkinter.Button(self.topButtonsFrame,text='Check Lighttake',command=self.checkLTM).pack(side=tkinter.LEFT)
+        tkinter.Button(self.topButtonsFrame,text='Check Groupon',command=self.checkGroupon).pack(side=tkinter.LEFT)
         self.topButtonsFrame.pack()
 
 
@@ -54,6 +55,11 @@ class Snail:
 
     def checkLTM(self):
         self.Main.importLTM()
+        self.populateOrdersTree()
+
+
+    def checkGroupon(self):
+        self.Main.importGroupon()
         self.populateOrdersTree()
 
 

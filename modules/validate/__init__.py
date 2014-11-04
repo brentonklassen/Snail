@@ -38,6 +38,9 @@ def clean(s):
 
 
 def country(c):
+
+    if c.upper() == 'USA':
+        return 'US'
     
     for abbrev, country in countries:
         if c.upper() == abbrev.upper():

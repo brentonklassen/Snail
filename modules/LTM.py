@@ -100,18 +100,21 @@ def getOrders(path, columns):
             if not newRow['country']:
                 msg = newRow['completeOrderReference'] + " from file '" + os.path.basename(path) + "' was skipped.\n"
                 msg += 'Could not validate country: ' + row[9]
+                errors.append(msg)
                 continue
 
             newRow['region'] = validate.region(validate.clean(row[7]), newRow['country'])
             if not newRow['region']:
                 msg = newRow['completeOrderReference'] + " from file '" + os.path.basename(path) + "' was skipped.\n"
                 msg += 'Could not validate region: ' + row[7]
+                errors.append(msg)
                 continue
 
             newRow['postCode'] = validate.postCode(validate.clean(row[8]), newRow['country'])
             if not newRow['postCode']:
                 msg = newRow['completeOrderReference'] + " from file '" + os.path.basename(path) + "' was skipped.\n"
                 msg += 'Could not validate post code: ' + row[8]
+                errors.append(msg)
                 continue
 
             if len(columns) == len(newRow):

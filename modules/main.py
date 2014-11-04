@@ -16,6 +16,7 @@ import tkinter.messagebox
 import DSOL 
 import BF
 import LTM
+import Groupon
 
 
 class Main:
@@ -218,6 +219,21 @@ class Main:
         packages = LTM.getPackages(file,self.packageColumns)
         LTM.outputErrors()
         LTM.archiveFile(file)
+        self.importOrders(os.path.basename(file),orders,items,packages)
+
+
+    def importGroupon(self):
+        
+        file = Groupon.getNextFile()
+        if not file:
+            tkinter.messagebox.showinfo(message='There are no new Groupon files')
+            return
+        
+        orders = Groupon.getOrders(file,self.orderColumns)
+        items = Groupon.getItems(file,self.itemColumns)
+        packages = Groupon.getPackages(file,self.packageColumns)
+        Groupon.outputErrors()
+        Groupon.archiveFile(file)
         self.importOrders(os.path.basename(file),orders,items,packages)
 
 
