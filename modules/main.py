@@ -17,6 +17,7 @@ import DSOL
 import BF
 import LTM
 import Groupon
+import ncrowd
 
 
 class Main:
@@ -234,6 +235,21 @@ class Main:
         packages = Groupon.getPackages(file,self.packageColumns)
         Groupon.outputErrors()
         Groupon.archiveFile(file)
+        self.importOrders(os.path.basename(file),orders,items,packages)
+
+
+    def importNcrowd(self):
+        
+        file = ncrowd.getNextFile()
+        if not file:
+            tkinter.messagebox.showinfo(message='There are no new ncrowd files')
+            return
+        
+        orders = ncrowd.getOrders(file,self.orderColumns)
+        items = ncrowd.getItems(file,self.itemColumns)
+        packages = ncrowd.getPackages(file,self.packageColumns)
+        ncrowd.outputErrors()
+        ncrowd.archiveFile(file)
         self.importOrders(os.path.basename(file),orders,items,packages)
 
 
