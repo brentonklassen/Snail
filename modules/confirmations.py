@@ -11,11 +11,11 @@ import pickle
 
 class Confirmations:
 
-	def __init__(self):
+	def __init__(self,merchant,merchantid):
 
-		self.bfconfirmationsdir = ''
-		if settings.isset('bfconfirmationsdir'):
-			self.bfconfirmationsdir = settings.get('bfconfirmationsdir')
+		self.merchant = merchant
+		self.merchantid = merchantid
+		self.confirmationsdir = settings.get(merchant + 'confirmationsdir')
 
 		self.confirmationsPickle = dict()
 		self.confirmationsPicklePath = os.path.join(settings.get('basepath'),'confirmations.pickle')
@@ -23,38 +23,38 @@ class Confirmations:
 			with open(self.confirmationsPicklePath, 'rb') as f:
 				self.confirmationsPickle = pickle.load(f)
 
-		if 'lastbfconfirmation' not in self.confirmationsPickle:
+		if 'last'+merchant+'confirmation' not in self.confirmationsPickle:
 			# assume the last bf confirmation was yesterday
-			self.confirmationsPickle['lastbfconfirmation'] = datetime.date.today() - datetime.timedelta(days=1)
+			self.confirmationsPickle['last'+merchant+'confirmation'] = datetime.date.today() - datetime.timedelta(days=1)
 	    
 
-	def exportBetafreshConfirmations(self):
+	def exportConfirmations(self):
 
-		if not self.bfconfirmationsdir: return
+		if not self.confirmationsdir: return
 
 		today = datetime.date.today()
 
-		daysMissed = (today - self.confirmationsPickle['lastbfconfirmation']).days
+		daysMissed = (today - self.confirmationsPickle['last'+self.merchant+'confirmation']).days
 		while daysMissed > 0:
 
 			# add 1 day to date of last confirmation
-			self.confirmationsPickle['lastbfconfirmation'] += datetime.timedelta(days=1)
+			self.confirmationsPickle['last'+self.merchant+'confirmation'] += datetime.timedelta(days=1)
 			
 			# re-calculate days missed
-			daysMissed = (today - self.confirmationsPickle['lastbfconfirmation']).days
+			daysMissed = (today - self.confirmationsPickle['last'+self.merchant+'confirmation']).days
 
 			selectQuery = '''select o.completeOrderReference,s.trackingNumber,s.dateStamp
 			from Snail.dbo.[Order] as o 
 			join Snail.dbo.Shipment as s 
 				on s.merchantID = o.merchantID and s.shortOrderReference = o.shortOrderReference 
-			where o.merchantid = 38 and datediff(day,s.dateStamp,getdate())='''+str(daysMissed)
-			db.cur.execute(selectQuery)
+			where o.merchantid = ? and datediff(day,s.dateStamp,getdate())='''+str(daysMissed)
+			db.cur.execute(selectQuery,[self.merchantid])
 
-			confirmationFileName = str(self.confirmationsPickle['lastbfconfirmation'])+'.csv'
+			confirmationFileName = str(self.confirmationsPickle['last'+self.merchant+'confirmation'])+'.csv'
 
 			print("exporting confirmations from "+str(daysMissed)+" days ago to '"+confirmationFileName+"'")
 
-			with open(os.path.join(self.bfconfirmationsdir,confirmationFileName),'w', newline='') as f:
+			with open(os.path.join(self.confirmationsdir,confirmationFileName),'w', newline='') as f:
 
 				writer = csv.writer(f)
 				for row in db.cur.fetchall():
@@ -66,5 +66,5 @@ class Confirmations:
 
 
 # RUN
-C = Confirmations()
-C.exportBetafreshConfirmations()
+C = Confirmations('bf',38)
+C.exportConfirmations()
