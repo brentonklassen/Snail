@@ -30,8 +30,6 @@ class Confirmations:
 
 	def exportConfirmations(self):
 
-		if not self.confirmationsdir: return
-
 		today = datetime.date.today()
 
 		daysMissed = (today - self.confirmationsPickle['last'+self.merchant+'confirmation']).days
