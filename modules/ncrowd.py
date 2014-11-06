@@ -183,7 +183,7 @@ def getPackages(path, columns):
             if len(columns) == len(newRow):
                 parsedRows.append(list(newRow.values()))
             else:
-                print("Oops, DSOL shipping allocator added a column")
+                print("Oops, ncrowd shipping allocator added a column")
                 quit()
 
         
