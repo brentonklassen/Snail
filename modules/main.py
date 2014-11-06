@@ -240,16 +240,16 @@ class Main:
 
     def importNcrowd(self):
         
-        file = ncrowd.getNextFile()
+        file = Ncrowd.getNextFile()
         if not file:
-            tkinter.messagebox.showinfo(message='There are no new ncrowd files')
+            tkinter.messagebox.showinfo(message='There are no new Ncrowd files')
             return
         
-        orders = ncrowd.getOrders(file,self.orderColumns)
-        items = ncrowd.getItems(file,self.itemColumns)
-        packages = ncrowd.getPackages(file,self.packageColumns)
-        ncrowd.outputErrors()
-        ncrowd.archiveFile(file)
+        orders = Ncrowd.getOrders(file,self.orderColumns)
+        items = Ncrowd.getItems(file,self.itemColumns)
+        packages = Ncrowd.getPackages(file,self.packageColumns)
+        Ncrowd.outputErrors()
+        Ncrowd.archiveFile(file)
         self.importOrders(os.path.basename(file),orders,items,packages)
 
 

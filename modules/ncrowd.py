@@ -39,7 +39,7 @@ def outputErrors():
 def email(body):
     if settings.isset('mailncrowdto'):
         to = settings.get('mailncrowdto')
-        subject = 'SkuTouch could not validate orders from ncrowd'
+        subject = 'SkuTouch could not validate orders from Ncrowd'
         print('Sending email to ' + to)
         mail.sendmail(to, subject, body)
 
@@ -48,11 +48,12 @@ def getNextFile():
 
     # source dir
     sourceDir = settings.get('ncrowddrop')
+    MarvelousDrop = os.path.join(sourceDir,'Marvelous') # Ncrowd only sells Marvelous products
 
-    for file in os.listdir(sourceDir):
+    for file in os.listdir(MarvelousDrop):
         filename, ext = os.path.splitext(file)
         if ext == '.csv':
-            return os.path.join(sourceDir,file)
+            return os.path.join(MarvelousDrop,file)
 
     return ''
 
@@ -115,12 +116,12 @@ def getOrders(path, columns):
             if len(columns) == len(newRow):
                 parsedRows.append(list(newRow.values()))
             else:
-                print("Oops, LTM order parser added a column")
+                print("Oops, Ncrowd order parser added a column")
                 quit()
 
             prevRow = row
 
-    print("\nImported " + str(len(parsedRows)) + " orders from ncrowd file '" + os.path.basename(path) + "'")
+    print("\nImported " + str(len(parsedRows)) + " orders from Ncrowd file '" + os.path.basename(path) + "'")
     return parsedRows
 
 
@@ -149,12 +150,12 @@ def getItems(path, columns):
             if len(columns) == len(newRow):
                 parsedRows.append(list(newRow.values()))
             else:
-                print("Oops, ncrowd item parser added a column")
+                print("Oops, Ncrowd item parser added a column")
                 quit()
 
             prevRow = row
 
-    print("Imported " + str(len(parsedRows)) + " item rows from ncrowd file '" + os.path.basename(path) + "'")
+    print("Imported " + str(len(parsedRows)) + " item rows from Ncrowd file '" + os.path.basename(path) + "'")
     return parsedRows
 
 
@@ -183,7 +184,7 @@ def getPackages(path, columns):
             if len(columns) == len(newRow):
                 parsedRows.append(list(newRow.values()))
             else:
-                print("Oops, ncrowd shipping allocator added a column")
+                print("Oops, Ncrowd shipping allocator added a column")
                 quit()
 
         
