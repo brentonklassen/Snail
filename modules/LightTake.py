@@ -27,8 +27,8 @@ def outputErrors():
         email('\n'.join(errors))
 
         # write the errors to a file
-        if settings.isset('ltmerrordir'):
-            with open(os.path.join(settings.get('ltmerrordir'),'errorlog.txt'), 'a') as f:
+        if settings.isset('lighttakeerrordir'):
+            with open(os.path.join(settings.get('lighttakeerrordir'),'errorlog.txt'), 'a') as f:
                 for error in errors:
                     f.write(error + '\n')
 
@@ -37,9 +37,9 @@ def outputErrors():
 
 
 def email(body):
-    if settings.isset('mailltmto'):
-        to = settings.get('mailltmto')
-        subject = 'SkuTouch could not validate orders from Lighttake'
+    if settings.isset('maillighttaketo'):
+        to = settings.get('maillighttaketo')
+        subject = 'SkuTouch could not validate orders from LightTake'
         print('Sending email to ' + to)
         mail.sendmail(to, subject, body)
 
@@ -47,12 +47,13 @@ def email(body):
 def getNextFile():
 
     # source dir
-    sourceDir = settings.get('ltmdrop')
+    sourceDir = settings.get('lighttakedrop')
+    MarvellousDrop = os.path.join(sourceDir,'Marvelous')
 
-    for file in os.listdir(sourceDir):
+    for file in os.listdir(MarvellousDrop):
         filename, ext = os.path.splitext(file)
         if ext == '.csv':
-            return os.path.join(sourceDir,file)
+            return os.path.join(MarvellousDrop,file)
 
     return ''
 
@@ -60,7 +61,7 @@ def getNextFile():
 def archiveFile(path):
 
     # archive dir
-    archiveDir = settings.get('ltmarchive')
+    archiveDir = settings.get('lighttakearchive')
 
     # move file to archive folder
     if not os.path.isfile(os.path.join(archiveDir, os.path.basename(path))):
@@ -86,7 +87,7 @@ def getOrders(path, columns):
             # create a new ordered dictionary to hold the row info
             newRow = collections.OrderedDict.fromkeys(columns)
 
-            newRow['merchant'] = 'Lighttake'
+            newRow['company'] = 'Marvelous'
             newRow['merchantID'] = 36
             newRow['completeOrderReference'] = validate.clean(row[0])
             newRow['shortOrderReference'] = validate.clean(row[0])

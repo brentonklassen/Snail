@@ -28,8 +28,8 @@ def outputErrors():
         email('\n'.join(errors))
 
         # write the errors to a file
-        if settings.isset('bferrordir'):
-            with open(os.path.join(settings.get('bferrordir'),'errorlog.txt'), 'a') as f:
+        if settings.isset('stacksocialerrordir'):
+            with open(os.path.join(settings.get('stacksocialerrordir'),'errorlog.txt'), 'a') as f:
                 for error in errors:
                     f.write(error + '\n')
 
@@ -38,9 +38,9 @@ def outputErrors():
 
 
 def email(body):
-    if settings.isset('mailBFto'):
-        to = settings.get('mailBFto')
-        subject = 'SkuTouch could not validate orders from Betafresh'
+    if settings.isset('mailstacksocialto'):
+        to = settings.get('mailstacksocialto')
+        subject = 'SkuTouch could not validate orders from StackSocial'
         print('Sending email to ' + to)
         mail.sendmail(to,subject,body)
 
@@ -48,12 +48,13 @@ def email(body):
 def getNextFile():
 
     # source dir
-    sourceDir = settings.get('bfdrop')
+    sourceDir = settings.get('stacksocialdrop')
+    BetafreshDir = os.path.join(sourceDir,'Betafresh') # Stack Social only sells Betafresh
     
-    for file in os.listdir(sourceDir):
+    for file in os.listdir(BetafreshDir):
         filename, ext = os.path.splitext(file)
         if ext == ".csv":
-            return os.path.join(sourceDir,file)
+            return os.path.join(BetafreshDir,file)
             
     return ''
 
@@ -61,7 +62,7 @@ def getNextFile():
 def archiveFile(path):
 
     # archive dir
-    archivedir = settings.get('bfarchive')
+    archivedir = settings.get('stacksocialarchive')
     
     # move file to archive folder
     if not os.path.isfile(os.path.join(archivedir, os.path.basename(path))):
@@ -84,7 +85,7 @@ def getOrders(path, columns):
             if len(row) < 2 or row[13] == '':
                 continue # skip if < 2 cols or no sku
 
-            newRow['merchant'] = 'Betafresh'
+            newRow['company'] = 'Betafresh'
             newRow["completeOrderReference"] = validate.clean(row[0])
             newRow["shortOrderReference"] = validate.clean(row[0])
             newRow["merchantID"] = 38
@@ -119,11 +120,11 @@ def getOrders(path, columns):
             if len(columns) == len(newRow):
                 parsedRows.append(list(newRow.values()))
             else:
-                print("Oops BF order parser added a column")
+                print("Oops StackSocial order parser added a column")
                 quit()
 
 
-        print("\nImported " + str(len(parsedRows)) + " orders from Betafresh file '" + os.path.basename(path) + "'")
+        print("\nImported " + str(len(parsedRows)) + " orders from StackSocial file '" + os.path.basename(path) + "'")
         return parsedRows
 
 
@@ -154,12 +155,12 @@ def getItems(path, columns):
                 if len(columns) == len(newRow):
                     parsedRows.append(list(newRow.values()))
                 else:
-                    print("Oops BF item parser added a column")
+                    print("Oops StackSocial item parser added a column")
                     quit()
                 
                 skuCol += 2
 
-        print("Imported " + str(len(parsedRows)) + " item lines from Betafresh file '" + os.path.basename(path) + "'")
+        print("Imported " + str(len(parsedRows)) + " item lines from StackSocial file '" + os.path.basename(path) + "'")
         return(parsedRows)
 
 
@@ -201,9 +202,9 @@ def getPackages(path, columns):
             if len(columns) == len(newRow):
                 parsedRows.append(list(newRow.values()))
             else:
-                print("Oops BF package parser added a column")
+                print("Oops StackSocial package parser added a column")
                 quit()
 
-        print("Imported " + str(len(parsedRows)) + " packages from Betafresh file '" + os.path.basename(path) + "'")
+        print("Imported " + str(len(parsedRows)) + " packages from StackSocial file '" + os.path.basename(path) + "'")
         return parsedRows
 

@@ -13,18 +13,18 @@ import tkinter
 import tkinter.messagebox
 
 # PARSING MODULES
-import DSOL 
-import BF
-import LTM
+import DSOL
+import StackSocial
+import LightTake
 import Groupon
-import ncrowd
+import Ncrowd
 
 
 class Main:
     
     def __init__(self):
         
-        self.orderColumns = ["merchant",
+        self.orderColumns = ["company",
             "merchantID",
             "completeOrderReference",
             "shortOrderReference",
@@ -193,33 +193,33 @@ class Main:
         self.importOrders(os.path.basename(file),orders,items,packages)
 
 
-    def importBF(self):
+    def importStackSocial(self):
         
-        file = BF.getNextFile()
+        file = StackSocial.getNextFile()
         if not file:
-            tkinter.messagebox.showinfo(message='There are no new BF files')
+            tkinter.messagebox.showinfo(message='There are no new StackSocial files')
             return
         
-        orders = BF.getOrders(file,self.orderColumns)
-        items = BF.getItems(file,self.itemColumns)
-        packages = BF.getPackages(file,self.packageColumns)
-        BF.outputErrors()
-        BF.archiveFile(file)
+        orders = StackSocial.getOrders(file,self.orderColumns)
+        items = StackSocial.getItems(file,self.itemColumns)
+        packages = StackSocial.getPackages(file,self.packageColumns)
+        StackSocial.outputErrors()
+        StackSocial.archiveFile(file)
         self.importOrders(os.path.basename(file),orders,items,packages)
 
 
-    def importLTM(self):
+    def importLightTake(self):
         
-        file = LTM.getNextFile()
+        file = LightTake.getNextFile()
         if not file:
-            tkinter.messagebox.showinfo(message='There are no new LTM files')
+            tkinter.messagebox.showinfo(message='There are no new LightTake files')
             return
         
-        orders = LTM.getOrders(file,self.orderColumns)
-        items = LTM.getItems(file,self.itemColumns)
-        packages = LTM.getPackages(file,self.packageColumns)
-        LTM.outputErrors()
-        LTM.archiveFile(file)
+        orders = LightTake.getOrders(file,self.orderColumns)
+        items = LightTake.getItems(file,self.itemColumns)
+        packages = LightTake.getPackages(file,self.packageColumns)
+        LightTake.outputErrors()
+        LightTake.archiveFile(file)
         self.importOrders(os.path.basename(file),orders,items,packages)
 
 
@@ -340,10 +340,10 @@ class Main:
 
             # insert order
             insertQuery = '''insert into [Order]
-            (merchant,merchantID,completeOrderReference,shortOrderReference,
+            (company,merchantID,completeOrderReference,shortOrderReference,
             fullName,phoneNumber,emailAddress,address1,
             address2,address3,town,region,postCode,country,packingSlip,dateStamp)
-            values (?, /* merchant */
+            values (?, /* company */
             ?, /* merchantID */
             ?, /* completeOrderReference */
             ?, /* shortOrderReference */

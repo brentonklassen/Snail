@@ -51,13 +51,13 @@ def getNextFile():
 
     # Groupon has several merhcants each with
     # their own drop folders. Go through these.
-    subDirs = [os.path.join(sourceDir,subdir) for subdir in os.listdir(sourceDir) if os.path.isdir(os.path.join(sourceDir,subdir))]
+    companies = [os.path.join(sourceDir,subdir) for subdir in os.listdir(sourceDir) if os.path.isdir(os.path.join(sourceDir,subdir))]
 
-    for subdir in subDirs:
-        for file in os.listdir(subdir):
+    for company in companies:
+        for file in os.listdir(company):
             filename, ext = os.path.splitext(file)
             if ext == '.csv':
-                return os.path.join(subdir,file)
+                return os.path.join(company,file)
 
     return ''
 
@@ -78,8 +78,6 @@ def archiveFile(path):
 
 def getOrders(path, columns):
 
-    merchant = os.path.split(os.path.dirname(path))[1]
-
     with open(path) as file:
         prevRow = list()
         parsedRows = list()
@@ -95,11 +93,8 @@ def getOrders(path, columns):
             # create a new ordered dictionary to hold the row info
             newRow = collections.OrderedDict.fromkeys(columns)
 
-            newRow['merchant'] = merchant
-
-            if merchant == 'Marvellous':
-                newRow['merchantID'] = 36
-
+            newRow['company'] = os.path.split(os.path.dirname(path))[1]
+            newRow['merchantID'] = 36
             newRow['completeOrderReference'] = validate.clean(row[0])
             newRow['shortOrderReference'] = validate.clean(row[0])
             newRow['fullName'] = validate.clean(row[6])
@@ -136,13 +131,11 @@ def getOrders(path, columns):
                 print("Oops, Groupon order parser added a column")
                 quit()
 
-    print("\nImported " + str(len(parsedRows)) + " orders from " + merchant + " file '" + os.path.basename(path) + "'")
+    print("\nImported " + str(len(parsedRows)) + " orders from Groupon file '" + os.path.basename(path) + "'")
     return parsedRows
 
 
 def getItems(path, columns):
-
-    merchant = os.path.split(os.path.dirname(path))[1]
 
     with open(path) as file:
         reader = csv.reader(file)
@@ -158,9 +151,7 @@ def getItems(path, columns):
             # create a new ordered dictionary to hold the row info
             newRow = collections.OrderedDict.fromkeys(columns)
 
-            if merchant == 'Marvellous':
-                newRow['merchantID'] = 36
-
+            newRow['merchantID'] = 36
             newRow['shortOrderReference'] = validate.clean(row[0])
             newRow['lineNumber'] = 1
             newRow['itemTitle'] = validate.clean(row[23])
@@ -171,7 +162,7 @@ def getItems(path, columns):
             if len(columns) == len(newRow):
                 parsedRows.append(list(newRow.values()))
             else:
-                print("Oops, LTM item parser added a column")
+                print("Oops, Lighttake item parser added a column")
                 quit()
 
             prevRow = row
@@ -183,7 +174,6 @@ def getItems(path, columns):
 def getPackages(path, columns):
 
     parsedRows = list()
-    merchant = os.path.split(os.path.dirname(path))[1]
 
     with open(path) as file:
         reader = csv.reader(file)
@@ -195,9 +185,7 @@ def getPackages(path, columns):
             # create a new ordered dictionary to hold the row info
             newRow = collections.OrderedDict.fromkeys(columns)
 
-            if merchant == 'Marvellous':
-                newRow['merchantID'] = 36
-                
+            newRow['merchantID'] = 36
             newRow['shortOrderReference'] = validate.clean(row[0])
             newRow["bulk"] = 0
             newRow["carrier"] = 26

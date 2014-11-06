@@ -1,9 +1,6 @@
 import main
 import ordereditor
 import db
-import DSOL
-import BF
-import LTM
 import os
 import tkinter
 import tkinter.messagebox
@@ -28,10 +25,10 @@ class Snail:
     def displayTopButtons(self):
         self.topButtonsFrame = tkinter.Frame(self.master)
         tkinter.Button(self.topButtonsFrame,text='Check DanceShoesOnline',command=self.checkDSOL).pack(side=tkinter.LEFT)
-        tkinter.Button(self.topButtonsFrame,text='Check BetaFresh',command=self.checkBF).pack(side=tkinter.LEFT)
-        tkinter.Button(self.topButtonsFrame,text='Check Lighttake',command=self.checkLTM).pack(side=tkinter.LEFT)
+        tkinter.Button(self.topButtonsFrame,text='Check StackSocial',command=self.checkStackSocial).pack(side=tkinter.LEFT)
+        tkinter.Button(self.topButtonsFrame,text='Check Lighttake',command=self.checkLightTake).pack(side=tkinter.LEFT)
         tkinter.Button(self.topButtonsFrame,text='Check Groupon',command=self.checkGroupon).pack(side=tkinter.LEFT)
-        tkinter.Button(self.topButtonsFrame,text='Check ncrowd',command=self.checkNcrowd).pack(side=tkinter.LEFT)
+        tkinter.Button(self.topButtonsFrame,text='Check Ncrowd',command=self.checkNcrowd).pack(side=tkinter.LEFT)
         self.topButtonsFrame.pack()
 
 
@@ -49,13 +46,13 @@ class Snail:
         self.populateOrdersTree()
 
 
-    def checkBF(self):
-        self.Main.importBF()
+    def checkStackSocial(self):
+        self.Main.importStackSocial()
         self.populateOrdersTree()
 
 
-    def checkLTM(self):
-        self.Main.importLTM()
+    def checkLightTake(self):
+        self.Main.importLightTake()
         self.populateOrdersTree()
 
 
@@ -113,7 +110,7 @@ class Snail:
     def configureOrdersTree(self):
 
         self.ordersTree['columns'] = ('merchantid', 'shortorderref', 'fullname', 'items', 'datestamp')
-        self.ordersTree.heading('#0', text='Merchant')
+        self.ordersTree.heading('#0', text='Company')
         self.ordersTree.heading('merchantid', text='Merchant Id')
         self.ordersTree.column('merchantid', width=100)
         self.ordersTree.heading('shortorderref', text='Short Order Ref')
@@ -136,8 +133,8 @@ class Snail:
             self.ordersTree.delete(child)
             
         # get unshipped orders from db
-        query = '''select o.merchant, o.merchantid, o.shortOrderReference, o.fullname, sum(o.itemQuantity) as items, o.dateStamp from (
-        select distinct o.merchant, o.merchantid, o.shortOrderReference, o.fullname, i.linenumber, i.itemQuantity, o.dateStamp
+        query = '''select o.company, o.merchantid, o.shortOrderReference, o.fullname, sum(o.itemQuantity) as items, o.dateStamp from (
+        select distinct o.company, o.merchantid, o.shortOrderReference, o.fullname, i.linenumber, i.itemQuantity, o.dateStamp
         from Snail.dbo.[Order] as o
         join Item as i on o.merchantID = i.merchantID and o.shortOrderReference = i.shortOrderReference
         left join Snail.dbo.Package as p
@@ -146,7 +143,7 @@ class Snail:
             on p.merchantID = s.merchantID and p.shortOrderReference = s.shortOrderReference and p.packageNumber = s.packageNumber
         where s.ShipmentId is null
         ) as o 
-        group by o.merchant,o.merchantID,o.shortOrderReference,o.fullName,o.dateStamp
+        group by o.company,o.merchantID,o.shortOrderReference,o.fullName,o.dateStamp
         order by o.datestamp desc'''
         db.cur.execute(query)
         orderRows = db.cur.fetchall()
