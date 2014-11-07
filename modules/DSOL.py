@@ -86,7 +86,7 @@ def getOrders(path, columns):
             if row[0]: # this line has an order number
 
                 # map info from input file row to new row dict
-                newRow["merchant"] = 'Dance Shoes Online'
+                newRow["company"] = 'Dance Shoes Online'
 
                 order_number = validate.clean(row[0].strip()).replace(' ','')
                 if '&' in order_number:
