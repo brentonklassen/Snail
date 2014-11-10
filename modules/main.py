@@ -281,7 +281,7 @@ class Main:
             /* select orders with unshipped packages */
             select o.orderId
             from Snail.dbo.[Order] as o
-            join Snail.dbo.Package as p
+            left join Snail.dbo.Package as p
                     on o.merchantID = p.merchantID and o.shortOrderReference = p.shortOrderReference
             left join Snail.dbo.Shipment as s
                     on p.merchantID = s.merchantID and p.shortOrderReference = s.shortOrderReference and p.packageNumber = s.packageNumber
