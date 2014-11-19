@@ -1,6 +1,6 @@
 # Brenton Klassen
 # 09/09/2014
-# Lighttake/Marvellous parser
+# Lightake/Marvellous parser
 
 import os
 import csv
@@ -27,8 +27,8 @@ def outputErrors():
         email('\n'.join(errors))
 
         # write the errors to a file
-        if settings.isset('lighttakeerrordir'):
-            with open(os.path.join(settings.get('lighttakeerrordir'),'errorlog.txt'), 'a') as f:
+        if settings.isset('lightakeerrordir'):
+            with open(os.path.join(settings.get('lightakeerrordir'),'errorlog.txt'), 'a') as f:
                 for error in errors:
                     f.write(error + '\n')
 
@@ -37,9 +37,9 @@ def outputErrors():
 
 
 def email(body):
-    if settings.isset('maillighttaketo'):
-        to = settings.get('maillighttaketo')
-        subject = 'SkuTouch could not validate orders from LightTake'
+    if settings.isset('maillightaketo'):
+        to = settings.get('maillightaketo')
+        subject = 'SkuTouch could not validate orders from Lightake'
         print('Sending email to ' + to)
         mail.sendmail(to, subject, body)
 
@@ -47,7 +47,7 @@ def email(body):
 def getNextFile():
 
     # source dir
-    sourceDir = settings.get('lighttakedrop')
+    sourceDir = settings.get('lightakedrop')
     MarvellousDrop = os.path.join(sourceDir,'Marvelous')
 
     for file in os.listdir(MarvellousDrop):
@@ -61,7 +61,7 @@ def getNextFile():
 def archiveFile(path):
 
     # archive dir
-    archiveDir = settings.get('lighttakearchive')
+    archiveDir = settings.get('lightakearchive')
 
     # move file to archive folder
     if not os.path.isfile(os.path.join(archiveDir, os.path.basename(path))):
@@ -126,7 +126,7 @@ def getOrders(path, columns):
 
             prevRow = row
 
-    print("\nImported " + str(len(parsedRows)) + " orders from Lighttake file '" + os.path.basename(path) + "'")
+    print("\nImported " + str(len(parsedRows)) + " orders from Lightake file '" + os.path.basename(path) + "'")
     return parsedRows
 
 
@@ -166,7 +166,7 @@ def getItems(path, columns):
 
             prevRow = row
 
-    print("Imported " + str(len(parsedRows)) + " item rows from Lighttake file '" + os.path.basename(path) + "'")
+    print("Imported " + str(len(parsedRows)) + " item rows from Lightake file '" + os.path.basename(path) + "'")
     return parsedRows
 
 
@@ -202,7 +202,7 @@ def getPackages(path, columns):
         # FIGURE OUT WHAT TO DO WITH THIS ORDER
 
         newRow['merchantID'] = 36
-        newRow['shortOrderReference'] = validate.clean(row[0])
+        newRow['shortOrderReference'] = validate.clean(currentOrder[0][0])
         newRow["bulk"] = 0
 
         itemCount = sum(int(row[14]) for row in currentOrder)
@@ -224,10 +224,11 @@ def getPackages(path, columns):
         if len(columns) == len(newRow):
             parsedRows.append(list(newRow.values()))
         else:
-            print("Oops, DSOL shipping allocator added a column")
+            print("Oops, Lightake shipping allocator added a column")
             quit()
 
         orderStart = orderEnd # move on to the next order
         
     print("Created " + str(len(parsedRows)) + " packages from '" + os.path.basename(path) + "'")
+
     return parsedRows

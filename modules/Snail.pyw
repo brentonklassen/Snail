@@ -26,7 +26,7 @@ class Snail:
         self.topButtonsFrame = tkinter.Frame(self.master)
         tkinter.Button(self.topButtonsFrame,text='Check DanceShoesOnline',command=self.checkDSOL).pack(side=tkinter.LEFT)
         tkinter.Button(self.topButtonsFrame,text='Check StackSocial',command=self.checkStackSocial).pack(side=tkinter.LEFT)
-        tkinter.Button(self.topButtonsFrame,text='Check Lighttake',command=self.checkLightTake).pack(side=tkinter.LEFT)
+        tkinter.Button(self.topButtonsFrame,text='Check Lightake',command=self.checkLightake).pack(side=tkinter.LEFT)
         tkinter.Button(self.topButtonsFrame,text='Check Groupon',command=self.checkGroupon).pack(side=tkinter.LEFT)
         tkinter.Button(self.topButtonsFrame,text='Check Ncrowd',command=self.checkNcrowd).pack(side=tkinter.LEFT)
         self.topButtonsFrame.pack()
@@ -51,8 +51,8 @@ class Snail:
         self.populateOrdersTree()
 
 
-    def checkLightTake(self):
-        self.Main.importLightTake()
+    def checkLightake(self):
+        self.Main.importLightake()
         self.populateOrdersTree()
 
 

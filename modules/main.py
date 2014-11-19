@@ -15,7 +15,7 @@ import tkinter.messagebox
 # PARSING MODULES
 import DSOL
 import StackSocial
-import LightTake
+import Lightake
 import Groupon
 import Ncrowd
 
@@ -208,18 +208,18 @@ class Main:
         self.importOrders(os.path.basename(file),orders,items,packages)
 
 
-    def importLightTake(self):
+    def importLightake(self):
         
-        file = LightTake.getNextFile()
+        file = Lightake.getNextFile()
         if not file:
-            tkinter.messagebox.showinfo(message='There are no new LightTake files')
+            tkinter.messagebox.showinfo(message='There are no new Lightake files')
             return
         
-        orders = LightTake.getOrders(file,self.orderColumns)
-        items = LightTake.getItems(file,self.itemColumns)
-        packages = LightTake.getPackages(file,self.packageColumns)
-        LightTake.outputErrors()
-        LightTake.archiveFile(file)
+        orders = Lightake.getOrders(file,self.orderColumns)
+        items = Lightake.getItems(file,self.itemColumns)
+        packages = Lightake.getPackages(file,self.packageColumns)
+        Lightake.outputErrors()
+        Lightake.archiveFile(file)
         self.importOrders(os.path.basename(file),orders,items,packages)
 
 
