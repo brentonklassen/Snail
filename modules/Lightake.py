@@ -203,6 +203,12 @@ def getPackages(path, columns):
 
         newRow['merchantID'] = 36
         newRow['shortOrderReference'] = validate.clean(currentOrder[0][0])
+        newRow['returnCompany'] = validate.clean(currentOrder[0][1])
+        newRow['returnAdd1'] = '8900 Rosehill Rd'
+        newRow['returnAdd2'] = 'Unit B Dock'
+        newRow['returnCity'] = 'Lenexa'
+        newRow['returnState'] = 'KS'
+        newRow['returnZip'] = '66215'
         newRow["bulk"] = 0
 
         itemCount = sum(int(row[14]) for row in currentOrder)
@@ -213,7 +219,9 @@ def getPackages(path, columns):
             qty = line[14]
 
             newRow["carrier"] = 26
-            newRow['weight'] = productWeights.get(('36',sku))
+            newRow['serviceClass'] = 12
+            #newRow['weight'] = productWeights.get(('36',sku))
+            newRow['weight'] = float(15/16);
             newRow['note'] = qty + '-' + sku
 
         else:
