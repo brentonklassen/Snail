@@ -154,7 +154,9 @@ def getItems(path, columns):
             newRow['shortOrderReference'] = validate.clean(row[0])
             newRow['lineNumber'] = lineNumber
             newRow['itemTitle'] = validate.clean(row[11])
-            newRow['itemSKU'] = validate.clean(row[13])
+            newRow['itemSKU'] = validate.clean(row[13].split('-')[-1]) # grab after the last -
+            newRow['itemAttribKey'] = 'Full SKU'
+            newRow['itemAttribVal'] = validate.clean(row[13]) # save entire sku
             newRow['itemQuantity'] = validate.clean(row[14])
             
 
