@@ -90,7 +90,7 @@ def getOrders(path, columns):
             newRow['company'] = 'Marvelous'
             newRow['merchantID'] = 36
             newRow['completeOrderReference'] = validate.clean(row[0])
-            newRow['shortOrderReference'] = validate.clean(row[0])
+            newRow['shortOrderReference'] = validate.clean(row[0]).split('-')[-1]
             newRow['fullName'] = validate.clean(row[3]) + ' ' + validate.clean(row[4])
             newRow['phoneNumber'] = validate.phone(row[10])
             newRow['address1'] = validate.clean(row[5])
@@ -151,7 +151,7 @@ def getItems(path, columns):
                 lineNumber = 1
 
             newRow['merchantID'] = 36
-            newRow['shortOrderReference'] = validate.clean(row[0])
+            newRow['shortOrderReference'] = validate.clean(row[0]).split('-')[-1]
             newRow['lineNumber'] = lineNumber
             newRow['itemTitle'] = validate.clean(row[11])
             newRow['itemSKU'] = validate.clean(row[13].split('-')[-1]) # grab after the last -
@@ -204,7 +204,7 @@ def getPackages(path, columns):
         # FIGURE OUT WHAT TO DO WITH THIS ORDER
 
         newRow['merchantID'] = 36
-        newRow['shortOrderReference'] = validate.clean(currentOrder[0][0])
+        newRow['shortOrderReference'] = validate.clean(currentOrder[0][0]).split('-')[-1]
         newRow['returnCompany'] = validate.clean(currentOrder[0][1])
         newRow['returnAdd1'] = '8900 Rosehill Rd'
         newRow['returnAdd2'] = 'Unit B Dock'
