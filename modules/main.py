@@ -11,6 +11,7 @@ import db
 import settings
 import tkinter
 import tkinter.messagebox
+import incorrectOrders
 
 # PARSING MODULES
 import DSOL
@@ -82,7 +83,7 @@ class Main:
         db.cur.execute("delete from Snail.dbo.Shipment where merchantID=? and shortOrderReference=?",[merchantId,shortOrderRef])
         db.cur.commit()
         
-        print('Deleted order ' + str(shortOrderRef) + ' from merchant ' + str(merchantId))
+        #print('Deleted order ' + str(shortOrderRef) + ' from merchant ' + str(merchantId))
 
 
     def printPackingSlips(self, merchantid='', shortorderref=''):
@@ -404,6 +405,7 @@ class Main:
                 db.cur.execute(insertQuery,package)
 
             db.cur.commit()
+            incorrectOrders.remove(order[1],order[3])
             importedOrders += 1
 
         msg = "Imported "+str(importedOrders)+" orders from '"+filename+"'"

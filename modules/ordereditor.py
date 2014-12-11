@@ -4,6 +4,7 @@ import tkinter.messagebox
 import shipmenteditor
 import itemattribeditor
 import returnaddeditor
+import incorrectOrders
 
 class OrderEditor:
 
@@ -28,6 +29,7 @@ class OrderEditor:
         tkinter.Button(self.buttonsFrame,text='Save order',command=lambda: self.save()).pack(side=tkinter.LEFT)
         tkinter.Button(self.buttonsFrame,text='Delete order',command=lambda: self.deleteOrder()).pack(side=tkinter.LEFT)
         tkinter.Button(self.buttonsFrame,text='Print packing slip',command=lambda: self.Main.printPackingSlips(self.merchantId,self.shortOrderRef)).pack(side=tkinter.LEFT)
+        tkinter.Button(self.buttonsFrame,text='Mark as incorrect',command=lambda: self.markAsIncorrect()).pack(side=tkinter.LEFT)
         self.buttonsFrame.pack(pady=10)
         self.master.focus()
         
@@ -48,16 +50,17 @@ class OrderEditor:
         tkinter.Label(self.orderDetailsFrame,text='Region').grid(row=nextRow,column=4,sticky='w',padx=5)
         tkinter.Label(self.orderDetailsFrame,text='Post Code').grid(row=nextRow,column=5,sticky='w',padx=5)
         tkinter.Label(self.orderDetailsFrame,text='Country').grid(row=nextRow,column=6,sticky='w',padx=5)
-        tkinter.Label(self.orderDetailsFrame,text='Packing Slip').grid(row=nextRow,column=7,sticky='w',padx=5)
+        tkinter.Label(self.orderDetailsFrame,text='Phone').grid(row=nextRow,column=7,sticky='w',padx=5)
+        tkinter.Label(self.orderDetailsFrame,text='Packing Slip').grid(row=nextRow,column=8,sticky='w',padx=5)
         nextRow+=1
 
         # query db
-        db.cur.execute("select fullName, address1, address2, town, region, postCode, country, packingSlip \
+        db.cur.execute("select fullName, address1, address2, town, region, postCode, country, phoneNumber, packingSlip \
         from [order] where merchantid=? and shortOrderReference=?",[self.merchantId,self.shortOrderRef])
         rows = db.cur.fetchall()
         if len(rows) != 1:
             print(rows)
-            input('The order editor did not recieve one order line when trying to edit '+str(self.merchantId)+':'+self.shortOrderRef)
+            print('The order editor did not recieve one order line when trying to edit '+str(self.merchantId)+':'+self.shortOrderRef)
             quit(1)
             
         row = rows[0] # grab first (and only) row
@@ -71,7 +74,8 @@ class OrderEditor:
             tkinter.Entry(self.orderDetailsFrame,textvariable=tkinter.StringVar(value=row[4]),width=6), # region
             tkinter.Entry(self.orderDetailsFrame,textvariable=tkinter.StringVar(value=row[5]),width=10), # post code
             tkinter.Entry(self.orderDetailsFrame,textvariable=tkinter.StringVar(value=row[6]),width=7), # country
-            tkinter.OptionMenu(self.orderDetailsFrame,tkinter.StringVar(value=('Yes' if row[7] else 'No')),'Yes','No'), # packing slip
+            tkinter.Entry(self.orderDetailsFrame,textvariable=tkinter.StringVar(value=row[7]),width=10), # phone
+            tkinter.OptionMenu(self.orderDetailsFrame,tkinter.StringVar(value=('Yes' if row[8] else 'No')),'Yes','No'), # packing slip
         ]
 
         # display orderWidgets
@@ -230,11 +234,12 @@ class OrderEditor:
         region = self.orderWidgets[4].get()
         postCode = self.orderWidgets[5].get()
         country = self.orderWidgets[6].get()
-        packingSlip = str(1 if self.orderWidgets[7].cget('text') == 'Yes' else 0)
+        phone = self.orderWidgets[7].get()
+        packingSlip = str(1 if self.orderWidgets[8].cget('text') == 'Yes' else 0)
 
-        updateQuery = "update [order] set  fullName=?, address1=?, address2=?, town=?, region=?, postCode=?, country=?, packingSlip=? \
+        updateQuery = "update [order] set  fullName=?, address1=?, address2=?, town=?, region=?, postCode=?, country=?, phoneNumber=?, packingSlip=? \
         where merchantid=? and shortOrderReference=?"
-        db.cur.execute(updateQuery,[name,address1,address2,town,region,postCode,country,packingSlip,self.merchantId,self.shortOrderRef])
+        db.cur.execute(updateQuery,[name,address1,address2,town,region,postCode,country,phone,packingSlip,self.merchantId,self.shortOrderRef])
         db.cur.commit()
 
 
@@ -371,3 +376,9 @@ class OrderEditor:
         db.cur.commit()
 
         self.edit(self.merchantId,self.shortOrderRef)
+
+
+    def markAsIncorrect(self):
+
+        incorrectOrders.add(self.merchantId, self.shortOrderRef)
+        self.deleteOrder()
