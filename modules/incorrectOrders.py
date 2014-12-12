@@ -9,6 +9,7 @@ import atexit
 import settings
 
 incorrectOrders = dict()
+filePath = ''
 
 if settings.isset('incorrectOrdersFile'):
 
@@ -46,11 +47,13 @@ def remove(merchantId,shortOrderRef):
 
 def writeOut():
 
-	with open(filePath, 'w') as f:
+	if filePath:
 
-		for key in incorrectOrders:
+		with open(filePath, 'w') as f:
 
-			f.write(key[0] + ' ' + key[1] + ' ' + incorrectOrders[key] + '\n')
+			for key in incorrectOrders:
+
+				f.write(key[0] + ' ' + key[1] + ' ' + incorrectOrders[key] + '\n')
 
 
 atexit.register(writeOut)
