@@ -87,7 +87,7 @@ def getOrders(path, columns):
             # create a new ordered dictionary to hold the row info
             newRow = collections.OrderedDict.fromkeys(columns)
 
-            newRow['merchant'] = 'ncrowd'
+            newRow['company'] = 'ncrowd'
             newRow['merchantID'] = 0
             newRow['completeOrderReference'] = validate.clean(row[0])
             newRow['shortOrderReference'] = validate.clean(row[0])
@@ -97,7 +97,20 @@ def getOrders(path, columns):
             newRow['address2'] = validate.clean(row[8])
             newRow['town'] = validate.clean(row[9])
             newRow['packingSlip'] = 1
-            newRow['country'] = 'US'
+
+            if validate.postCode(validate.clean(row[11]), 'US') and validate.region(validate.clean(row[10]), 'US'):
+
+                newRow['country'] = 'US'
+
+            elif validate.postCode(validate.clean(row[11]), 'CA') and validate.region(validate.clean(row[10]), 'CA'):
+
+                newRow['country'] = 'CA'
+
+            else:
+                msg = newRow['completeOrderReference'] + " from file '" + os.path.basename(path) + "' was skipped.\n"
+                msg += 'Could not determine a country'
+                errors.append(msg)
+                continue
 
             newRow['region'] = validate.region(validate.clean(row[10]), newRow['country'])
             if not newRow['region']:
