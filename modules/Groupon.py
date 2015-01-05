@@ -156,7 +156,7 @@ def getItems(path, columns):
             newRow['lineNumber'] = 1
             newRow['itemTitle'] = validate.clean(row[23])
             newRow['itemSKU'] = validate.clean(row[3])
-            newRow['itemQuantity'] = 1
+            newRow['itemQuantity'] = validate.clean(row[4])
             
 
             if len(columns) == len(newRow):
