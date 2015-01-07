@@ -127,7 +127,7 @@ def getOrders(path, columns):
                 if len(columns) == len(newRow):
                     parsedRows.append(list(newRow.values()))
                 else:
-                    print("Oops, DSOL order parser added a column")
+                    print("Oops, DSOL Amazon order parser added a column")
                     quit()
 
                     
@@ -183,7 +183,7 @@ def getItems(path, columns):
                     if len(columns) == len(newRow):
                         parsedRows.append(list(newRow.values()))
                     else:
-                        print("Oops, DSOL item parser added a column")
+                        print("Oops, DSOL Amazon item parser added a column")
                         quit()
 
                 if len(attributes) > 1 and attributes[1].strip():
@@ -193,7 +193,7 @@ def getItems(path, columns):
                     if len(columns) == len(newRow):
                         parsedRows.append(list(newRow.values()))
                     else:
-                        print("Oops, DSOL item parser added a column")
+                        print("Oops, DSOL Amazon item parser added a column")
                         quit()
 
                         # write out row with width
@@ -204,7 +204,7 @@ def getItems(path, columns):
                 if len(columns) == len(newRow):
                     parsedRows.append(list(newRow.values()))
                 else:
-                    print("Oops, DSOL item parser added a column")
+                    print("Oops, DSOL Amazon item parser added a column")
                     quit()
 
             prevRef = row[0] # keep reference in case next row needs it
@@ -349,7 +349,7 @@ def getPackages(path, columns):
         if len(columns) == len(newRow):
             completedLines.append(list(newRow.values()))
         else:
-            print("Oops, DSOL shipping allocator added a column")
+            print("Oops, DSOL Amazon shipping allocator added a column")
             quit()
 
         orderStart = orderEnd # move on to the next order

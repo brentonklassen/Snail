@@ -184,7 +184,7 @@ class Main:
         
         file = DSOL.getNextFile()
         if not file:
-            tkinter.messagebox.showinfo(message='There are no new DSOL files')
+            tkinter.messagebox.showinfo(message='There are no new DSOL files from DSOL storefront')
             return
 
         orders = DSOL.getOrders(file,self.orderColumns)
@@ -196,15 +196,17 @@ class Main:
 
 
     def importDSOLAmazon(self):
+        
         file = DSOL_Amazon.getNextFile()
         if not file:
-            tkinter.messagebox.showinfo(message='There are no new DSOL files from Amazon either')
+            tkinter.messagebox.showinfo(message='There are no new DSOL files from Amazon')
             return
 
         orders = DSOL_Amazon.getOrders(file,self.orderColumns)
         items = DSOL_Amazon.getItems(file,self.itemColumns)
         packages = DSOL_Amazon.getPackages(file,self.packageColumns)
         DSOL_Amazon.outputErrors()
+        DSOL_Amazon.archiveFile(file)
         self.importOrders(os.path.basename(file),orders,items,packages)
 
 
