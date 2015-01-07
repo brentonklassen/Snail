@@ -43,6 +43,7 @@ class Snail:
 
     def checkDSOL(self):
         self.Main.importDSOL()
+        self.Main.importDSOLAmazon()
         self.populateOrdersTree()
 
 

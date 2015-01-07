@@ -15,6 +15,7 @@ import incorrectOrders
 
 # PARSING MODULES
 import DSOL
+import DSOL_Amazon
 import StackSocial
 import Lightake
 import Groupon
@@ -191,6 +192,19 @@ class Main:
         packages = DSOL.getPackages(file,self.packageColumns)
         DSOL.outputErrors()
         DSOL.archiveFile(file)
+        self.importOrders(os.path.basename(file),orders,items,packages)
+
+
+    def importDSOLAmazon(self):
+        file = DSOL_Amazon.getNextFile()
+        if not file:
+            tkinter.messagebox.showinfo(message='There are no new DSOL files from Amazon either')
+            return
+
+        orders = DSOL_Amazon.getOrders(file,self.orderColumns)
+        items = DSOL_Amazon.getItems(file,self.itemColumns)
+        packages = DSOL_Amazon.getPackages(file,self.packageColumns)
+        DSOL_Amazon.outputErrors()
         self.importOrders(os.path.basename(file),orders,items,packages)
 
 
