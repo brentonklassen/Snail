@@ -98,6 +98,10 @@ def getOrders(path, columns):
                 newRow['companyCode'] = 113
             elif company.upper() == 'MARVELLOUS':
                 newRow['companyCode'] = 112
+            else:
+                print('Unknown company:' + company)
+                quit()
+                
             newRow['merchantID'] = 36
             newRow['completeOrderReference'] = validate.clean(row[0])
             newRow['shortOrderReference'] = validate.clean(row[0])
