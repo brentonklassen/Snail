@@ -170,6 +170,14 @@ def getItems(path, columns):
             newRow["itemSKU"] = row[7][:-1].strip()
             newRow["itemTitle"] = validate.clean(row[8])
             newRow["itemQuantity"] = row[9].strip()
+            newRow['itemAttribKey'] = 'AmazonPostfix'
+            newRow['itemAttribVal'] = row[7][-1:]
+
+            if len(columns) == len(newRow):
+                parsedRows.append(list(newRow.values()))
+            else:
+                print("Oops, DSOL Amazon item parser added a column")
+                quit()
 
             # parse attribs
             if "(" in row[8] and ")" in row[8]:
@@ -200,12 +208,6 @@ def getItems(path, columns):
                         newRow["itemAttribKey"] = "width"
                         newRow["itemAttribVal"] = row[14].strip()
 
-            else:
-                if len(columns) == len(newRow):
-                    parsedRows.append(list(newRow.values()))
-                else:
-                    print("Oops, DSOL Amazon item parser added a column")
-                    quit()
 
             prevRef = row[0] # keep reference in case next row needs it
 
