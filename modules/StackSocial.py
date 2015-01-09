@@ -85,7 +85,7 @@ def getOrders(path, columns):
             if len(row) < 2 or row[13] == '':
                 continue # skip if < 2 cols or no sku
 
-            newRow['company'] = 'Betafresh'
+            newRow['companyCode'] = 113
             newRow["completeOrderReference"] = validate.clean(row[0])
             newRow["shortOrderReference"] = validate.clean(row[0])
             newRow["merchantID"] = 38

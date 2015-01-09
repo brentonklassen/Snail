@@ -26,7 +26,7 @@ class Main:
     
     def __init__(self):
         
-        self.orderColumns = ["company",
+        self.orderColumns = ["companyCode",
             "merchantID",
             "completeOrderReference",
             "shortOrderReference",

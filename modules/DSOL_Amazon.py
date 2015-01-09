@@ -86,12 +86,11 @@ def getOrders(path, columns):
             if row[0]: # this line has an order number
 
                 # map info from input file row to new row dict
-                newRow["company"] = 'Dance Shoes Online'
-
                 order_number = validate.clean(row[0].strip()).replace(' ','')
                 newRow["completeOrderReference"] = order_number
                 newRow["shortOrderReference"] = order_number.split('-')[-1]
-                
+
+                newRow["companyCode"] = 97
                 newRow["merchantID"] = 10
                 newRow["fullName"] = validate.clean(row[5])
                 newRow["phoneNumber"] = "".join([char for char in row[6] if str.isdigit(char)])

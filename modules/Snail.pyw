@@ -110,10 +110,12 @@ class Snail:
         
     def configureOrdersTree(self):
 
-        self.ordersTree['columns'] = ('merchantid', 'shortorderref', 'fullname', 'items', 'datestamp')
-        self.ordersTree.heading('#0', text='Company')
-        self.ordersTree.heading('merchantid', text='Merchant Id')
-        self.ordersTree.column('merchantid', width=100)
+        self.ordersTree['show'] = 'headings'
+        self.ordersTree['columns'] = ('companycode','merchantid', 'shortorderref', 'fullname', 'items', 'datestamp')
+        self.ordersTree.heading('companycode', text="Company")
+        self.ordersTree.column('companycode', width=75)
+        self.ordersTree.heading('merchantid', text='Merchant')
+        self.ordersTree.column('merchantid', width=75)
         self.ordersTree.heading('shortorderref', text='Short Order Ref')
         self.ordersTree.column('shortorderref', width=150)
         self.ordersTree.heading('fullname', text='Full Name')
@@ -151,7 +153,7 @@ class Snail:
 
         # insert these orders into tree
         for row in orderRows:
-            self.ordersTree.insert('', 'end', text=row[0], values=(row[1:]))
+            self.ordersTree.insert('', 'end', values=(row))
 
         # update the status frame
         self.statusLabel.set(str(len(orderRows))+' unshipped orders')
@@ -159,15 +161,15 @@ class Snail:
 
     def editSelectedOrder(self):
         treeSelection = self.ordersTree.selection()[0]
-        merchantId = self.ordersTree.item(treeSelection,'values')[0]
-        shortOrderRef = self.ordersTree.item(treeSelection,'values')[1]
+        merchantId = self.ordersTree.item(treeSelection,'values')[1]
+        shortOrderRef = self.ordersTree.item(treeSelection,'values')[2]
         ordereditor.OrderEditor(self).edit(merchantId,shortOrderRef)
 
 
     def deleteSelectedOrders(self):
         for order in self.ordersTree.selection():
-            merchantId = self.ordersTree.item(order,'values')[0]
-            shortOrderRef = self.ordersTree.item(order,'values')[1]
+            merchantId = self.ordersTree.item(order,'values')[1]
+            shortOrderRef = self.ordersTree.item(order,'values')[2]
             self.Main.deleteOrder(merchantId,shortOrderRef)
         self.populateOrdersTree()
         

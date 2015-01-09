@@ -93,7 +93,11 @@ def getOrders(path, columns):
             # create a new ordered dictionary to hold the row info
             newRow = collections.OrderedDict.fromkeys(columns)
 
-            newRow['company'] = os.path.split(os.path.dirname(path))[1]
+            company = os.path.split(os.path.dirname(path))[1]
+            if company.upper() == 'BETAFRESH':
+                newRow['companyCode'] = 113
+            elif company.upper() == 'MARVELLOUS':
+                newRow['companyCode'] = 112
             newRow['merchantID'] = 36
             newRow['completeOrderReference'] = validate.clean(row[0])
             newRow['shortOrderReference'] = validate.clean(row[0])
