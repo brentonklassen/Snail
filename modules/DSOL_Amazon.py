@@ -178,6 +178,15 @@ def getItems(path, columns):
                 print("Oops, DSOL Amazon item parser added a column")
                 quit()
 
+            newRow['itemAttribKey'] = 'order-item-id'
+            newRow['itemAttribVal'] = row[1]
+
+            if len(columns) == len(newRow):
+                parsedRows.append(list(newRow.values()))
+            else:
+                print("Oops, DSOL Amazon item parser added a column")
+                quit()
+
             # parse attribs
             if "(" in row[8] and ")" in row[8]:
                 attribString = row[8][row[8].find("("):].replace("(","").replace(")","")
