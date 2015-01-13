@@ -48,7 +48,7 @@ def getNextFile():
 
     # source dir
     sourceDir = settings.get('lightakedrop')
-    MarvellousDrop = os.path.join(sourceDir,'Marvelous')
+    MarvellousDrop = os.path.join(sourceDir,'Marvellous')
 
     for file in os.listdir(MarvellousDrop):
         filename, ext = os.path.splitext(file)
@@ -87,7 +87,7 @@ def getOrders(path, columns):
             # create a new ordered dictionary to hold the row info
             newRow = collections.OrderedDict.fromkeys(columns)
 
-            newRow['companyCode'] = 113
+            newRow['companyCode'] = 112 # marvellous
             newRow['merchantID'] = 36
             newRow['completeOrderReference'] = validate.clean(row[0])
             newRow['shortOrderReference'] = validate.clean(row[0]).split('-')[-1]
