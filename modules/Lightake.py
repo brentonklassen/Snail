@@ -213,7 +213,7 @@ def getPackages(path, columns):
         newRow['returnZip'] = '66215'
         newRow["bulk"] = 0
 
-        itemCount = sum(int(row[14]) for row in currentOrder)
+        itemCount = sum(int(row[14]) if row[14] else 0 for row in currentOrder)
 
         if itemCount == 1:
             line = currentOrder[0]

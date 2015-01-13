@@ -170,12 +170,12 @@ def getItems(path, columns):
             if len(columns) == len(newRow):
                 parsedRows.append(list(newRow.values()))
             else:
-                print("Oops, Lighttake item parser added a column")
+                print("Oops, Groupon item parser added a column")
                 quit()
 
             prevRow = row
 
-    print("Imported " + str(len(parsedRows)) + " item rows from Lighttake file '" + os.path.basename(path) + "'")
+    print("Imported " + str(len(parsedRows)) + " item rows from Groupon file '" + os.path.basename(path) + "'")
     return parsedRows
 
 
@@ -203,7 +203,7 @@ def getPackages(path, columns):
             if len(columns) == len(newRow):
                 parsedRows.append(list(newRow.values()))
             else:
-                print("Oops, DSOL shipping allocator added a column")
+                print("Oops, Groupon shipping allocator added a column")
                 quit()
 
     print("Created " + str(len(parsedRows)) + " packages from '" + os.path.basename(path) + "'")
