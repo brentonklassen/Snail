@@ -37,6 +37,11 @@ def clean(s):
     return ''.join(filter(lambda x: x in string.printable, s)).strip()
 
 
+def shortenPossibleAmazon(o):
+
+    return clean(o.split('-')[-1]) if len(o.split('-'))>2 else clean(o)
+
+
 def country(c):
 
     if c.upper() == 'USA':
