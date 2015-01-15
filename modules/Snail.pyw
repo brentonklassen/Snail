@@ -1,5 +1,6 @@
 import main
 import ordereditor
+import BulkManager
 import db
 import os
 import tkinter
@@ -37,6 +38,7 @@ class Snail:
         tkinter.Button(self.bottomButtonsFrame,text='Export pick list',command=self.Main.exportPickList).pack(side=tkinter.LEFT)
         tkinter.Button(self.bottomButtonsFrame,text='Print packing slips',command = self.Main.printPackingSlips).pack(side=tkinter.LEFT)
         tkinter.Button(self.bottomButtonsFrame,text='Delete selected',command=self.deleteSelectedOrders).pack(side=tkinter.LEFT)
+        tkinter.Button(self.bottomButtonsFrame,text='Manage bulk',command=self.manageBulk).pack(side=tkinter.LEFT)
         tkinter.Button(self.bottomButtonsFrame,text='Refresh',command=self.populateOrdersTree).pack(side=tkinter.LEFT)
         self.bottomButtonsFrame.pack()
 
@@ -164,6 +166,10 @@ class Snail:
         merchantId = self.ordersTree.item(treeSelection,'values')[1]
         shortOrderRef = self.ordersTree.item(treeSelection,'values')[2]
         ordereditor.OrderEditor(self).edit(merchantId,shortOrderRef)
+
+
+    def manageBulk(self):
+        BulkManager.BulkManager(self)
 
 
     def deleteSelectedOrders(self):
