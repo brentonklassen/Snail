@@ -87,8 +87,8 @@ def getOrders(path, columns):
             # create a new ordered dictionary to hold the row info
             newRow = collections.OrderedDict.fromkeys(columns)
 
-            newRow['companyCode'] = 0
-            newRow['merchantID'] = 0
+            newRow['companyCode'] = 112
+            newRow['merchantID'] = 39
             newRow['completeOrderReference'] = validate.clean(row[0])
             newRow['shortOrderReference'] = validate.clean(row[0])
             newRow['fullName'] = validate.clean(row[3]) + ' ' + validate.clean(row[4])
@@ -153,7 +153,7 @@ def getItems(path, columns):
             # create a new ordered dictionary to hold the row info
             newRow = collections.OrderedDict.fromkeys(columns)
 
-            newRow['merchantID'] = 0
+            newRow['merchantID'] = 39
             newRow['shortOrderReference'] = validate.clean(row[0])
             newRow['lineNumber'] = 1
             newRow['itemSKU'] = validate.clean(row[15])
@@ -189,7 +189,7 @@ def getPackages(path, columns):
 
             # FIGURE OUT WHAT TO DO WITH THIS ORDER
 
-            newRow['merchantID'] = 0
+            newRow['merchantID'] = 39
             newRow['shortOrderReference'] = validate.clean(row[0])
             newRow["bulk"] = 0
 
