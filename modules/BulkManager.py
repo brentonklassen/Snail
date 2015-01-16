@@ -56,7 +56,7 @@ class BulkManager:
 		query = '''select returnCompany,returnAdd1,returnAdd2,returnCity,returnState,returnZip,count(*),[bulk]
 		from Snail.dbo.package as p
 		left join Snail.dbo.Shipment as s on p.merchantID = s.merchantID and p.shortOrderReference = s.shortOrderReference
-		where [bulk] != 0
+		where [bulk] != 0 and s.shipmentid is null
 		group by returnCompany,returnAdd1,returnAdd2,returnCity,returnState,returnZip,[bulk]'''
 		db.cur.execute(query)
 		orderRows = db.cur.fetchall()
