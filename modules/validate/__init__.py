@@ -98,6 +98,9 @@ def region(r, country='US'):
 def postCode(p, country='US'):
 
     if country == 'US':
+        
+        if len(p)<9: p = p.strip('-') # remove dashes from postcodes that are not 00000-0000
+
         match = re.match('^(\d{5})(?:[-\s]*\d{4})?$', p)
         if match:
             return match.group(1)

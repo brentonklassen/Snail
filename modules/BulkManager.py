@@ -8,9 +8,15 @@ class BulkManager:
 
 		self.master = tkinter.Toplevel(Snail.master)
 		self.master.title('Bulk Manager')
-		self.bulkTree = ttk.Treeview(self.master)
+		self.treeFrame = tkinter.Frame(self.master)
+		self.bulkTree = ttk.Treeview(self.treeFrame)
 		self.configureBulkTree()
 		self.populateBulkTree()
+		self.bulkTree.pack(expand=tkinter.Y,fill=tkinter.Y)
+		self.treeFrame.pack(expand=tkinter.Y,fill=tkinter.Y)
+		self.buttonsFrame = tkinter.Frame(self.master)
+		tkinter.Button(self.buttonsFrame,text='Refresh',command=self.populateBulkTree).pack(side=tkinter.LEFT)
+		self.buttonsFrame.pack()
 		self.master.focus()
 
 
@@ -48,7 +54,9 @@ class BulkManager:
 		    
 		# get unshipped orders from db
 		query = '''select returnCompany,returnAdd1,returnAdd2,returnCity,returnState,returnZip,count(*),[bulk]
-		from package where [bulk] != 0
+		from Snail.dbo.package as p
+		left join Snail.dbo.Shipment as s on p.merchantID = s.merchantID and p.shortOrderReference = s.shortOrderReference
+		where [bulk] != 0
 		group by returnCompany,returnAdd1,returnAdd2,returnCity,returnState,returnZip,[bulk]'''
 		db.cur.execute(query)
 		orderRows = db.cur.fetchall()
@@ -60,7 +68,6 @@ class BulkManager:
 			vals[-1] = 'Yes' if row[-1] == 1 else 'No'
 			self.bulkTree.insert('', 'end', values=(vals))
 
-		self.bulkTree.pack(expand=tkinter.Y,fill=tkinter.Y)
 
 	def togglePrinting(self):
 
@@ -70,7 +77,7 @@ class BulkManager:
 
 		newBulkVal = '2' if treeValues[-1] == 'Yes' else '1'
 		
-		query = '''update package set [bulk]=''' + newBulkVal + ''' 
+		query = '''update Snail.dbo.package set [bulk]=''' + newBulkVal + ''' 
 		where coalesce(returnCompany,'')=? and coalesce(returnAdd1,'')=? and coalesce(returnAdd2,'')=? 
 		and coalesce(returnCity,'')=? and coalesce(returnState,'')=? and coalesce(returnZip,'')=?'''
 		db.cur.execute(query,values)
