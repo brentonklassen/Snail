@@ -16,7 +16,7 @@ class Snail:
         self.master.title('Snail')
         
         self.displayTopButtons()
-        self.displayOrderLookup()
+        self.displayOrderFilters()
         self.displayOrdersTree()
         self.displayBottomButtons()
 
@@ -69,34 +69,69 @@ class Snail:
         self.populateOrdersTree()
 
 
-    def displayOrderLookup(self):
+    def displayOrderFilters(self):
 
-        self.lookupFrame = tkinter.Frame(self.master)
-        tkinter.Label(self.lookupFrame, text='Merchant Id:').pack(side=tkinter.LEFT)
-        self.merchantIdWidget = tkinter.Entry(self.lookupFrame,textvariable=tkinter.StringVar(),width=5)
-        self.merchantIdWidget.pack(side=tkinter.LEFT)
-        tkinter.Label(self.lookupFrame, text='Short order ref:').pack(side=tkinter.LEFT)
-        self.shortOrderRefWidget = tkinter.Entry(self.lookupFrame,textvariable=tkinter.StringVar())
-        self.shortOrderRefWidget.pack(side=tkinter.LEFT)
-        tkinter.Button(self.lookupFrame,text='Look up order', command=self.lookupOrder).pack(side=tkinter.LEFT)
-        self.lookupFrame.pack()
+        self.filtersFrame = tkinter.Frame(self.master)
+
+        tkinter.Label(self.filtersFrame, text='Merchant Id:').pack(side=tkinter.LEFT)
+        self.merchantIdFilterVal = tkinter.StringVar()
+        self.merchantIdFilterWidget = tkinter.Entry(self.filtersFrame,textvariable=self.merchantIdFilterVal,width=5)
+        self.merchantIdFilterWidget.pack(side=tkinter.LEFT)
+
+        tkinter.Label(self.filtersFrame, text='Order ref:').pack(side=tkinter.LEFT)
+        self.orderRefFilterVal = tkinter.StringVar()
+        self.orderRefFilterWidget = tkinter.Entry(self.filtersFrame,textvariable=self.orderRefFilterVal)
+        self.orderRefFilterWidget.pack(side=tkinter.LEFT)
+
+        tkinter.Label(self.filtersFrame, text='Name:').pack(side=tkinter.LEFT)
+        self.nameFilterVal = tkinter.StringVar()
+        self.nameFilterWidget = tkinter.Entry(self.filtersFrame,textvariable=self.nameFilterVal)
+        self.nameFilterWidget.pack(side=tkinter.LEFT)
+
+        tkinter.Button(self.filtersFrame,text='Filter', command=self.filterOrders).pack(side=tkinter.LEFT)
+        tkinter.Button(self.filtersFrame,text='Clear', command=self.clearFilters).pack(side=tkinter.LEFT)
+
+        self.filtersFrame.pack()
 
 
-    def lookupOrder(self):
+    def filterOrders(self):
 
-        merchantId = self.merchantIdWidget.get()
-        shortOrderRef = self.shortOrderRefWidget.get()
-        if self.Main.orderExists(merchantId,shortOrderRef):
-            ordereditor.OrderEditor(self).edit(merchantId,shortOrderRef)
-        else:
-            tkinter.messagebox.showinfo(message='That order does not exist')
+        merchantId = self.merchantIdFilterWidget.get()
+        shortOrderRef = self.orderRefFilterWidget.get()
+        name = self.nameFilterWidget.get()
+
+        if merchantId.strip():
+            try:
+                int(merchantId)
+            except ValueError:
+                print('Merchant Id must be an int')
+            else:
+                self.filters += ' and o.merchantId = ' + merchantId.strip() + ' '
+
+        if shortOrderRef.strip():
+            self.filters += " and o.shortOrderReference like '%" + shortOrderRef.strip() + "%' "
+
+        if name.strip():
+            self.filters += " and o.fullName like '%" + name.strip() + "%' "
+
+        self.populateOrdersTree()
+
+
+    def clearFilters(self):
+
+        self.merchantIdFilterVal.set('')
+        self.orderRefFilterVal.set('')
+        self.nameFilterVal.set('')
         
+        self.filters = ''
+        self.populateOrdersTree()
 
 
     def displayOrdersTree(self):
 
         self.ordersFrame = tkinter.Frame(self.master)
         self.ordersTree = ttk.Treeview(self.ordersFrame)
+        self.filters = ''
 
         self.statusFrame = tkinter.Frame(self.master)
         self.statusLabel = tkinter.StringVar()
@@ -146,7 +181,7 @@ class Snail:
             on o.merchantID = p.merchantID and o.shortOrderReference = p.shortOrderReference
         left join Snail.dbo.Shipment as s
             on p.merchantID = s.merchantID and p.shortOrderReference = s.shortOrderReference and p.packageNumber = s.packageNumber
-        where s.ShipmentId is null
+        where s.ShipmentId is null ''' + self.filters + '''
         ) as o 
         group by o.company,o.merchantID,o.shortOrderReference,o.fullName,o.dateStamp
         order by o.datestamp desc'''
