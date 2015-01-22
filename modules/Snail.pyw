@@ -88,6 +88,12 @@ class Snail:
         self.nameFilterWidget = tkinter.Entry(self.filtersFrame,textvariable=self.nameFilterVal)
         self.nameFilterWidget.pack(side=tkinter.LEFT)
 
+        tkinter.Label(self.filtersFrame, text='Include shipped:').pack(side=tkinter.LEFT)
+        self.shippedFilterVal = tkinter.IntVar()
+        self.shippedFilterWidget = tkinter.Checkbutton(self.filtersFrame, variable=self.shippedFilterVal)
+        self.shippedFilterWidget.pack(side=tkinter.LEFT)
+
+
         tkinter.Button(self.filtersFrame,text='Filter', command=self.filterOrders).pack(side=tkinter.LEFT)
         tkinter.Button(self.filtersFrame,text='Clear', command=self.clearFilters).pack(side=tkinter.LEFT)
 
@@ -99,6 +105,16 @@ class Snail:
         merchantId = self.merchantIdFilterWidget.get()
         shortOrderRef = self.orderRefFilterWidget.get()
         name = self.nameFilterWidget.get()
+        searchShipped = self.shippedFilterVal.get()
+
+        # reset where clause to nothing
+        self.filters = ''
+
+        # create a set of filters
+        filterSet = set()
+
+        if not searchShipped:
+            filterSet.add(' s.ShipmentId is null ')
 
         if merchantId.strip():
             try:
@@ -106,13 +122,19 @@ class Snail:
             except ValueError:
                 print('Merchant Id must be an int')
             else:
-                self.filters += ' and o.merchantId = ' + merchantId.strip() + ' '
+                filterSet.add(' o.merchantId = ' + merchantId.strip() + ' ')
 
         if shortOrderRef.strip():
-            self.filters += " and o.shortOrderReference like '%" + shortOrderRef.strip() + "%' "
+            filterSet.add(" o.shortOrderReference like '%" + shortOrderRef.strip() + "%' ")
 
         if name.strip():
-            self.filters += " and o.fullName like '%" + name.strip() + "%' "
+            filterSet.add(" o.fullName like '%" + name.strip() + "%' ")
+
+        # build new where clause
+        if filterSet:
+            self.filters = ' where ' + ' and '.join(filterSet)
+
+        print(self.filters)
 
         self.populateOrdersTree()
 
@@ -122,8 +144,9 @@ class Snail:
         self.merchantIdFilterVal.set('')
         self.orderRefFilterVal.set('')
         self.nameFilterVal.set('')
+        self.shippedFilterVal.set(0)
         
-        self.filters = ''
+        self.filters = ' where s.ShipmentId is null ' # default filter
         self.populateOrdersTree()
 
 
@@ -131,7 +154,6 @@ class Snail:
 
         self.ordersFrame = tkinter.Frame(self.master)
         self.ordersTree = ttk.Treeview(self.ordersFrame)
-        self.filters = ''
 
         self.statusFrame = tkinter.Frame(self.master)
         self.statusLabel = tkinter.StringVar()
@@ -147,6 +169,7 @@ class Snail:
         
     def configureOrdersTree(self):
 
+        self.filters = ' where s.ShipmentId is null ' # default filter
         self.ordersTree['show'] = 'headings'
         self.ordersTree['columns'] = ('companycode','merchantid', 'shortorderref', 'fullname', 'items', 'datestamp')
         self.ordersTree.heading('companycode', text="Company")
@@ -181,7 +204,7 @@ class Snail:
             on o.merchantID = p.merchantID and o.shortOrderReference = p.shortOrderReference
         left join Snail.dbo.Shipment as s
             on p.merchantID = s.merchantID and p.shortOrderReference = s.shortOrderReference and p.packageNumber = s.packageNumber
-        where s.ShipmentId is null ''' + self.filters + '''
+        ''' + self.filters + '''
         ) as o 
         group by o.company,o.merchantID,o.shortOrderReference,o.fullName,o.dateStamp
         order by o.datestamp desc'''
@@ -193,7 +216,7 @@ class Snail:
             self.ordersTree.insert('', 'end', values=(row))
 
         # update the status frame
-        self.statusLabel.set(str(len(orderRows))+' unshipped orders')
+        self.statusLabel.set(str(len(orderRows))+' records')
 
 
     def editSelectedOrder(self):
