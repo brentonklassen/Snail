@@ -89,6 +89,12 @@ def getOrders(path, columns):
 
             newRow['companyCode'] = 112 # marvellous
             newRow['merchantID'] = 36
+
+            if validate.clean(row[1]).lower() == "ellorefemme.com":
+                newRow['merchantDivisionCode'] = 1
+            elif validate.clean(row[1]).lower() == "widgetlove.com":
+                newRow['merchantDivisionCode'] = 2
+
             newRow['completeOrderReference'] = validate.clean(row[0])
             newRow['shortOrderReference'] = validate.shortenPossibleAmazon(row[0])
             newRow['fullName'] = validate.clean(row[3]) + ' ' + validate.clean(row[4])

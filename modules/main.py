@@ -28,6 +28,7 @@ class Main:
         
         self.orderColumns = ["companyCode",
             "merchantID",
+            "merchantDivisionCode",
             "completeOrderReference",
             "shortOrderReference",
             "fullName",
@@ -325,12 +326,15 @@ class Main:
         
         for order in orders:
 
+            merchantid = order[1]
+            shortorderreference = order[4]
+
             # check if this order is already in the db
-            db.cur.execute('select * from [order] where merchantid=? and shortorderreference=?',[order[1],order[3]])
+            db.cur.execute('select * from [order] where merchantid=? and shortorderreference=?',[merchantid,shortorderreference])
             if db.cur.fetchall():
 
                 if not (replaceAll or skipAll):
-                    replace = tkinter.messagebox.askyesno(message='Order '+order[3]+' already exists.\nWould you like to replace it?')
+                    replace = tkinter.messagebox.askyesno(message='Order '+shortorderreference+' already exists.\nWould you like to replace it?')
 
                 if replace or replaceAll:
 
@@ -339,7 +343,7 @@ class Main:
                         asked = True
 
                     # delete the existing order and let the insert happen
-                    self.deleteOrder(order[1],order[3])
+                    self.deleteOrder(merchantid,shortorderreference)
 
                 if not replace or skipAll:
 
@@ -347,21 +351,22 @@ class Main:
                         skipAll = tkinter.messagebox.askyesno(message='Skip the rest of the duplicates as well?')
                         asked = True
 
-                    print('Skipped order ' + order[3] + ' from the file')
+                    print('Skipped order ' + shortorderreference + ' from the file')
                     skippedOrders += 1
                     continue # skip the insert
 
 
-            itemRows = [i for i in items if i[0]==order[1] and i[1]==order[3]]
-            packageRows = [p for p in packages if p[0]==order[1] and p[1]==order[3]]
+            itemRows = [i for i in items if i[0]==merchantid and i[1]==shortorderreference]
+            packageRows = [p for p in packages if p[0]==merchantid and p[1]==shortorderreference]
 
             # insert order
             insertQuery = '''insert into [Order]
-            (company,merchantID,completeOrderReference,shortOrderReference,
+            (company,merchantID,merchantDivisionCode,completeOrderReference,shortOrderReference,
             fullName,phoneNumber,emailAddress,address1,
             address2,address3,town,region,postCode,country,packingSlip,dateStamp)
             values (?, /* company */
             ?, /* merchantID */
+            ?, /* merchantDivisionCode */
             ?, /* completeOrderReference */
             ?, /* shortOrderReference */
             left(upper(?),40), /* fullName */
@@ -421,7 +426,7 @@ class Main:
                 db.cur.execute(insertQuery,package)
 
             db.cur.commit()
-            incorrectOrders.remove(order[1],order[3])
+            incorrectOrders.remove(merchantid,shortorderreference)
             importedOrders += 1
 
         msg = "Imported "+str(importedOrders)+" orders from '"+filename+"'"
