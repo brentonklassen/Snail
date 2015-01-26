@@ -73,18 +73,17 @@ def getOrders(path, columns):
     with open(path) as file:
         reader = csv.reader(file, delimiter='\t') # create a CSV reader object
         parsedRows = list() # create a list to hold the new rows
+        prevOrderNum = ''
         next(reader) # skip header row
 
         for row in reader:
 
-            # create a new ordered dictionary to hold the row info
-            newRow = collections.OrderedDict.fromkeys(columns)
-            
-            if len(row) < 2 or not row[10].strip():
-                continue # skip row if < 2 cols or no sku
-            
-            if row[0]: # this line has an order number
+            # if more than 2 cols and order number exists and new order
+            if len(row) > 2 and row[0].strip() and row[0] != prevOrderNum:
 
+                # create a new ordered dictionary to hold the row info
+                newRow = collections.OrderedDict.fromkeys(columns)
+            
                 # map info from input file row to new row dict
                 order_number = validate.clean(row[0].strip()).replace(' ','')
                 newRow["completeOrderReference"] = order_number
@@ -129,6 +128,9 @@ def getOrders(path, columns):
                     print("Oops, DSOL Amazon order parser added a column")
                     quit()
 
+                # save the previous order number
+                prevOrderNum = row[0]
+
                     
         print("\nImported " + str(len(parsedRows)) + " orders from Dance Shoes Online file '" + os.path.basename(path) + "'")
         return parsedRows
@@ -139,7 +141,7 @@ def getItems(path, columns):
         reader = csv.reader(file, delimiter='\t') # create a CSV reader object
         parsedRows = list() # create a list to hold the new rows
         orderLine = 0
-        prevRef = ''
+        prevOrderNum = ''
         next(reader) # skip header row
 
         for row in reader:
@@ -152,7 +154,7 @@ def getItems(path, columns):
             if len(row) < 2 or not row[10].strip():
                 continue # skip row if < 2 cols or no sku
             
-            if row[0] == prevRef:
+            if row[0] == prevOrderNum:
                 orderLine += 1 # this is another line of the same order
                 
             else:                 
@@ -217,7 +219,7 @@ def getItems(path, columns):
                         newRow["itemAttribVal"] = row[14].strip()
 
 
-            prevRef = row[0] # keep reference in case next row needs it
+            prevOrderNum = row[0] # keep reference in case next row needs it
 
         print("Imported " + str(len(parsedRows)) + " item rows from Dance Shoes Online file '" + os.path.basename(path) + "'")
         return parsedRows
