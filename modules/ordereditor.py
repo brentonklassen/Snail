@@ -30,6 +30,7 @@ class OrderEditor:
         tkinter.Button(self.buttonsFrame,text='Delete order',command=lambda: self.deleteOrder()).pack(side=tkinter.LEFT)
         tkinter.Button(self.buttonsFrame,text='Print packing slip',command=lambda: self.Main.printPackingSlips(self.merchantId,self.shortOrderRef)).pack(side=tkinter.LEFT)
         tkinter.Button(self.buttonsFrame,text='Mark as incorrect',command=lambda: self.markAsIncorrect()).pack(side=tkinter.LEFT)
+        tkinter.Button(self.buttonsFrame,text='Copy order number',command=lambda: self.copyOrderNumber()).pack(side=tkinter.LEFT)
         self.buttonsFrame.pack(pady=10)
         self.master.focus()
         
@@ -382,3 +383,9 @@ class OrderEditor:
 
         incorrectOrders.add(self.merchantId, self.shortOrderRef)
         self.deleteOrder()
+
+
+    def copyOrderNumber(self):
+
+        self.master.clipboard_clear()
+        self.master.clipboard_append(self.shortOrderRef)
