@@ -75,9 +75,14 @@ class Main:
     def deleteOrder(self,merchantId,shortOrderRef):
 
         # record the deletion
-        insertQuery = "insert into Snail.dbo.Deletion (merchantID,shortOrderReference,carrier,trackingNumber,dateStamp)  \
-        select ?,?,carrier,trackingNumber,getdate() from Shipment where merchantID=? and shortOrderReference=?"
-        db.cur.execute(insertQuery,[merchantId,shortOrderRef,merchantId,shortOrderRef])
+        insertQuery = """insert into Snail.dbo.Deletion 
+        (merchantID,shortOrderReference,carrier,trackingNumber,dateStamp)
+        select o.merchantID,o.shortOrderReference,carrier,trackingNumber,getdate() 
+        from [Order] as o
+        left join Shipment as s 
+            on o.merchantID=s.merchantID and o.shortOrderReference=s.shortOrderReference 
+        where o.merchantID=? and o.shortOrderReference=?"""
+        db.cur.execute(insertQuery,[merchantId,shortOrderRef])
 
         db.cur.execute("delete from Snail.dbo.[Order] where merchantID=? and shortOrderReference=?",[merchantId,shortOrderRef])
         db.cur.execute("delete from Snail.dbo.Item where merchantID=? and shortOrderReference=?",[merchantId,shortOrderRef])
@@ -318,7 +323,8 @@ class Main:
         print('Importing orders...')
         
         importedOrders = 0
-        skippedOrders = 0
+        duplicateSkips = 0
+        deletedSkips = 0
         replace = False
         replaceAll = False
         skipAll = False
@@ -328,6 +334,14 @@ class Main:
 
             merchantid = order[1]
             shortorderreference = order[4]
+
+            # check if this order was deleted
+            db.cur.execute('select * from deletion where merchantid=? and shortorderreference=?',[merchantid,shortorderreference])
+            if db.cur.fetchall():
+                msg = "Skipped order "+shortorderreference+" from merchant "+str(merchantid)+" because it was deleted"
+                tkinter.messagebox.showinfo(message=msg)
+                deletedSkips += 1
+                continue
 
             # check if this order is already in the db
             db.cur.execute('select * from [order] where merchantid=? and shortorderreference=?',[merchantid,shortorderreference])
@@ -352,7 +366,7 @@ class Main:
                         asked = True
 
                     print('Skipped order ' + shortorderreference + ' from the file')
-                    skippedOrders += 1
+                    duplicateSkips += 1
                     continue # skip the insert
 
 
@@ -430,6 +444,7 @@ class Main:
             importedOrders += 1
 
         msg = "Imported "+str(importedOrders)+" orders from '"+filename+"'"
-        if skippedOrders: msg += "\nSkipped "+str(skippedOrders)+" duplicate orders"
+        if duplicateSkips: msg += "\nSkipped "+str(duplicateSkips)+" duplicate orders"
+        if deletedSkips: msg += "\nSkipped "+str(deletedSkips)+" deleted orders"
         tkinter.messagebox.showinfo(message=msg)
 
