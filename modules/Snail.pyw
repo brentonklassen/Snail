@@ -30,6 +30,7 @@ class Snail:
         tkinter.Button(self.topButtonsFrame,text='Check Lightake',command=self.checkLightake).pack(side=tkinter.LEFT)
         tkinter.Button(self.topButtonsFrame,text='Check Groupon',command=self.checkGroupon).pack(side=tkinter.LEFT)
         tkinter.Button(self.topButtonsFrame,text='Check Ncrowd',command=self.checkNcrowd).pack(side=tkinter.LEFT)
+        tkinter.Button(self.topButtonsFrame,text='Check NMR',command=self.checkNMR).pack(side=tkinter.LEFT)
         self.topButtonsFrame.pack()
 
 
@@ -66,6 +67,11 @@ class Snail:
 
     def checkNcrowd(self):
         self.Main.importNcrowd()
+        self.populateOrdersTree()
+
+
+    def checkNMR(self):
+        self.Main.importNMR()
         self.populateOrdersTree()
 
 

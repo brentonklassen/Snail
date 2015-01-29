@@ -13,17 +13,19 @@ with open(settingsPath) as f:
     reader = csv.reader(f, delimiter='\t')
     for row in reader:
         
-        if len(row) < 2:
-            pass
-        
-        settings[row[0].strip()] = row[1].strip()
+        if len(row) < 2: pass
 
-    settings['basepath'] = os.path.join(os.getcwd(),os.pardir)
+        key = row[0].strip().upper()
+        val = row[1].strip()
+        
+        settings[key] = val
+
+    settings['BASEPATH'] = os.path.join(os.getcwd(),os.pardir)
 
 
 def isset(key):
-    return (key in settings) and settings[key]
+    return (key.upper() in settings) and settings[key.upper()]
 
 
 def get(key):
-    return settings[key]
+    return settings[key.upper()]

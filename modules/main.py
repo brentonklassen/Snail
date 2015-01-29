@@ -20,6 +20,7 @@ import StackSocial
 import Lightake
 import Groupon
 import Ncrowd
+import NMR
 
 
 class Main:
@@ -72,17 +73,18 @@ class Main:
             'note']
 
 
-    def deleteOrder(self,merchantId,shortOrderRef):
+    def deleteOrder(self,merchantId,shortOrderRef, record=True):
 
-        # record the deletion
-        insertQuery = """insert into Snail.dbo.Deletion 
-        (merchantID,shortOrderReference,carrier,trackingNumber,dateStamp)
-        select o.merchantID,o.shortOrderReference,carrier,trackingNumber,getdate() 
-        from [Order] as o
-        left join Shipment as s 
-            on o.merchantID=s.merchantID and o.shortOrderReference=s.shortOrderReference 
-        where o.merchantID=? and o.shortOrderReference=?"""
-        db.cur.execute(insertQuery,[merchantId,shortOrderRef])
+        if record:
+            # record the deletion
+            insertQuery = """insert into Snail.dbo.Deletion 
+            (merchantID,shortOrderReference,carrier,trackingNumber,dateStamp)
+            select o.merchantID,o.shortOrderReference,carrier,trackingNumber,getdate() 
+            from [Order] as o
+            left join Shipment as s 
+                on o.merchantID=s.merchantID and o.shortOrderReference=s.shortOrderReference 
+            where o.merchantID=? and o.shortOrderReference=?"""
+            db.cur.execute(insertQuery,[merchantId,shortOrderRef])
 
         db.cur.execute("delete from Snail.dbo.[Order] where merchantID=? and shortOrderReference=?",[merchantId,shortOrderRef])
         db.cur.execute("delete from Snail.dbo.Item where merchantID=? and shortOrderReference=?",[merchantId,shortOrderRef])
@@ -90,8 +92,6 @@ class Main:
         db.cur.execute("delete from Snail.dbo.Shipment where merchantID=? and shortOrderReference=?",[merchantId,shortOrderRef])
         db.cur.commit()
         
-        #print('Deleted order ' + str(shortOrderRef) + ' from merchant ' + str(merchantId))
-
 
     def printPackingSlips(self, merchantid='', shortorderref=''):
 
@@ -276,6 +276,21 @@ class Main:
         self.importOrders(os.path.basename(file),orders,items,packages)
 
 
+    def importNMR(self):
+        
+        file = NMR.getNextFile()
+        if not file:
+            tkinter.messagebox.showinfo(message='There are no new NMR files')
+            return
+        
+        orders = NMR.getOrders(file,self.orderColumns)
+        items = NMR.getItems(file,self.itemColumns)
+        #packages = NMR.getPackages(file,self.packageColumns)
+        NMR.outputErrors()
+        #NMR.archiveFile(file)
+        self.importOrders(os.path.basename(file),orders,items,[])
+
+
     def orderExists(self,merchantId,shortOrderRef):
         db.cur.execute("select * from [order] where merchantid=? and shortOrderReference=?",[merchantId,shortOrderRef])
         if len(db.cur.fetchall()) == 1: return True
@@ -357,7 +372,7 @@ class Main:
                         asked = True
 
                     # delete the existing order and let the insert happen
-                    self.deleteOrder(merchantid,shortorderreference)
+                    self.deleteOrder(merchantid,shortorderreference,record=False)
 
                 if not replace or skipAll:
 
