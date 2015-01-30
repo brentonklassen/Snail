@@ -287,7 +287,7 @@ class Main:
         items = NMR.getItems(file,self.itemColumns)
         #packages = NMR.getPackages(file,self.packageColumns)
         NMR.outputErrors()
-        #NMR.archiveFile(file)
+        NMR.archiveFile(file)
         self.importOrders(os.path.basename(file),orders,items,[])
 
 
