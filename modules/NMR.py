@@ -193,7 +193,7 @@ def getPackages(path, columns):
 
         orderEnd += 1
         # while the current line has the same order number as the starting line
-        while orderEnd < len(lines) and lines[orderEnd][0] == lines[orderStart][0]:
+        while orderEnd < len(lines) and lines[orderEnd][1] == lines[orderStart][1]:
             orderEnd += 1
 
         # grab the slice of the file that contains the next order
@@ -206,7 +206,8 @@ def getPackages(path, columns):
 
         newRow['merchantID'] = 40
         newRow['shortOrderReference'] = validate.clean(currentOrder[0][1])
-        newRow['returnCompany'] = validate.clean(currentOrder[0][1])
+        newRow['returnCompany'] = 'Nomorerack.com'
+        newRow['returnCompany2'] = 'Customer Service: customercare@nomorerack.com'
         newRow['returnAdd1'] = '8900 Rosehill Rd'
         newRow['returnAdd2'] = 'Unit B Dock'
         newRow['returnCity'] = 'Lenexa'
@@ -214,22 +215,9 @@ def getPackages(path, columns):
         newRow['returnZip'] = '66215'
         newRow["bulk"] = 0
 
-        itemCount = sum(int(row[14]) if row[14] else 0 for row in currentOrder)
-
-        if itemCount == 1:
-            line = currentOrder[0]
-            sku = validate.clean(line[13])
-            qty = line[14]
-
-            newRow["carrier"] = 26
-            newRow['serviceClass'] = 12
-            #newRow['weight'] = productWeights.get(('36',sku))
-            newRow['weight'] = float(15/16);
-            newRow['note'] = qty + '-' + sku
-
-        else:
-            orderStart = orderEnd # move on to the next order
-            continue # don't create a package
+        newRow["carrier"] = 26
+        newRow['serviceClass'] = 12
+        newRow['weight'] = float(4/16);
 
         # save the package row in completedLines
         if len(columns) == len(newRow):

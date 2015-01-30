@@ -58,6 +58,7 @@ class Main:
             "shortOrderReference",
             "packageNumber",
             "returnCompany",
+            "returnCompany2",
             "returnAdd1",
             "returnAdd2",
             "returnCity",
@@ -285,10 +286,10 @@ class Main:
         
         orders = NMR.getOrders(file,self.orderColumns)
         items = NMR.getItems(file,self.itemColumns)
-        #packages = NMR.getPackages(file,self.packageColumns)
+        packages = NMR.getPackages(file,self.packageColumns)
         NMR.outputErrors()
         NMR.archiveFile(file)
-        self.importOrders(os.path.basename(file),orders,items,[])
+        self.importOrders(os.path.basename(file),orders,items,packages)
 
 
     def orderExists(self,merchantId,shortOrderRef):
@@ -432,12 +433,13 @@ class Main:
             # insert package rows
             for package in packageRows:
                 insertQuery = '''insert into Package
-                (merchantID,shortOrderReference,packageNumber,returnCompany,returnAdd1,returnAdd2,returnCity,
+                (merchantID,shortOrderReference,packageNumber,returnCompany,returnCompany2,returnAdd1,returnAdd2,returnCity,
                 returnState,returnZip,carrier,serviceClass,[length],width,height,[weight],[bulk],note,dateStamp)
                 values (?, /* merchantID */
                 ?, /* shortOrderReference */
                 coalesce(?,1), /* packageNumber */
                 left(?,50), /* returnCompany */
+                left(?,50), /* returnCompany2 */
                 left(?,100), /* returnAdd1 */
                 left(?,50), /* returnAdd2 */
                 left(?,50), /* returnCity */
