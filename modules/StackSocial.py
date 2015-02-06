@@ -75,7 +75,6 @@ def getOrders(path, columns):
     with open(path) as file:
         reader = csv.reader(file) # create a CSV reader object
         parsedRows = list() # create a list to hold the new rows
-        next(reader) # skip header row
 
         for row in reader:
             
@@ -132,7 +131,6 @@ def getItems(path, columns):
     with open(path) as file:
         reader = csv.reader(file)
         parsedRows = list()
-        next(reader) # skip header
 
         for row in reader:
 
@@ -168,7 +166,6 @@ def getPackages(path, columns):
     with open(path) as file:
         reader = csv.reader(file)
         parsedRows = list()
-        next(reader)
 
         for row in reader:
 
