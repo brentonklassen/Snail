@@ -81,7 +81,7 @@ class BulkManager:
 		query = '''update Snail.dbo.package set [bulk]=''' + newBulkVal + ''' 
 		where coalesce(returnCompany,'')=? and coalesce(returnAdd1,'')=? and coalesce(returnAdd2,'')=? 
 		and coalesce(returnCity,'')=? and coalesce(returnState,'')=? and coalesce(returnZip,'')=?
-		and bulk != 0'''
+		and [bulk] != 0'''
 		db.cur.execute(query,values)
 		db.cur.commit()
 
