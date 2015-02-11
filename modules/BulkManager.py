@@ -75,11 +75,13 @@ class BulkManager:
 		treeValues = self.bulkTree.item(treeSelection,'values')
 		values = [val if val != 'None' else '' for val in treeValues[:6]]
 
+
 		newBulkVal = '2' if treeValues[-1] == 'Yes' else '1'
 		
 		query = '''update Snail.dbo.package set [bulk]=''' + newBulkVal + ''' 
 		where coalesce(returnCompany,'')=? and coalesce(returnAdd1,'')=? and coalesce(returnAdd2,'')=? 
-		and coalesce(returnCity,'')=? and coalesce(returnState,'')=? and coalesce(returnZip,'')=?'''
+		and coalesce(returnCity,'')=? and coalesce(returnState,'')=? and coalesce(returnZip,'')=?
+		and bulk != 0'''
 		db.cur.execute(query,values)
 		db.cur.commit()
 
