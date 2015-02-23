@@ -14,7 +14,7 @@ class Snail:
         self.master = tkinter.Tk()
         self.Main = main.Main()
         self.master.title('Snail')
-        
+    
         self.displayTopButtons()
         self.displayOrderFilters()
         self.displayOrdersTree()
@@ -192,7 +192,29 @@ class Snail:
         ysb = ttk.Scrollbar(self.ordersFrame, command=self.ordersTree.yview)
         self.ordersTree.configure(yscroll=ysb.set)
         ysb.pack(side=tkinter.RIGHT, fill=tkinter.Y)
-        self.ordersTree.bind('<Double-1>', lambda event: self.editSelectedOrder())
+        self.ordersTree.bind('<Double-1>', self.editSelectedOrder)
+
+        # create a context menu
+        self.contextMenu = tkinter.Menu(self.ordersTree, tearoff=0)
+        self.contextMenu.add_command(label='Edit order', command=self.editSelectedOrder)
+        self.contextMenu.add_command(label="Delete order", command=self.deleteSelectedOrders)
+        self.contextMenu.add_command(label="Copy short order reference", command=self.copyShortOrderRef)
+        self.contextMenu.add_command(label="Copy complete order number", command=self.copyCompleteOrderNum)
+        self.ordersTree.bind('<Button-3>', self.showContextMenu)
+
+
+    def showContextMenu(self, event):
+
+        # identify which item was clicked
+        item = self.ordersTree.identify('item',event.x,event.y)
+        merchantId = self.ordersTree.item(item,'values')[1]
+        shortOrderRef = self.ordersTree.item(item,'values')[2]
+
+        # select that item
+        self.ordersTree.selection_set(item)
+
+        # show the context menu
+        self.contextMenu.post(event.x_root, event.y_root)
 
 
     def populateOrdersTree(self):
@@ -225,7 +247,7 @@ class Snail:
         self.statusLabel.set(str(len(orderRows))+' records')
 
 
-    def editSelectedOrder(self):
+    def editSelectedOrder(self, event=None):
         treeSelection = self.ordersTree.selection()[0]
         merchantId = self.ordersTree.item(treeSelection,'values')[1]
         shortOrderRef = self.ordersTree.item(treeSelection,'values')[2]
@@ -242,7 +264,27 @@ class Snail:
             shortOrderRef = self.ordersTree.item(order,'values')[2]
             self.Main.deleteOrder(merchantId,shortOrderRef)
         self.populateOrdersTree()
+
+    def copyShortOrderRef(self, event=None):
+
+        treeSelection = self.ordersTree.selection()[0]
+        shortOrderRef = self.ordersTree.item(treeSelection,'values')[2]
+        self.master.clipboard_clear()
+        self.master.clipboard_append(shortOrderRef)
         
+
+    def copyCompleteOrderNum(self, event=None):
+
+        treeSelection = self.ordersTree.selection()[0]
+        merchantId = self.ordersTree.item(treeSelection,'values')[1]
+        shortOrderRef = self.ordersTree.item(treeSelection,'values')[2]
+
+        query = 'select distinct completeOrderReference from Snail.dbo.[Order] where merchantid=? and shortOrderReference=?'
+        db.cur.execute(query,[merchantId,shortOrderRef])
+        completeOrderRef = db.cur.fetchone()[0]
+        
+        self.master.clipboard_clear()
+        self.master.clipboard_append(completeOrderRef)
         
 # RUN
 Snail()
