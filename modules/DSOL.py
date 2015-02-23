@@ -86,13 +86,13 @@ def getOrders(path, columns):
             if row[0]: # this line has an order number
 
                 # map info from input file row to new row dict
-                order_number = validate.clean(row[0].strip()).replace(' ','')
+                order_number = validate.clean(row[0]).replace(' ','')
                 if '&' in order_number:
                     newRow["completeOrderReference"] = order_number.replace('&','/')
-                    newRow["shortOrderReference"] = order_number.split('&')[0].split('-')[-1]
+                    newRow["shortOrderReference"] = validate.shortenPossibleAmazon(order_number.split('&')[0])
                 else:
                     newRow["completeOrderReference"] = order_number
-                    newRow["shortOrderReference"] = order_number.split('-')[-1]
+                    newRow["shortOrderReference"] = validate.shortenPossibleAmazon(order_number)
 
                 newRow["companyCode"] = 97
                 newRow["merchantID"] = 10
@@ -164,11 +164,11 @@ def getItems(path, columns):
 
             # map info from input file row to new row dict
             
-            order_number = validate.clean(row[0].strip()).replace(' ','')
+            order_number = validate.clean(row[0]).replace(' ','')
             if '&' in order_number:
-                newRow["shortOrderReference"] = order_number.split('&')[0].split('-')[-1]
+                newRow["shortOrderReference"] = validate.shortenPossibleAmazon(order_number.split('&')[0])
             else:
-                newRow["shortOrderReference"] = order_number.split('-')[-1]
+                newRow["shortOrderReference"] = validate.shortenPossibleAmazon(order_number)
                 
             newRow["merchantID"] = 10
             newRow["lineNumber"] = orderLine
@@ -271,14 +271,15 @@ def getPackages(path, columns):
         newRow = collections.OrderedDict.fromkeys(columns)
 
         # FIGURE OUT WHAT TO DO WITH THIS ORDER
-
-        order_number = validate.clean(currentOrder[0][0].strip()).replace(' ','')
-        country = validate.country(validate.clean(currentOrder[0][7]))
+        
+        order_number = validate.clean(currentOrder[0][0]).replace(' ','')
         if '&' in order_number:
-            newRow["shortOrderReference"] = order_number.split('&')[0].split('-')[-1]
+            newRow["shortOrderReference"] = validate.shortenPossibleAmazon(order_number.split('&')[0])
         else:
-            newRow["shortOrderReference"] = order_number.split('-')[-1]
-
+            newRow["shortOrderReference"] = validate.shortenPossibleAmazon(order_number)
+    
+        country = validate.country(validate.clean(currentOrder[0][7]))
+        
         newRow["merchantID"] = 10
         newRow["returnCompany"] = "DanceShoesOnline.com"
         newRow["returnAdd1"] = "8527 BLUEJACKET STREET"
