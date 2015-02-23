@@ -233,8 +233,9 @@ def getPackages(path, columns):
             newRow['note'] = qty + '-' + sku
 
         else:
-            orderStart = orderEnd # move on to the next order
-            continue # don't create a package
+            # create a default package
+            newRow["carrier"] = 26
+            newRow['serviceClass'] = 12
 
         # save the package row in completedLines
         if len(columns) == len(newRow):

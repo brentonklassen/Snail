@@ -197,6 +197,7 @@ def getPackages(path, columns):
             newRow['shortOrderReference'] = validate.clean(row[0])
             newRow["bulk"] = 1
             newRow["carrier"] = 26
+            newRow['serviceClass'] = 12
             newRow['weight'] = validate.clean(row[34])
 
             # save the package row in completedLines
