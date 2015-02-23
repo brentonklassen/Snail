@@ -85,9 +85,9 @@ def getOrders(path, columns):
                 newRow = collections.OrderedDict.fromkeys(columns)
             
                 # map info from input file row to new row dict
-                order_number = validate.clean(row[0].strip()).replace(' ','')
+                order_number = validate.clean(row[0]).replace(' ','')
                 newRow["completeOrderReference"] = order_number
-                newRow["shortOrderReference"] = order_number.split('-')[-1]
+                newRow["shortOrderReference"] = validate.shortenPossibleAmazon(order_number)
 
                 newRow["companyCode"] = 97
                 newRow["merchantID"] = 10
@@ -162,8 +162,8 @@ def getItems(path, columns):
 
             # map info from input file row to new row dict
             
-            order_number = validate.clean(row[0].strip()).replace(' ','')
-            newRow["shortOrderReference"] = order_number.split('-')[-1]
+            order_number = validate.clean(row[0]).replace(' ','')
+            newRow["shortOrderReference"] = validate.shortenPossibleAmazon(order_number)
                 
             newRow["merchantID"] = 10
             newRow["lineNumber"] = orderLine
@@ -258,9 +258,10 @@ def getPackages(path, columns):
 
         # FIGURE OUT WHAT TO DO WITH THIS ORDER
 
-        order_number = validate.clean(currentOrder[0][0].strip()).replace(' ','')
+        order_number = validate.clean(currentOrder[0][0]).replace(' ','')
+        newRow["shortOrderReference"] = validate.shortenPossibleAmazon(order_number)
+
         country = validate.country(validate.clean(currentOrder[0][7]))
-        newRow["shortOrderReference"] = order_number.split('-')[-1]
 
         newRow["merchantID"] = 10
         newRow["returnCompany"] = "DanceShoesOnline.com"
