@@ -25,12 +25,13 @@ class Snail:
 
     def displayTopButtons(self):
         self.topButtonsFrame = tkinter.Frame(self.master)
-        tkinter.Button(self.topButtonsFrame,text='Check DanceShoesOnline',command=self.checkDSOL).pack(side=tkinter.LEFT)
-        tkinter.Button(self.topButtonsFrame,text='Check StackSocial',command=self.checkStackSocial).pack(side=tkinter.LEFT)
-        tkinter.Button(self.topButtonsFrame,text='Check Lightake',command=self.checkLightake).pack(side=tkinter.LEFT)
-        tkinter.Button(self.topButtonsFrame,text='Check Groupon',command=self.checkGroupon).pack(side=tkinter.LEFT)
-        tkinter.Button(self.topButtonsFrame,text='Check Ncrowd',command=self.checkNcrowd).pack(side=tkinter.LEFT)
-        tkinter.Button(self.topButtonsFrame,text='Check NMR',command=self.checkNMR).pack(side=tkinter.LEFT)
+        tkinter.Button(self.topButtonsFrame,text='DanceShoesOnline',command=self.checkDSOL).pack(side=tkinter.LEFT)
+        tkinter.Button(self.topButtonsFrame,text='StackSocial',command=self.checkStackSocial).pack(side=tkinter.LEFT)
+        tkinter.Button(self.topButtonsFrame,text='Lightake',command=self.checkLightake).pack(side=tkinter.LEFT)
+        tkinter.Button(self.topButtonsFrame,text='Groupon',command=self.checkGroupon).pack(side=tkinter.LEFT)
+        tkinter.Button(self.topButtonsFrame,text='Ncrowd',command=self.checkNcrowd).pack(side=tkinter.LEFT)
+        tkinter.Button(self.topButtonsFrame,text='NMR',command=self.checkNMR).pack(side=tkinter.LEFT)
+        tkinter.Button(self.topButtonsFrame,text='Restaurant',command=self.checkRestaurant).pack(side=tkinter.LEFT)
         self.topButtonsFrame.pack()
 
 
@@ -72,6 +73,10 @@ class Snail:
 
     def checkNMR(self):
         self.Main.importNMR()
+        self.populateOrdersTree()
+
+    def checkRestaurant(self):
+        self.Main.importRestaurant()
         self.populateOrdersTree()
 
 

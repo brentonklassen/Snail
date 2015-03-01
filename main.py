@@ -21,6 +21,7 @@ import Lightake
 import Groupon
 import Ncrowd
 import NMR
+import Restaurant
 
 
 class Main:
@@ -289,6 +290,21 @@ class Main:
         packages = NMR.getPackages(file,self.packageColumns)
         NMR.outputErrors()
         NMR.archiveFile(file)
+        self.importOrders(os.path.basename(file),orders,items,packages)
+
+
+    def importRestaurant(self):
+        
+        file = Restaurant.getNextFile()
+        if not file:
+            tkinter.messagebox.showinfo(message='There are no new Restaurant files')
+            return
+        
+        orders = Restaurant.getOrders(file,self.orderColumns)
+        items = Restaurant.getItems(file,self.itemColumns)
+        packages = Restaurant.getPackages(file,self.packageColumns)
+        Restaurant.outputErrors()
+        Restaurant.archiveFile(file)
         self.importOrders(os.path.basename(file),orders,items,packages)
 
 
