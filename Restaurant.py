@@ -151,6 +151,14 @@ def getItems(path, columns):
             newRow = collections.OrderedDict.fromkeys(columns)
 
             if prevRow and row[0] == prevRow[0]:
+
+                # if this is another row of the same item
+                if row[36] == prevRow[36]:
+                    # grab the last row and increment the qty
+                    parsedRows[-1][5] = int(parsedRows[-1][5]) + 1
+                    continue # ignore this line
+
+                # else, make a new line
                 lineNumber += 1
             else:
                 lineNumber = 1
