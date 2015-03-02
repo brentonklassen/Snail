@@ -184,25 +184,61 @@ def getItems(path, columns):
 
 def getPackages(path, columns):
 
+    lines = list()
     parsedRows = list()
 
     with open(path) as file:
-        prevRow = list()
         reader = csv.reader(file)
-        next(reader) # skip header
+        next(reader) # skip header row
         data = sorted(reader, key=operator.itemgetter(0))
-
-        # read the whole file into memory
         for row in data:
+            # read the whole file into memory so that I can index it and
+            # iterate over parts of it multiple times
+            if len(row) > 2 and row[10]: # if > 2 cols and sku exists
+                lines.append(row)
 
-            if len(row) < 2 or (prevRow and row[0] == prevRow[0]):
-                continue # skip if < 2 cols or same order as prev row
 
-            # create a new ordered dictionary to hold the row info
-            newRow = collections.OrderedDict.fromkeys(columns)
+    orderStart = 0
+    orderEnd = 0
+    while orderEnd < len(lines):
 
+        orderEnd += 1
+        while orderEnd < len(lines) and lines[orderStart][0] == lines[orderEnd][0]:
+            orderEnd += 1 # increment the orderEnd counter
+
+        # grab the slice of the file that contains the next order
+        currentOrder = lines[orderStart:orderEnd]
+
+        # create a new ordered dictionary to hold the row info
+        newRow = collections.OrderedDict.fromkeys(columns)
+
+        # FIGURE OUT WHAT TO DO WITH THIS ORDER
+
+        # count skus to set for unique set
+        skus = set()
+        for line in currentOrder:
+            skus.add(line[36])
+
+        if len(skus) == 1:
+            sku = skus.pop()
+            qty = sum(int(row[12]) for row in currentOrder)
             newRow['merchantID'] = 42
-            newRow['shortOrderReference'] = validate.clean(row[0])
+            newRow['shortOrderReference'] = validate.clean(currentOrder[0][0])
+            newRow["carrier"] = 26
+            newRow['serviceClass'] = 12
+            newRow["bulk"] = 1
+            newRow['note'] = str(qty) + '-' + sku
+
+            # save the package row in completedLines
+            if len(columns) == len(newRow):
+                parsedRows.append(list(newRow.values()))
+            else:
+                print("Oops, Restaurant shipping allocator added a column")
+                quit()
+
+        else: 
+            newRow['merchantID'] = 42
+            newRow['shortOrderReference'] = validate.clean(currentOrder[0][0])
             newRow["carrier"] = 26
             newRow['serviceClass'] = 12
             newRow["bulk"] = 0
@@ -214,7 +250,9 @@ def getPackages(path, columns):
                 print("Oops, Restaurant shipping allocator added a column")
                 quit()
 
-            prevRow = row
+
+        orderStart = orderEnd # move on to the next order
+
         
     print("Created " + str(len(parsedRows)) + " packages from '" + os.path.basename(path) + "'")
     return parsedRows

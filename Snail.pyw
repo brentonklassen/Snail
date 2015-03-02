@@ -145,8 +145,6 @@ class Snail:
         if filterSet:
             self.filters = ' where ' + ' and '.join(filterSet)
 
-        print(self.filters)
-
         self.populateOrdersTree()
 
 
