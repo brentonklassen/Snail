@@ -32,8 +32,8 @@ class Snail:
         tkinter.Button(self.topButtonsFrame,text='Ncrowd',command=self.checkNcrowd).pack(side=tkinter.LEFT)
         tkinter.Button(self.topButtonsFrame,text='NMR',command=self.checkNMR).pack(side=tkinter.LEFT)
         tkinter.Button(self.topButtonsFrame,text='Restaurant',command=self.checkRestaurant).pack(side=tkinter.LEFT)
+        tkinter.Button(self.topButtonsFrame,text='Sweetjack',command=self.checkSweetjack).pack(side=tkinter.LEFT)
         self.topButtonsFrame.pack()
-
 
     def displayBottomButtons(self):
         self.bottomButtonsFrame = tkinter.Frame(self.master)
@@ -44,32 +44,26 @@ class Snail:
         tkinter.Button(self.bottomButtonsFrame,text='Refresh',command=self.populateOrdersTree).pack(side=tkinter.LEFT)
         self.bottomButtonsFrame.pack()
 
-
     def checkDSOL(self):
         self.Main.importDSOL()
         self.Main.importDSOLAmazon()
         self.populateOrdersTree()
 
-
     def checkStackSocial(self):
         self.Main.importStackSocial()
         self.populateOrdersTree()
-
 
     def checkLightake(self):
         self.Main.importLightake()
         self.populateOrdersTree()
 
-
     def checkGroupon(self):
         self.Main.importGroupon()
         self.populateOrdersTree()
 
-
     def checkNcrowd(self):
         self.Main.importNcrowd()
         self.populateOrdersTree()
-
 
     def checkNMR(self):
         self.Main.importNMR()
@@ -79,6 +73,9 @@ class Snail:
         self.Main.importRestaurant()
         self.populateOrdersTree()
 
+    def checkSweetjack(self):
+        self.Main.importSweetjack()
+        self.populateOrdersTree()
 
     def displayOrderFilters(self):
 

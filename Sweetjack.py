@@ -1,6 +1,6 @@
 # Brenton Klassen
 # 01/01/2015
-# NMR parser
+# Sweetjack parser
 
 import os
 import csv
@@ -27,8 +27,8 @@ def outputErrors():
         email('\n'.join(errors))
 
         # write the errors to a file
-        if settings.isset('nmrerrordir'):
-            with open(os.path.join(settings.get('nmrerrordir'),'errorlog.txt'), 'a') as f:
+        if settings.isset('sweetjackerrordir'):
+            with open(os.path.join(settings.get('sweetjackerrordir'),'errorlog.txt'), 'a') as f:
                 for error in errors:
                     f.write(error + '\n')
 
@@ -37,9 +37,9 @@ def outputErrors():
 
 
 def email(body):
-    if settings.isset('mailnmrto'):
-        to = settings.get('mailnmrto')
-        subject = 'SkuTouch could not validate orders from NMR'
+    if settings.isset('mailsweetjackto'):
+        to = settings.get('mailsweetjackto')
+        subject = 'SkuTouch could not validate orders from Sweetjack'
         print('Sending email to ' + to)
         mail.sendmail(to, subject, body)
 
@@ -47,7 +47,7 @@ def email(body):
 def getNextFile():
 
     # source dir
-    sourceDir = settings.get('nmrdrop')
+    sourceDir = settings.get('sweetjackdrop')
 
     for file in os.listdir(sourceDir):
         filename, ext = os.path.splitext(file)
@@ -60,7 +60,7 @@ def getNextFile():
 def archiveFile(path):
 
     # archive dir
-    archiveDir = settings.get('nmrarchive')
+    archiveDir = settings.get('sweetjackarchive')
 
     # move file to archive folder
     if not os.path.isfile(os.path.join(archiveDir, os.path.basename(path))):
@@ -81,54 +81,53 @@ def getOrders(path, columns):
 
         for row in reader:
 
-            if len(row) < 2 or (prevRow and row[0] == prevRow[0]):
+            if len(row) < 2 or (prevRow and row[3] == prevRow[3]):
                 continue # skip if < 2 cols or same order as prev row
 
             # create a new ordered dictionary to hold the row info
             newRow = collections.OrderedDict.fromkeys(columns)
 
             newRow['companyCode'] = 112 # marvellous
-            newRow['merchantID'] = 40
+            newRow['merchantID'] = 0
 
-            newRow['completeOrderReference'] = validate.clean(row[1])
-            newRow['shortOrderReference'] = validate.clean(row[1])
-            newRow['fullName'] = validate.clean(row[6]) + ' ' + validate.clean(row[7])
-            newRow['phoneNumber'] = validate.phone(row[23])
-            newRow['address1'] = validate.clean(row[8])
-            newRow['address2'] = validate.clean(row[9])
-            newRow['town'] = validate.clean(row[10])
+            newRow['completeOrderReference'] = validate.clean(row[3])
+            newRow['shortOrderReference'] = validate.clean(row[3])
+            newRow['fullName'] = validate.clean(row[5])
+            newRow['address1'] = validate.clean(row[6])
+            newRow['address2'] = validate.clean(row[7])
+            newRow['town'] = validate.clean(row[8])
             newRow['packingSlip'] = 1
             
-            newRow['country'] = validate.country(validate.clean(row[13]))
+            newRow['country'] = validate.country(validate.clean(row[11]))
             if not newRow['country']:
                 msg = newRow['completeOrderReference'] + " from file '" + os.path.basename(path) + "' was skipped.\n"
-                msg += 'Could not validate country: ' + row[13]
+                msg += 'Could not validate country: ' + row[11]
                 errors.append(msg)
                 continue
 
-            newRow['region'] = validate.region(validate.clean(row[11]), newRow['country'])
+            newRow['region'] = validate.region(validate.clean(row[9]), newRow['country'])
             if not newRow['region']:
                 msg = newRow['completeOrderReference'] + " from file '" + os.path.basename(path) + "' was skipped.\n"
-                msg += 'Could not validate region: ' + row[11]
+                msg += 'Could not validate region: ' + row[9]
                 errors.append(msg)
                 continue
 
-            newRow['postCode'] = validate.postCode(validate.clean(row[12]), newRow['country'])
+            newRow['postCode'] = validate.postCode(validate.clean(row[10]), newRow['country'])
             if not newRow['postCode']:
                 msg = newRow['completeOrderReference'] + " from file '" + os.path.basename(path) + "' was skipped.\n"
-                msg += 'Could not validate post code: ' + row[12]
+                msg += 'Could not validate post code: ' + row[10]
                 errors.append(msg)
                 continue
 
             if len(columns) == len(newRow):
                 parsedRows.append(list(newRow.values()))
             else:
-                print("Oops, NMR order parser added a column")
+                print("Oops, Sweetjack order parser added a column")
                 quit()
 
             prevRow = row
 
-    print("\nImported " + str(len(parsedRows)) + " orders from NMR file '" + os.path.basename(path) + "'")
+    print("\nImported " + str(len(parsedRows)) + " orders from Sweetjack file '" + os.path.basename(path) + "'")
     return parsedRows
 
 
@@ -148,28 +147,28 @@ def getItems(path, columns):
             # create a new ordered dictionary to hold the row info
             newRow = collections.OrderedDict.fromkeys(columns)
 
-            if prevRow and row[1] == prevRow[1]:
+            if prevRow and row[3] == prevRow[3]:
                 lineNumber += 1
             else:
                 lineNumber = 1
 
-            newRow['merchantID'] = 40
-            newRow['shortOrderReference'] = validate.clean(row[1])
+            newRow['merchantID'] = 0
+            newRow['shortOrderReference'] = validate.clean(row[3])
             newRow['lineNumber'] = lineNumber
-            newRow['itemTitle'] = validate.clean(row[20])
-            newRow['itemSKU'] = validate.clean(row[15]) 
-            newRow['itemQuantity'] = validate.clean(row[19])
+            newRow['itemTitle'] = validate.clean(row[2])
+            newRow['itemSKU'] = validate.clean(row[14]) 
+            newRow['itemQuantity'] = validate.clean(row[12])
             
 
             if len(columns) == len(newRow):
                 parsedRows.append(list(newRow.values()))
             else:
-                print("Oops, NMR item parser added a column")
+                print("Oops, Sweetjack item parser added a column")
                 quit()
 
             prevRow = row
 
-    print("Imported " + str(len(parsedRows)) + " item rows from NMR file '" + os.path.basename(path) + "'")
+    print("Imported " + str(len(parsedRows)) + " item rows from Sweetjack file '" + os.path.basename(path) + "'")
     return parsedRows
 
 
@@ -193,7 +192,7 @@ def getPackages(path, columns):
 
         orderEnd += 1
         # while the current line has the same order number as the starting line
-        while orderEnd < len(lines) and lines[orderEnd][1] == lines[orderStart][1]:
+        while orderEnd < len(lines) and lines[orderEnd][3] == lines[orderStart][3]:
             orderEnd += 1
 
         # grab the slice of the file that contains the next order
@@ -204,17 +203,9 @@ def getPackages(path, columns):
 
         # FIGURE OUT WHAT TO DO WITH THIS ORDER
 
-        newRow['merchantID'] = 40
-        newRow['shortOrderReference'] = validate.clean(currentOrder[0][1])
-        newRow['returnCompany'] = 'Nomorerack.com'
-        newRow['returnCompany2'] = 'Customer Service: customercare@nomorerack.com'
-        newRow['returnAdd1'] = '8900 Rosehill Rd'
-        newRow['returnAdd2'] = 'Unit B Dock'
-        newRow['returnCity'] = 'Lenexa'
-        newRow['returnState'] = 'KS'
-        newRow['returnZip'] = '66215'
+        newRow['merchantID'] = 0
+        newRow['shortOrderReference'] = validate.clean(currentOrder[0][3])
         newRow["bulk"] = 0
-
         newRow["carrier"] = 26
         newRow['serviceClass'] = 12
         newRow['weight'] = float(4/16);
@@ -223,7 +214,7 @@ def getPackages(path, columns):
         if len(columns) == len(newRow):
             parsedRows.append(list(newRow.values()))
         else:
-            print("Oops, NMR shipping allocator added a column")
+            print("Oops, Sweetjack shipping allocator added a column")
             quit()
 
         orderStart = orderEnd # move on to the next order

@@ -22,6 +22,7 @@ import Groupon
 import Ncrowd
 import NMR
 import Restaurant
+import Sweetjack
 
 
 class Main:
@@ -306,6 +307,21 @@ class Main:
         Restaurant.outputErrors()
         Restaurant.archiveFile(file)
         self.importOrders(os.path.basename(file),orders,items,packages)
+
+    def importSweetjack(self):
+        
+        file = Sweetjack.getNextFile()
+        if not file:
+            tkinter.messagebox.showinfo(message='There are no new Sweetjack files')
+            return
+        
+        orders = Sweetjack.getOrders(file,self.orderColumns)
+        items = Sweetjack.getItems(file,self.itemColumns)
+        packages = Sweetjack.getPackages(file,self.packageColumns)
+        Sweetjack.outputErrors()
+        Sweetjack.archiveFile(file)
+        self.importOrders(os.path.basename(file),orders,items,packages)
+
 
 
     def orderExists(self,merchantId,shortOrderRef):
