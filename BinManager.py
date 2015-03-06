@@ -48,11 +48,11 @@ class BinManager:
 
 		self.binTree['show'] = 'headings'
 		self.binTree['columns'] = ('merchantID','itemsku', 'location')
-		self.binTree.heading('merchantID', text="Merchant")
+		self.binTree.heading('merchantID', text="Merchant", command=lambda:self.populatebinTree("order by merchantID"))
 		self.binTree.column('merchantID', width=75)
-		self.binTree.heading('itemsku', text='Item Sku')
+		self.binTree.heading('itemsku', text='Item Sku', command=lambda:self.populatebinTree("order by itemsku"))
 		self.binTree.column('itemsku', width=150)
-		self.binTree.heading('location', text='Location')
+		self.binTree.heading('location', text='Location', command=lambda:self.populatebinTree("order by location"))
 		self.binTree.column('location', width=300)
 
 		ysb = ttk.Scrollbar(self.master, command=self.binTree.yview)
@@ -60,13 +60,13 @@ class BinManager:
 		ysb.pack(side=tkinter.RIGHT, fill=tkinter.Y)
 
 
-	def populatebinTree(self):
+	def populatebinTree(self, sort="order by location"):
 
 		for child in self.binTree.get_children():
 		    self.binTree.delete(child)
 		    
 		# get unshipped orders from db
-		query = '''select merchantID, itemsku, location	from Snail.dbo.bin'''
+		query = "select merchantID, itemsku, location	from Snail.dbo.bin "+sort
 		db.cur.execute(query)
 		orderRows = db.cur.fetchall()
 
@@ -102,3 +102,6 @@ class BinManager:
 			db.cur.commit()
 
 		self.populatebinTree()
+
+	def sort(self):
+		print("Clickya")
