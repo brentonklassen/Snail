@@ -180,17 +180,17 @@ class Snail:
         self.filters = ' where s.ShipmentId is null ' # default filter
         self.ordersTree['show'] = 'headings'
         self.ordersTree['columns'] = ('companycode','merchantid', 'shortorderref', 'fullname', 'items', 'datestamp')
-        self.ordersTree.heading('companycode', text="Company")
+        self.ordersTree.heading('companycode', text="Company", command=lambda:self.populateOrdersTree("order by company"))
         self.ordersTree.column('companycode', width=75)
-        self.ordersTree.heading('merchantid', text='Merchant')
+        self.ordersTree.heading('merchantid', text='Merchant', command=lambda:self.populateOrdersTree("order by merchantid"))
         self.ordersTree.column('merchantid', width=75)
-        self.ordersTree.heading('shortorderref', text='Short Order Ref')
+        self.ordersTree.heading('shortorderref', text='Short Order Ref', command=lambda:self.populateOrdersTree("order by shortOrderReference"))
         self.ordersTree.column('shortorderref', width=150)
-        self.ordersTree.heading('fullname', text='Full Name')
+        self.ordersTree.heading('fullname', text='Full Name', command=lambda:self.populateOrdersTree("order by fullName"))
         self.ordersTree.column('fullname', width=300)
-        self.ordersTree.heading('items', text='Items')
+        self.ordersTree.heading('items', text='Items', command=lambda:self.populateOrdersTree("order by items desc"))
         self.ordersTree.column('items', width=50)
-        self.ordersTree.heading('datestamp', text='Date')
+        self.ordersTree.heading('datestamp', text='Date', command=lambda:self.populateOrdersTree("order by datestamp desc"))
         ysb = ttk.Scrollbar(self.ordersFrame, command=self.ordersTree.yview)
         self.ordersTree.configure(yscroll=ysb.set)
         ysb.pack(side=tkinter.RIGHT, fill=tkinter.Y)
@@ -219,7 +219,7 @@ class Snail:
         self.contextMenu.post(event.x_root, event.y_root)
 
 
-    def populateOrdersTree(self):
+    def populateOrdersTree(self, sort="order by datestamp desc"):
 
         # empty tree
         for child in self.ordersTree.get_children():
@@ -236,8 +236,7 @@ class Snail:
             on p.merchantID = s.merchantID and p.shortOrderReference = s.shortOrderReference and p.packageNumber = s.packageNumber
         ''' + self.filters + '''
         ) as o 
-        group by o.company,o.merchantID,o.shortOrderReference,o.fullName,o.dateStamp
-        order by o.datestamp desc'''
+        group by o.company,o.merchantID,o.shortOrderReference,o.fullName,o.dateStamp '''+sort
         db.cur.execute(query)
         orderRows = db.cur.fetchall()
 

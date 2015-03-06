@@ -103,5 +103,3 @@ class BinManager:
 
 		self.populatebinTree()
 
-	def sort(self):
-		print("Clickya")
