@@ -203,6 +203,7 @@ def getPackages(path, columns):
         newRow = collections.OrderedDict.fromkeys(columns)
 
         # FIGURE OUT WHAT TO DO WITH THIS ORDER
+        itemCount = sum([int(row[19]) for row in currentOrder])
 
         newRow['merchantID'] = 40
         newRow['shortOrderReference'] = validate.clean(currentOrder[0][1])
@@ -213,11 +214,19 @@ def getPackages(path, columns):
         newRow['returnCity'] = 'Lenexa'
         newRow['returnState'] = 'KS'
         newRow['returnZip'] = '66215'
-        newRow["bulk"] = 0
 
-        newRow["carrier"] = 26
-        newRow['serviceClass'] = 12
-        newRow['weight'] = float(4/16);
+        if itemCount == 1:
+            newRow['bulk'] = 1
+            newRow['carrier'] = 26
+            newRow['serviceClass'] = 12
+            newRow['weight'] = float(4/16)
+            newRow['note'] = '1-'+currentOrder[0][15]
+
+        else:
+            newRow["bulk"] = 0
+            newRow["carrier"] = 26
+            newRow['serviceClass'] = 12
+            newRow['weight'] = float(4/16)
 
         # save the package row in completedLines
         if len(columns) == len(newRow):

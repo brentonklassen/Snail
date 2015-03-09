@@ -217,7 +217,6 @@ def getPackages(path, columns):
         newRow['returnCity'] = 'Lenexa'
         newRow['returnState'] = 'KS'
         newRow['returnZip'] = '66215'
-        newRow["bulk"] = 0
 
         itemCount = sum(int(row[14]) if row[14] else 0 for row in currentOrder)
 
@@ -231,11 +230,13 @@ def getPackages(path, columns):
             #newRow['weight'] = productWeights.get(('36',sku))
             newRow['weight'] = float(15/16);
             newRow['note'] = qty + '-' + sku
+            newRow["bulk"] = 1
 
         else:
             # create a default package
             newRow["carrier"] = 26
             newRow['serviceClass'] = 12
+            newRow["bulk"] = 0
 
         # save the package row in completedLines
         if len(columns) == len(newRow):
