@@ -23,6 +23,7 @@ import Ncrowd
 import NMR
 import Restaurant
 import Sweetjack
+import Dealchicken
 
 
 class Main:
@@ -322,6 +323,20 @@ class Main:
         Sweetjack.archiveFile(file)
         self.importOrders(os.path.basename(file),orders,items,packages)
 
+
+    def importDealchicken(self):
+        
+        file = Dealchicken.getNextFile()
+        if not file:
+            tkinter.messagebox.showinfo(message='There are no new Dealchicken files')
+            return
+        
+        orders = Dealchicken.getOrders(file,self.orderColumns)
+        items = Dealchicken.getItems(file,self.itemColumns)
+        packages = Dealchicken.getPackages(file,self.packageColumns)
+        Dealchicken.outputErrors()
+        Dealchicken.archiveFile(file)
+        self.importOrders(os.path.basename(file),orders,items,packages)
 
 
     def orderExists(self,merchantId,shortOrderRef):
