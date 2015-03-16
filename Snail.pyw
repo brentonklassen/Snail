@@ -35,6 +35,7 @@ class Snail:
         tkinter.Button(self.topButtonsFrame,text='Restaurant',command=self.checkRestaurant).pack(side=tkinter.LEFT)
         tkinter.Button(self.topButtonsFrame,text='Sweetjack',command=self.checkSweetjack).pack(side=tkinter.LEFT)
         tkinter.Button(self.topButtonsFrame,text='Dealchicken',command=self.checkDealchicken).pack(side=tkinter.LEFT)
+        tkinter.Button(self.topButtonsFrame,text='HalfOffDeals',command=self.checkHalfOffDeals).pack(side=tkinter.LEFT)
         self.topButtonsFrame.pack()
 
     def displayBottomButtons(self):
@@ -82,6 +83,10 @@ class Snail:
 
     def checkDealchicken(self):
         self.Main.importDealchicken()
+        self.populateOrdersTree()
+
+    def checkHalfOffDeals(self):
+        self.Main.importHalfOffDeals()
         self.populateOrdersTree()
 
     def displayOrderFilters(self):
