@@ -98,6 +98,7 @@ def getOrders(path, columns):
             newRow['completeOrderReference'] = validate.clean(row[0])
             newRow['shortOrderReference'] = validate.shortenPossibleAmazon(row[0])
             newRow['fullName'] = validate.clean(row[3]) + ' ' + validate.clean(row[4])
+            newRow["originFile"] = os.path.basename(path)
             newRow['phoneNumber'] = validate.phone(row[10])
             newRow['address1'] = validate.clean(row[5])
             newRow['town'] = validate.clean(row[6])

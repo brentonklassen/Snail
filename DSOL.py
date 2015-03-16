@@ -94,6 +94,7 @@ def getOrders(path, columns):
                     newRow["completeOrderReference"] = order_number
                     newRow["shortOrderReference"] = validate.shortenPossibleAmazon(order_number)
 
+                newRow["originFile"] = os.path.basename(path)
                 newRow["companyCode"] = 97
                 newRow["merchantID"] = 10
                 newRow["fullName"] = row[1].strip() + " " + row[2].strip()

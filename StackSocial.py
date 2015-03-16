@@ -87,6 +87,7 @@ def getOrders(path, columns):
             newRow['companyCode'] = 113
             newRow["completeOrderReference"] = validate.clean(row[0])
             newRow["shortOrderReference"] = validate.clean(row[0])
+            newRow["originFile"] = os.path.basename(path)
             newRow["merchantID"] = 38
             newRow["fullName"] = validate.clean(row[11] + " " + row[12])
             newRow["phoneNumber"] = "".join([char for char in row[18] if str.isdigit(char)])

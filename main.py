@@ -24,6 +24,7 @@ import NMR
 import Restaurant
 import Sweetjack
 import Dealchicken
+import HalfOffDeals
 
 
 class Main:
@@ -45,7 +46,8 @@ class Main:
             "region",
             "postCode",
             "country",
-            "packingSlip"]
+            "packingSlip",
+            "originFile"]
 
         self.itemColumns = ["merchantID",
             "shortOrderReference",
@@ -338,6 +340,20 @@ class Main:
         Dealchicken.archiveFile(file)
         self.importOrders(os.path.basename(file),orders,items,packages)
 
+    def importHalfOffDeals(self):
+        
+        file = HalfOffDeals.getNextFile()
+        if not file:
+            tkinter.messagebox.showinfo(message='There are no new HalfOffDeals files')
+            return
+        
+        orders = HalfOffDeals.getOrders(file,self.orderColumns)
+        items = HalfOffDeals.getItems(file,self.itemColumns)
+        packages = HalfOffDeals.getPackages(file,self.packageColumns)
+        HalfOffDeals.outputErrors()
+        HalfOffDeals.archiveFile(file)
+        self.importOrders(os.path.basename(file),orders,items,packages)
+
 
     def orderExists(self,merchantId,shortOrderRef):
         db.cur.execute("select * from [order] where merchantid=? and shortOrderReference=?",[merchantId,shortOrderRef])
@@ -440,7 +456,7 @@ class Main:
             insertQuery = '''insert into [Order]
             (company,merchantID,merchantDivisionCode,completeOrderReference,shortOrderReference,
             fullName,phoneNumber,emailAddress,address1,
-            address2,address3,town,region,postCode,country,packingSlip,dateStamp)
+            address2,address3,town,region,postCode,country,packingSlip,originFile,dateStamp)
             values (?, /* company */
             ?, /* merchantID */
             ?, /* merchantDivisionCode */
@@ -457,6 +473,7 @@ class Main:
             ?, /* postCode */
             ?, /* country */
             ?, /* packingSlip */
+            left(?,50), /* originFile */
             getdate()) /* dateStamp */'''
             db.cur.execute(insertQuery,order)
 

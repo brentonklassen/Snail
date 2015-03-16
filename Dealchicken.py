@@ -91,6 +91,7 @@ def getOrders(path, columns):
             newRow['merchantID'] = 45
             newRow['completeOrderReference'] = validate.clean(row[0])
             newRow['shortOrderReference'] = validate.clean(row[0])
+            newRow["originFile"] = os.path.basename(path)
             newRow['fullName'] = validate.clean(row[5]) + ' ' + validate.clean(row[6])
             newRow['phoneNumber'] = validate.phone(row[13])
             newRow['address1'] = validate.clean(row[7])
