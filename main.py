@@ -25,6 +25,7 @@ import Restaurant
 import Sweetjack
 import Dealchicken
 import HalfOffDeals
+import Marvellous
 
 
 class Main:
@@ -352,6 +353,21 @@ class Main:
         packages = HalfOffDeals.getPackages(file,self.packageColumns)
         HalfOffDeals.outputErrors()
         HalfOffDeals.archiveFile(file)
+        self.importOrders(os.path.basename(file),orders,items,packages)
+
+
+    def importMarvellous(self):
+        
+        file = Marvellous.getNextFile()
+        if not file:
+            tkinter.messagebox.showinfo(message='There are no new Marvellous files')
+            return
+        
+        orders = Marvellous.getOrders(file,self.orderColumns)
+        items = Marvellous.getItems(file,self.itemColumns)
+        packages = Marvellous.getPackages(file,self.packageColumns)
+        Marvellous.outputErrors()
+        #Marvellous.archiveFile(file)
         self.importOrders(os.path.basename(file),orders,items,packages)
 
 

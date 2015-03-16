@@ -1,6 +1,6 @@
 # Brenton Klassen
 # 09/09/2014
-# Lightake/Marvellous parser
+# Marvellous parser
 
 import os
 import csv
@@ -10,11 +10,11 @@ import validate
 import settings
 import productWeights
 import tkinter.messagebox
+import db
 
 
 # global list var for errors
 errors = list()
-
 
 def outputErrors():
 
@@ -27,8 +27,8 @@ def outputErrors():
         email('\n'.join(errors))
 
         # write the errors to a file
-        if settings.isset('lightakeerrordir'):
-            with open(os.path.join(settings.get('lightakeerrordir'),'errorlog.txt'), 'a') as f:
+        if settings.isset('marvellouserrordir'):
+            with open(os.path.join(settings.get('marvellouserrordir'),'errorlog.txt'), 'a') as f:
                 for error in errors:
                     f.write(error + '\n')
 
@@ -36,10 +36,17 @@ def outputErrors():
         del errors[:]
 
 
+def getMarketParam(market,key):
+
+    query = "select "+key+" from Snail.dbo.Market where companyCode=112 and market=?"
+    db.cur.execute(query,[market])
+    return db.cur.fetchone()[0]
+
+
 def email(body):
-    if settings.isset('maillightaketo'):
-        to = settings.get('maillightaketo')
-        subject = 'SkuTouch could not validate orders from Lightake'
+    if settings.isset('mailmarvellousto'):
+        to = settings.get('mailmarvellousto')
+        subject = 'SkuTouch could not validate orders from Marvellous'
         print('Sending email to ' + to)
         mail.sendmail(to, subject, body)
 
@@ -47,13 +54,12 @@ def email(body):
 def getNextFile():
 
     # source dir
-    sourceDir = settings.get('lightakedrop')
-    MarvellousDrop = os.path.join(sourceDir,'Marvellous')
+    sourceDir = settings.get('marvellousdrop')
 
-    for file in os.listdir(MarvellousDrop):
+    for file in os.listdir(sourceDir):
         filename, ext = os.path.splitext(file)
         if ext == '.csv':
-            return os.path.join(MarvellousDrop,file)
+            return os.path.join(sourceDir,file)
 
     return ''
 
@@ -61,7 +67,7 @@ def getNextFile():
 def archiveFile(path):
 
     # archive dir
-    archiveDir = settings.get('lightakearchive')
+    archiveDir = settings.get('marvellousarchive')
 
     # move file to archive folder
     if not os.path.isfile(os.path.join(archiveDir, os.path.basename(path))):
@@ -87,53 +93,56 @@ def getOrders(path, columns):
             # create a new ordered dictionary to hold the row info
             newRow = collections.OrderedDict.fromkeys(columns)
 
-            newRow['companyCode'] = 112 # marvellous
-            newRow['merchantID'] = 36
+            market = row[1]
 
-            if validate.clean(row[1]).lower() == "ellorefemme.com":
-                newRow['merchantDivisionCode'] = 1
-            elif validate.clean(row[1]).lower() == "widgetlove.com":
-                newRow['merchantDivisionCode'] = 2
+            newRow['companyCode'] = 112 # marvellous
+            newRow['merchantID'] = getMarketParam(market,'merchantID')
+            if not newRow['merchantID']:
+                msg = row[0] + " from file '" + os.path.basename(path) + "' was skipped.\n"
+                msg += 'Could not retrieve merchantID for '+market
+                errors.append(msg)
+                continue                
 
             newRow['completeOrderReference'] = validate.clean(row[0])
             newRow['shortOrderReference'] = validate.shortenPossibleAmazon(row[0])
-            newRow['fullName'] = validate.clean(row[3]) + ' ' + validate.clean(row[4])
+            newRow['fullName'] = validate.clean(row[3])
             newRow["originFile"] = os.path.basename(path)
-            newRow['phoneNumber'] = validate.phone(row[10])
-            newRow['address1'] = validate.clean(row[5])
+            newRow['phoneNumber'] = validate.phone(row[9])
+            newRow['address1'] = validate.clean(row[4])
+            newRow['address2'] = validate.clean(row[5])
             newRow['town'] = validate.clean(row[6])
             newRow['packingSlip'] = 1
             
-            newRow['country'] = validate.country(validate.clean(row[9]))
+            newRow['country'] = validate.country(validate.clean(row[14]))
             if not newRow['country']:
                 msg = newRow['completeOrderReference'] + " from file '" + os.path.basename(path) + "' was skipped.\n"
-                msg += 'Could not validate country: ' + row[9]
+                msg += 'Could not validate country: ' + row[14]
                 errors.append(msg)
                 continue
 
-            newRow['region'] = validate.region(validate.clean(row[7]), newRow['country'])
+            newRow['region'] = validate.region(validate.clean(row[8]), newRow['country'])
             if not newRow['region']:
                 msg = newRow['completeOrderReference'] + " from file '" + os.path.basename(path) + "' was skipped.\n"
-                msg += 'Could not validate region: ' + row[7]
+                msg += 'Could not validate region: ' + row[8]
                 errors.append(msg)
                 continue
 
-            newRow['postCode'] = validate.postCode(validate.clean(row[8]), newRow['country'])
+            newRow['postCode'] = validate.postCode(validate.clean(row[7]), newRow['country'])
             if not newRow['postCode']:
                 msg = newRow['completeOrderReference'] + " from file '" + os.path.basename(path) + "' was skipped.\n"
-                msg += 'Could not validate post code: ' + row[8]
+                msg += 'Could not validate post code: ' + row[7]
                 errors.append(msg)
                 continue
 
             if len(columns) == len(newRow):
                 parsedRows.append(list(newRow.values()))
             else:
-                print("Oops, LTM order parser added a column")
+                print("Oops, Marvellous order parser added a column")
                 quit()
 
             prevRow = row
 
-    print("\nImported " + str(len(parsedRows)) + " orders from Lightake file '" + os.path.basename(path) + "'")
+    print("\nImported " + str(len(parsedRows)) + " orders from Marvellous file '" + os.path.basename(path) + "'")
     return parsedRows
 
 
@@ -157,25 +166,33 @@ def getItems(path, columns):
             else:
                 lineNumber = 1
 
-            newRow['merchantID'] = 36
+            market = row[1]
+
+            newRow['merchantID'] = getMarketParam(market,'merchantID')
+            if not newRow['merchantID']:
+                msg = row[0] + " from file '" + os.path.basename(path) + "' was skipped.\n"
+                msg += 'Could not retrieve merchantID for '+market
+                errors.append(msg)
+                continue                
+
             newRow['shortOrderReference'] = validate.shortenPossibleAmazon(row[0])
             newRow['lineNumber'] = lineNumber
-            newRow['itemTitle'] = validate.clean(row[11])
-            newRow['itemSKU'] = validate.clean(row[13].split('-')[-1]) # grab after the last -
+            newRow['itemTitle'] = validate.clean(row[2])
+            newRow['itemSKU'] = validate.clean(row[10].split('-')[-1]) # grab after the last -
             newRow['itemAttribKey'] = 'Full SKU'
-            newRow['itemAttribVal'] = validate.clean(row[13]) # save entire sku
-            newRow['itemQuantity'] = validate.clean(row[14])
+            newRow['itemAttribVal'] = validate.clean(row[10]) # save entire sku
+            newRow['itemQuantity'] = validate.clean(row[11])
             
 
             if len(columns) == len(newRow):
                 parsedRows.append(list(newRow.values()))
             else:
-                print("Oops, LTM item parser added a column")
+                print("Oops, Marvellous item parser added a column")
                 quit()
 
             prevRow = row
 
-    print("Imported " + str(len(parsedRows)) + " item rows from Lightake file '" + os.path.basename(path) + "'")
+    print("Imported " + str(len(parsedRows)) + " item rows from Marvellous file '" + os.path.basename(path) + "'")
     return parsedRows
 
 
@@ -210,25 +227,33 @@ def getPackages(path, columns):
 
         # FIGURE OUT WHAT TO DO WITH THIS ORDER
 
-        newRow['merchantID'] = 36
+        market = currentOrder[0][1]
+
+        newRow['merchantID'] = getMarketParam(market,'merchantID')
+        if not newRow['merchantID']:
+            msg = row[0] + " from file '" + os.path.basename(path) + "' was skipped.\n"
+            msg += 'Could not retrieve merchantID for '+market
+            errors.append(msg)
+            continue                
+
         newRow['shortOrderReference'] = validate.shortenPossibleAmazon(currentOrder[0][0])
-        newRow['returnCompany'] = validate.clean(currentOrder[0][1])
+        newRow['returnCompany'] = getMarketParam(market,'returnCompany')     
+
         newRow['returnAdd1'] = '8900 Rosehill Rd'
         newRow['returnAdd2'] = 'Unit B Dock'
         newRow['returnCity'] = 'Lenexa'
         newRow['returnState'] = 'KS'
         newRow['returnZip'] = '66215'
 
-        itemCount = sum(int(row[14]) if row[14] else 0 for row in currentOrder)
+        itemCount = sum(int(row[11]) if row[11] else 0 for row in currentOrder)
 
         if itemCount == 1:
             line = currentOrder[0]
-            sku = validate.clean(line[13])
-            qty = line[14]
+            sku = validate.clean(line[10].split('-')[-1])
+            qty = line[11]
 
             newRow["carrier"] = 26
             newRow['serviceClass'] = 12
-            #newRow['weight'] = productWeights.get(('36',sku))
             newRow['weight'] = float(15/16);
             newRow['note'] = qty + '-' + sku
             newRow["bulk"] = 1
@@ -243,7 +268,7 @@ def getPackages(path, columns):
         if len(columns) == len(newRow):
             parsedRows.append(list(newRow.values()))
         else:
-            print("Oops, Lightake shipping allocator added a column")
+            print("Oops, Marvellous shipping allocator added a column")
             quit()
 
         orderStart = orderEnd # move on to the next order
