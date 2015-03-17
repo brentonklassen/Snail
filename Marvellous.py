@@ -98,7 +98,7 @@ class Marvellous:
                 # create a new ordered dictionary to hold the row info
                 newRow = collections.OrderedDict.fromkeys(columns)
 
-                market = row[1]
+                market = row[1][:2]
 
                 newRow['companyCode'] = 112 # marvellous
                 newRow['merchantID'] = self.getMarketParam(market,'merchantID')
@@ -147,6 +147,7 @@ class Marvellous:
 
 
     def getItems(self, columns):
+
         with open(self.file) as file:
             reader = csv.reader(file)
             parsedRows = list()
@@ -166,7 +167,7 @@ class Marvellous:
                 else:
                     lineNumber = 1
 
-                market = row[1]
+                market = row[1][:2]
 
                 newRow['merchantID'] = self.getMarketParam(market,'merchantID')
                 if not newRow['merchantID']: continue
@@ -221,7 +222,7 @@ class Marvellous:
 
             # FIGURE OUT WHAT TO DO WITH THIS ORDER
 
-            market = currentOrder[0][1]
+            market = currentOrder[0][1][:2]
 
             newRow['merchantID'] = self.getMarketParam(market,'merchantID')
             if not newRow['merchantID']: 
