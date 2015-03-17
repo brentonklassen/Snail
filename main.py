@@ -358,17 +358,17 @@ class Main:
 
     def importMarvellous(self):
         
-        file = Marvellous.getNextFile()
-        if not file:
+        parser = Marvellous.Marvellous()
+        if not parser.getNextFile():
             tkinter.messagebox.showinfo(message='There are no new Marvellous files')
             return
         
-        orders = Marvellous.getOrders(file,self.orderColumns)
-        items = Marvellous.getItems(file,self.itemColumns)
-        packages = Marvellous.getPackages(file,self.packageColumns)
-        Marvellous.outputErrors()
-        #Marvellous.archiveFile(file)
-        self.importOrders(os.path.basename(file),orders,items,packages)
+        orders = parser.getOrders(self.orderColumns)
+        items = parser.getItems(self.itemColumns)
+        packages = parser.getPackages(self.packageColumns)
+        parser.outputErrors()
+        parser.archiveFile()
+        self.importOrders(os.path.basename(parser.file),orders,items,packages)
 
 
     def orderExists(self,merchantId,shortOrderRef):

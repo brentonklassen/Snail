@@ -39,7 +39,9 @@ def clean(s):
 
 def shortenPossibleAmazon(o):
 
-    return clean(o.replace('-','')[-10:]) if len(o.split('-'))>2 else clean(o)
+    if len(o.split('-')) > 2: return clean(o.replace('-','')[-10:])
+    elif len(clean(o)) > 15 and '-' in o: return clean(o.split('-')[-1])
+    else: return clean(o)
 
 
 def country(c):
