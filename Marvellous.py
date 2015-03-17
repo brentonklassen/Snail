@@ -36,14 +36,18 @@ class Marvellous:
                         f.write(error + '\n')
 
 
-    def getMarketParam(self, market, key):
+    def getMarketParam(self, market, key, required=True, job="Orders"):
 
         query = "select "+key+" from Snail.dbo.Market where companyCode=112 and market=?"
         db.cur.execute(query,[market])
         data = db.cur.fetchone()
+
         if not data or not data[0]:
-            self.errors.add('Could not retrieve '+key+' for '+market)
+            
+            if required:
+                self.errors.add(job+' from '+market+' were skipped because '+key+' could not be retrieved.')
             return None
+
         return data[0]
 
 
@@ -224,22 +228,41 @@ class Marvellous:
 
             market = currentOrder[0][1][:2]
 
-            newRow['merchantID'] = self.getMarketParam(market,'merchantID')
+            newRow['merchantID'] = self.getMarketParam(market,'merchantID', job="Packages")
             if not newRow['merchantID']: 
                 orderStart = orderEnd
                 continue
 
             newRow['shortOrderReference'] = validate.shortenPossibleAmazon(currentOrder[0][0])
-            newRow['returnCompany'] = self.getMarketParam(market,'returnCompany')
+
+            newRow['returnCompany'] = self.getMarketParam(market,'returnCompany', job="Packages")
             if not newRow['returnCompany']: 
                 orderStart = orderEnd
                 continue
 
-            newRow['returnAdd1'] = '8900 Rosehill Rd'
-            newRow['returnAdd2'] = 'Unit B Dock'
-            newRow['returnCity'] = 'Lenexa'
-            newRow['returnState'] = 'KS'
-            newRow['returnZip'] = '66215'
+            newRow['returnCompany2'] = self.getMarketParam(market, 'returnCompany2', required=False)
+
+            newRow['returnAdd1'] = self.getMarketParam(market, 'returnAdd1', job="Packages")
+            if not newRow['returnAdd1']:
+                orderStart = orderEnd
+                continue
+
+            newRow['returnAdd2'] = self.getMarketParam(market, 'returnAdd2', required=False)
+
+            newRow['returnCity'] = self.getMarketParam(market, 'returnCity', job="Packages")
+            if not newRow['returnCity']:
+                orderStart = orderEnd
+                continue
+
+            newRow['returnState'] = self.getMarketParam(market, 'returnState', job="Packages")
+            if not newRow['returnState']:
+                orderStart = orderEnd
+                continue
+
+            newRow['returnZip'] = self.getMarketParam(market, 'returnZip', job="Packages")
+            if not newRow['returnZip']:
+                orderStart = orderEnd
+                continue
 
             itemCount = sum(int(row[11]) if row[11] else 0 for row in currentOrder)
 
