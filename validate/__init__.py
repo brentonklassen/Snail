@@ -104,6 +104,8 @@ def postCode(p, country='US'):
         
         if len(p)<9: p = p.strip('-') # remove dashes from postcodes that are not 00000-0000
 
+        if len(p)<5: p = ''.join('0' for c in range(5-len(p)))+p # pad with leading zeros
+
         match = re.match('^(\d{5})(?:[-\s]*\d{4})?$', p)
         if match:
             return match.group(1)
