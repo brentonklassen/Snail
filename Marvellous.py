@@ -121,21 +121,21 @@ class Marvellous:
                 if not newRow['country']:
                     msg = newRow['completeOrderReference'] + " from file '" + os.path.basename(self.file) + "' was skipped.\n"
                     msg += 'Could not validate country: ' + row[14]
-                    errors.add(msg)
+                    self.errors.add(msg)
                     continue
 
                 newRow['region'] = validate.region(validate.clean(row[8]), newRow['country'])
                 if not newRow['region']:
                     msg = newRow['completeOrderReference'] + " from file '" + os.path.basename(self.file) + "' was skipped.\n"
                     msg += 'Could not validate region: ' + row[8]
-                    errors.add(msg)
+                    self.errors.add(msg)
                     continue
 
                 newRow['postCode'] = validate.postCode(validate.clean(row[7]), newRow['country'])
                 if not newRow['postCode']:
                     msg = newRow['completeOrderReference'] + " from file '" + os.path.basename(self.file) + "' was skipped.\n"
                     msg += 'Could not validate post code: ' + row[7]
-                    errors.add(msg)
+                    self.errors.add(msg)
                     continue
 
                 if len(columns) == len(newRow):
