@@ -120,8 +120,9 @@ class BinManager:
 		for entry in self.binTree.selection():
 			merchantId = self.binTree.item(entry,'values')[0]
 			itemsku = self.binTree.item(entry,'values')[1]
+			location = self.binTree.item(entry, 'values')[2]
 
-			db.cur.execute("delete from Snail.dbo.bin where merchantID=? and itemsku=?",[merchantId,itemsku])
+			db.cur.execute("delete from Snail.dbo.bin where merchantID=? and itemsku=? and location=?",[merchantId,itemsku,location])
 			db.cur.commit()
 
 		self.populatebinTree()
