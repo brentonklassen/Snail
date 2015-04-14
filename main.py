@@ -48,7 +48,8 @@ class Main:
             "postCode",
             "country",
             "packingSlip",
-            "originFile"]
+            "originFile",
+            "marketId"]
 
         self.itemColumns = ["merchantID",
             "shortOrderReference",
@@ -472,7 +473,7 @@ class Main:
             insertQuery = '''insert into [Order]
             (company,merchantID,merchantDivisionCode,completeOrderReference,shortOrderReference,
             fullName,phoneNumber,emailAddress,address1,
-            address2,address3,town,region,postCode,country,packingSlip,originFile,dateStamp)
+            address2,address3,town,region,postCode,country,packingSlip,originFile,marketId,dateStamp)
             values (?, /* company */
             ?, /* merchantID */
             ?, /* merchantDivisionCode */
@@ -490,6 +491,7 @@ class Main:
             ?, /* country */
             ?, /* packingSlip */
             left(?,50), /* originFile */
+            left(?,50), /* marketId */
             getdate()) /* dateStamp */'''
             db.cur.execute(insertQuery,order)
 

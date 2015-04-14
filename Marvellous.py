@@ -103,7 +103,7 @@ class Marvellous:
                 newRow = collections.OrderedDict.fromkeys(columns)
 
                 market = row[1][:2]
-
+                newRow['marketId'] = row[1][3:] # save market id for confirmations
                 newRow['companyCode'] = 112 # marvellous
                 newRow['merchantID'] = self.getMarketParam(market,'merchantID')
                 if not newRow['merchantID']: continue
