@@ -266,7 +266,8 @@ def getPackages(path, columns):
 
         newRow["merchantID"] = 10
         newRow["returnCompany"] = "DanceShoesOnline.com"
-        newRow["returnAdd1"] = "8527 BLUEJACKET STREET"
+        newRow["returnAdd1"] = "8900 Rosehill Rd"
+        newRow["returnAdd2"] = "Unit B."
         newRow["returnCity"] = "Lenexa"
         newRow["returnState"] = "KS"
         newRow["returnZip"] = "66214-1656"
