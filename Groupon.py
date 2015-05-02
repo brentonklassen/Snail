@@ -200,6 +200,7 @@ def getPackages(path, columns):
             newRow["carrier"] = 26
             newRow['serviceClass'] = 12
             newRow['weight'] = validate.clean(row[34])
+            newRow['note'] = validate.clean(row[4]) + '-' + validate.clean(row[3]) # qty-sku
 
             # save the package row in completedLines
             if len(columns) == len(newRow):
