@@ -26,6 +26,7 @@ import Sweetjack
 import Dealchicken
 import HalfOffDeals
 import Marvellous
+import Standard
 
 
 class Main:
@@ -362,6 +363,21 @@ class Main:
         parser = Marvellous.Marvellous()
         if not parser.getNextFile():
             tkinter.messagebox.showinfo(message='There are no new Marvellous files')
+            return
+        
+        orders = parser.getOrders(self.orderColumns)
+        items = parser.getItems(self.itemColumns)
+        packages = parser.getPackages(self.packageColumns)
+        parser.outputErrors()
+        parser.archiveFile()
+        self.importOrders(os.path.basename(parser.file),orders,items,packages)
+
+
+    def importStandard(self):
+        
+        parser = Standard.Standard()
+        if not parser.getNextFile():
+            tkinter.messagebox.showinfo(message='There are no new standard files')
             return
         
         orders = parser.getOrders(self.orderColumns)
